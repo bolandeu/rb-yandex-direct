@@ -1,1 +1,0 @@
-Стандарт релизов tools: версия из git-тега (`rb-yandex-direct --version`), CHANGELOG из фрагментов `changelog.d/`, гейт `scripts/release.py --check`, справка команд с обязательными `Example:` и снапшотами.
