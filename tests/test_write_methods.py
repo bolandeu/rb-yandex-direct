@@ -1,6 +1,7 @@
 """Тесты P0-write методов."""
 
 import json
+
 import pytest
 import respx
 from click.testing import CliRunner
@@ -134,6 +135,7 @@ def test_cli_bids_set_converts_rubles_to_micros(monkeypatch) -> None:
 @respx.mock
 async def test_mcp_dry_run_skips_api(monkeypatch) -> None:
     from rb_yandex_direct import mcp_server
+
     monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
     result = await mcp_server.suspend_campaigns(campaign_ids=[1, 2])
     assert result["requires_confirm"] is True
@@ -145,6 +147,7 @@ async def test_mcp_dry_run_skips_api(monkeypatch) -> None:
 @respx.mock
 async def test_mcp_confirm_calls_api(monkeypatch) -> None:
     from rb_yandex_direct import mcp_server
+
     monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
     _route("campaigns", {"SuspendResults": [{"Id": 1}]})
     result = await mcp_server.suspend_campaigns(campaign_ids=[1], confirm=True)
@@ -160,9 +163,11 @@ async def test_mcp_confirm_calls_api(monkeypatch) -> None:
 async def test_add_keywords_body() -> None:
     route = _route("keywords", {"AddResults": [{"Id": 111}]})
     c = DirectClient(token="t")
-    await c.add_keywords([
-        {"AdGroupId": 5, "Keyword": "купить пылесос", "Bid": 30_000_000},
-    ])
+    await c.add_keywords(
+        [
+            {"AdGroupId": 5, "Keyword": "купить пылесос", "Bid": 30_000_000},
+        ]
+    )
     body = json.loads(route.calls.last.request.content)
     assert body["method"] == "add"
     assert body["params"]["Keywords"][0]["AdGroupId"] == 5
@@ -222,10 +227,14 @@ async def test_set_campaign_daily_budget_converts_rubles() -> None:
 async def test_add_bid_modifiers_body() -> None:
     route = _route("bidmodifiers", {"AddResults": [{"Id": 999}]})
     c = DirectClient(token="t")
-    await c.add_bid_modifiers([{
-        "CampaignId": 1,
-        "MobileAdjustment": {"BidModifier": 80},
-    }])
+    await c.add_bid_modifiers(
+        [
+            {
+                "CampaignId": 1,
+                "MobileAdjustment": {"BidModifier": 80},
+            }
+        ]
+    )
     body = json.loads(route.calls.last.request.content)
     assert body["method"] == "add"
     assert body["params"]["BidModifiers"][0]["MobileAdjustment"]["BidModifier"] == 80
@@ -236,9 +245,11 @@ async def test_add_bid_modifiers_body() -> None:
 async def test_toggle_bid_modifiers_body() -> None:
     route = _route("bidmodifiers", {"ToggleResults": [{"CampaignId": 1}]})
     c = DirectClient(token="t")
-    await c.toggle_bid_modifiers([
-        {"CampaignId": 1, "Type": "DEMOGRAPHICS_ADJUSTMENT", "Enabled": "NO"},
-    ])
+    await c.toggle_bid_modifiers(
+        [
+            {"CampaignId": 1, "Type": "DEMOGRAPHICS_ADJUSTMENT", "Enabled": "NO"},
+        ]
+    )
     body = json.loads(route.calls.last.request.content)
     assert body["method"] == "toggle"
     item = body["params"]["BidModifierToggleItems"][0]
@@ -273,8 +284,7 @@ def test_cli_keywords_add_converts_bid(monkeypatch) -> None:
     runner = CliRunner()
     result = runner.invoke(
         cli,
-        ["keywords", "add", "--adgroup", "5", "--search-bid", "30",
-         "купить", "пылесос", "-y"],
+        ["keywords", "add", "--adgroup", "5", "--search-bid", "30", "купить", "пылесос", "-y"],
     )
     assert result.exit_code == 0, result.output
     body = json.loads(route.calls.last.request.content)
@@ -303,8 +313,7 @@ def test_cli_modifiers_add_regional(monkeypatch) -> None:
     runner = CliRunner()
     result = runner.invoke(
         cli,
-        ["modifiers", "add", "--campaign", "10", "--type", "REGIONAL",
-         "--region", "213", "--value", "150", "-y"],
+        ["modifiers", "add", "--campaign", "10", "--type", "REGIONAL", "--region", "213", "--value", "150", "-y"],
     )
     assert result.exit_code == 0, result.output
     body = json.loads(route.calls.last.request.content)
@@ -320,8 +329,7 @@ def test_cli_modifiers_toggle(monkeypatch) -> None:
     runner = CliRunner()
     result = runner.invoke(
         cli,
-        ["modifiers", "toggle", "--campaign", "10",
-         "--type", "DEMOGRAPHICS_ADJUSTMENT", "--enabled", "NO", "-y"],
+        ["modifiers", "toggle", "--campaign", "10", "--type", "DEMOGRAPHICS_ADJUSTMENT", "--enabled", "NO", "-y"],
     )
     assert result.exit_code == 0, result.output
     body = json.loads(route.calls.last.request.content)
@@ -334,6 +342,7 @@ def test_cli_modifiers_toggle(monkeypatch) -> None:
 @pytest.mark.asyncio
 async def test_mcp_add_keywords_dry_run(monkeypatch) -> None:
     from rb_yandex_direct import mcp_server
+
     monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
     result = await mcp_server.add_keywords(
         keywords=[{"AdGroupId": 1, "Keyword": "тест"}],
@@ -346,6 +355,7 @@ async def test_mcp_add_keywords_dry_run(monkeypatch) -> None:
 @respx.mock
 async def test_mcp_set_campaign_daily_budget_confirm(monkeypatch) -> None:
     from rb_yandex_direct import mcp_server
+
     monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
     _route("campaigns", {"UpdateResults": [{"Id": 77}]})
     result = await mcp_server.set_campaign_daily_budget(77, 100.0, confirm=True)
@@ -360,14 +370,20 @@ async def test_mcp_set_campaign_daily_budget_confirm(monkeypatch) -> None:
 async def test_add_retargeting_lists_body() -> None:
     route = _route("retargetinglists", {"AddResults": [{"Id": 999}]})
     c = DirectClient(token="t")
-    await c.add_retargeting_lists([{
-        "Name": "Корзина без покупки",
-        "Type": "RETARGETING",
-        "Rules": [{
-            "Operator": "ALL",
-            "Arguments": [{"ExternalId": 12345, "MembershipLifeSpan": 30}],
-        }],
-    }])
+    await c.add_retargeting_lists(
+        [
+            {
+                "Name": "Корзина без покупки",
+                "Type": "RETARGETING",
+                "Rules": [
+                    {
+                        "Operator": "ALL",
+                        "Arguments": [{"ExternalId": 12345, "MembershipLifeSpan": 30}],
+                    }
+                ],
+            }
+        ]
+    )
     body = json.loads(route.calls.last.request.content)
     assert body["method"] == "add"
     rl = body["params"]["RetargetingLists"][0]
@@ -405,10 +421,16 @@ async def test_update_and_delete_retargeting_lists() -> None:
 async def test_add_audience_targets_body() -> None:
     route = _route("audiencetargets", {"AddResults": [{"Id": 555}]})
     c = DirectClient(token="t")
-    await c.add_audience_targets([{
-        "AdGroupId": 10, "RetargetingListId": 20,
-        "ContextBid": 50_000_000, "StrategyPriority": "HIGH",
-    }])
+    await c.add_audience_targets(
+        [
+            {
+                "AdGroupId": 10,
+                "RetargetingListId": 20,
+                "ContextBid": 50_000_000,
+                "StrategyPriority": "HIGH",
+            }
+        ]
+    )
     body = json.loads(route.calls.last.request.content)
     assert body["method"] == "add"
     at = body["params"]["AudienceTargets"][0]
@@ -441,9 +463,21 @@ def test_cli_retargeting_add(monkeypatch) -> None:
     runner = CliRunner()
     result = runner.invoke(
         cli,
-        ["retargeting", "add", "--name", "Корзина",
-         "--goal", "111", "--goal", "222", "--days", "14",
-         "--operator", "ANY", "-y"],
+        [
+            "retargeting",
+            "add",
+            "--name",
+            "Корзина",
+            "--goal",
+            "111",
+            "--goal",
+            "222",
+            "--days",
+            "14",
+            "--operator",
+            "ANY",
+            "-y",
+        ],
     )
     assert result.exit_code == 0, result.output
     body = json.loads(route.calls.last.request.content)
@@ -462,8 +496,7 @@ def test_cli_audiences_add(monkeypatch) -> None:
     runner = CliRunner()
     result = runner.invoke(
         cli,
-        ["audiences", "add", "--adgroup", "10",
-         "--retargeting", "99", "--context-bid", "50", "-y"],
+        ["audiences", "add", "--adgroup", "10", "--retargeting", "99", "--context-bid", "50", "-y"],
     )
     assert result.exit_code == 0, result.output
     body = json.loads(route.calls.last.request.content)
@@ -482,8 +515,7 @@ def test_cli_audiences_add_requires_exactly_one_target(monkeypatch) -> None:
     # оба сразу — тоже ошибка
     result = runner.invoke(
         cli,
-        ["audiences", "add", "--adgroup", "10",
-         "--retargeting", "1", "--interest", "2", "-y"],
+        ["audiences", "add", "--adgroup", "10", "--retargeting", "1", "--interest", "2", "-y"],
     )
     assert result.exit_code != 0
 
@@ -494,6 +526,7 @@ def test_cli_audiences_add_requires_exactly_one_target(monkeypatch) -> None:
 @pytest.mark.asyncio
 async def test_mcp_add_retargeting_lists_dry_run(monkeypatch) -> None:
     from rb_yandex_direct import mcp_server
+
     monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
     result = await mcp_server.add_retargeting_lists(
         lists=[{"Name": "тест", "Rules": []}],
@@ -506,6 +539,7 @@ async def test_mcp_add_retargeting_lists_dry_run(monkeypatch) -> None:
 @respx.mock
 async def test_mcp_delete_audience_targets_confirm(monkeypatch) -> None:
     from rb_yandex_direct import mcp_server
+
     monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
     _route("audiencetargets", {"DeleteResults": [{"Id": 1}]})
     result = await mcp_server.delete_audience_targets(target_ids=[1], confirm=True)
@@ -520,9 +554,11 @@ async def test_mcp_delete_audience_targets_confirm(monkeypatch) -> None:
 async def test_add_negative_keyword_shared_sets_body() -> None:
     route = _route("negativekeywordsharedsets", {"AddResults": [{"Id": 1}]})
     c = DirectClient(token="t")
-    await c.add_negative_keyword_shared_sets([
-        {"Name": "Общие минусы", "NegativeKeywords": ["стоп", "минус"]},
-    ])
+    await c.add_negative_keyword_shared_sets(
+        [
+            {"Name": "Общие минусы", "NegativeKeywords": ["стоп", "минус"]},
+        ]
+    )
     body = json.loads(route.calls.last.request.content)
     # add принимает плоский массив строк, не {Items: [...]}
     assert body["params"]["NegativeKeywordSharedSets"][0]["NegativeKeywords"] == ["стоп", "минус"]
@@ -532,9 +568,7 @@ async def test_add_negative_keyword_shared_sets_body() -> None:
 async def test_negative_keyword_shared_sets_rejects_over_30() -> None:
     c = DirectClient(token="t")
     with pytest.raises(ValueError):
-        await c.add_negative_keyword_shared_sets(
-            [{"Name": f"#{i}", "NegativeKeywords": ["x"]} for i in range(31)]
-        )
+        await c.add_negative_keyword_shared_sets([{"Name": f"#{i}", "NegativeKeywords": ["x"]} for i in range(31)])
 
 
 @pytest.mark.asyncio
@@ -542,9 +576,15 @@ async def test_negative_keyword_shared_sets_rejects_over_30() -> None:
 async def test_add_sitelinks_wraps_in_set() -> None:
     route = _route("sitelinks", {"AddResults": [{"Id": 1}]})
     c = DirectClient(token="t")
-    await c.add_sitelinks([{"Sitelinks": [
-        {"Title": "Главная", "Href": "https://example.com/"},
-    ]}])
+    await c.add_sitelinks(
+        [
+            {
+                "Sitelinks": [
+                    {"Title": "Главная", "Href": "https://example.com/"},
+                ]
+            }
+        ]
+    )
     body = json.loads(route.calls.last.request.content)
     assert body["params"]["SitelinksSets"][0]["Sitelinks"][0]["Title"] == "Главная"
 
@@ -588,8 +628,11 @@ async def test_add_text_ad_shortcut() -> None:
     route = _route("ads", {"AddResults": [{"Id": 1}]})
     c = DirectClient(token="t")
     await c.add_text_ad(
-        adgroup_id=10, title="Куртка зимой", text="Скидка 50%",
-        href="https://shop.example/", title2="в каталоге",
+        adgroup_id=10,
+        title="Куртка зимой",
+        text="Скидка 50%",
+        href="https://shop.example/",
+        title2="в каталоге",
     )
     body = json.loads(route.calls.last.request.content)
     ad = body["params"]["Ads"][0]
@@ -609,11 +652,15 @@ async def test_add_ads_rejects_missing_type_block() -> None:
 async def test_add_ads_rejects_two_type_blocks() -> None:
     c = DirectClient(token="t")
     with pytest.raises(ValueError, match="type-specific"):
-        await c.add_ads([{
-            "AdGroupId": 1,
-            "TextAd": {"Title": "a", "Text": "b", "Href": "c"},
-            "MobileAppAd": {"Title": "a", "Text": "b"},
-        }])
+        await c.add_ads(
+            [
+                {
+                    "AdGroupId": 1,
+                    "TextAd": {"Title": "a", "Text": "b", "Href": "c"},
+                    "MobileAppAd": {"Title": "a", "Text": "b"},
+                }
+            ]
+        )
 
 
 @pytest.mark.asyncio
@@ -636,10 +683,16 @@ async def test_add_adgroups_requires_fields() -> None:
 async def test_add_adgroups_body() -> None:
     route = _route("adgroups", {"AddResults": [{"Id": 1}]})
     c = DirectClient(token="t")
-    await c.add_adgroups([{
-        "Name": "Зимние куртки", "CampaignId": 100, "RegionIds": [213],
-        "NegativeKeywords": {"Items": ["дешевая"]},
-    }])
+    await c.add_adgroups(
+        [
+            {
+                "Name": "Зимние куртки",
+                "CampaignId": 100,
+                "RegionIds": [213],
+                "NegativeKeywords": {"Items": ["дешевая"]},
+            }
+        ]
+    )
     body = json.loads(route.calls.last.request.content)
     g = body["params"]["AdGroups"][0]
     assert g["Name"] == "Зимние куртки"
@@ -672,15 +725,20 @@ async def test_add_campaigns_requires_type_block() -> None:
 async def test_add_campaigns_body() -> None:
     route = _route("campaigns", {"AddResults": [{"Id": 1}]})
     c = DirectClient(token="t")
-    await c.add_campaigns([{
-        "Name": "Зима 2026", "StartDate": "2026-01-01",
-        "TextCampaign": {
-            "BiddingStrategy": {
-                "Search": {"BiddingStrategyType": "HIGHEST_POSITION"},
-                "Network": {"BiddingStrategyType": "SERVING_OFF"},
-            },
-        },
-    }])
+    await c.add_campaigns(
+        [
+            {
+                "Name": "Зима 2026",
+                "StartDate": "2026-01-01",
+                "TextCampaign": {
+                    "BiddingStrategy": {
+                        "Search": {"BiddingStrategyType": "HIGHEST_POSITION"},
+                        "Network": {"BiddingStrategyType": "SERVING_OFF"},
+                    },
+                },
+            }
+        ]
+    )
     body = json.loads(route.calls.last.request.content)
     assert body["method"] == "add"
     assert "TextCampaign" in body["params"]["Campaigns"][0]
@@ -707,9 +765,7 @@ def test_cli_ads_add_text(monkeypatch) -> None:
     runner = CliRunner()
     result = runner.invoke(
         cli,
-        ["ads", "add-text", "--adgroup", "10",
-         "--title", "t1", "--text", "txt",
-         "--href", "https://example/", "-y"],
+        ["ads", "add-text", "--adgroup", "10", "--title", "t1", "--text", "txt", "--href", "https://example/", "-y"],
     )
     assert result.exit_code == 0, result.output
     body = json.loads(route.calls.last.request.content)
@@ -723,8 +779,19 @@ def test_cli_adgroups_add(monkeypatch) -> None:
     runner = CliRunner()
     result = runner.invoke(
         cli,
-        ["adgroups", "add", "--campaign", "100", "--name", "Тест",
-         "--region", "213", "--negative-keyword", "дешево", "-y"],
+        [
+            "adgroups",
+            "add",
+            "--campaign",
+            "100",
+            "--name",
+            "Тест",
+            "--region",
+            "213",
+            "--negative-keyword",
+            "дешево",
+            "-y",
+        ],
     )
     assert result.exit_code == 0, result.output
     body = json.loads(route.calls.last.request.content)
@@ -768,10 +835,16 @@ def test_cli_extensions_add(monkeypatch) -> None:
 @pytest.mark.asyncio
 async def test_mcp_add_ads_dry_run(monkeypatch) -> None:
     from rb_yandex_direct import mcp_server
+
     monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    result = await mcp_server.add_ads(ads=[{
-        "AdGroupId": 1, "TextAd": {"Title": "a", "Text": "b", "Href": "c"},
-    }])
+    result = await mcp_server.add_ads(
+        ads=[
+            {
+                "AdGroupId": 1,
+                "TextAd": {"Title": "a", "Text": "b", "Href": "c"},
+            }
+        ]
+    )
     assert result["requires_confirm"] is True
     assert result["action"] == "ads.add"
 
@@ -779,11 +852,17 @@ async def test_mcp_add_ads_dry_run(monkeypatch) -> None:
 @pytest.mark.asyncio
 async def test_mcp_add_campaigns_dry_run(monkeypatch) -> None:
     from rb_yandex_direct import mcp_server
+
     monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    result = await mcp_server.add_campaigns(campaigns=[{
-        "Name": "c", "StartDate": "2026-01-01",
-        "TextCampaign": {"BiddingStrategy": {}},
-    }])
+    result = await mcp_server.add_campaigns(
+        campaigns=[
+            {
+                "Name": "c",
+                "StartDate": "2026-01-01",
+                "TextCampaign": {"BiddingStrategy": {}},
+            }
+        ]
+    )
     assert result["requires_confirm"] is True
 
 
@@ -791,10 +870,15 @@ async def test_mcp_add_campaigns_dry_run(monkeypatch) -> None:
 @respx.mock
 async def test_mcp_add_text_ad_confirm(monkeypatch) -> None:
     from rb_yandex_direct import mcp_server
+
     monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
     _route("ads", {"AddResults": [{"Id": 1}]})
     result = await mcp_server.add_text_ad(
-        adgroup_id=10, title="t", text="x", href="h", confirm=True,
+        adgroup_id=10,
+        title="t",
+        text="x",
+        href="h",
+        confirm=True,
     )
     assert "AddResults" in result
 
@@ -837,9 +921,11 @@ async def test_set_campaign_negative_keywords_validates_type() -> None:
 async def test_set_audience_target_bids_by_id() -> None:
     route = _route("audiencetargets", {"SetBidsResults": [{"Id": 5}]})
     c = DirectClient(token="t")
-    await c.set_audience_target_bids([
-        {"Id": 5, "ContextBid": 50_000_000, "StrategyPriority": "HIGH"},
-    ])
+    await c.set_audience_target_bids(
+        [
+            {"Id": 5, "ContextBid": 50_000_000, "StrategyPriority": "HIGH"},
+        ]
+    )
     body = json.loads(route.calls.last.request.content)
     assert body["method"] == "setBids"
     assert body["params"]["Bids"][0]["Id"] == 5
@@ -850,9 +936,11 @@ async def test_set_audience_target_bids_by_id() -> None:
 async def test_set_audience_target_bids_rejects_multiple_scopes() -> None:
     c = DirectClient(token="t")
     with pytest.raises(ValueError, match="Id/AdGroupId/CampaignId"):
-        await c.set_audience_target_bids([
-            {"Id": 1, "AdGroupId": 2, "ContextBid": 50_000_000},
-        ])
+        await c.set_audience_target_bids(
+            [
+                {"Id": 1, "AdGroupId": 2, "ContextBid": 50_000_000},
+            ]
+        )
 
 
 @pytest.mark.asyncio
@@ -869,8 +957,7 @@ def test_cli_audiences_set_bid_by_adgroup(monkeypatch) -> None:
     runner = CliRunner()
     result = runner.invoke(
         cli,
-        ["audiences", "set-bid", "--adgroup", "10",
-         "--context-bid", "40", "--priority", "HIGH", "-y"],
+        ["audiences", "set-bid", "--adgroup", "10", "--context-bid", "40", "--priority", "HIGH", "-y"],
     )
     assert result.exit_code == 0, result.output
     body = json.loads(route.calls.last.request.content)
@@ -957,6 +1044,7 @@ def test_cli_client_update_from_json(monkeypatch, tmp_path) -> None:
 
 def test_resolve_login_exact_and_substring(monkeypatch) -> None:
     from rb_yandex_direct.cli import _resolve_login
+
     monkeypatch.setenv(
         "YANDEX_DIRECT_MANAGED_LOGINS",
         "my-shop@yandex.ru,my-blog@yandex.ru,other@yandex.ru",
@@ -969,6 +1057,7 @@ def test_resolve_login_exact_and_substring(monkeypatch) -> None:
     assert _resolve_login("not-in-list@yandex.ru") == "not-in-list@yandex.ru"
 
     import click
+
     with pytest.raises(click.ClickException, match="неоднозначный"):
         _resolve_login("my")  # совпадёт с shop и blog
     with pytest.raises(click.ClickException, match="не найден"):
@@ -977,6 +1066,7 @@ def test_resolve_login_exact_and_substring(monkeypatch) -> None:
 
 def test_resolve_login_without_managed_list(monkeypatch) -> None:
     from rb_yandex_direct.cli import _resolve_login
+
     monkeypatch.delenv("YANDEX_DIRECT_MANAGED_LOGINS", raising=False)
     # Без списка — любая строка возвращается as-is (ожидается, что это полный логин).
     assert _resolve_login("something") == "something"
@@ -988,9 +1078,11 @@ def test_cli_accounts_merges_api_and_env(monkeypatch) -> None:
     monkeypatch.setenv("YANDEX_DIRECT_MANAGED_LOGINS", "friend@yandex.ru")
 
     # agency call (без Client-Login) → падает с "not an agency"
-    respx.post(f"{PROD_BASE}/agencyclients").mock(return_value=Response(
-        200, json={"error": {"error_code": 8100, "error_string": "Not agency", "error_detail": ""}}
-    ))
+    respx.post(f"{PROD_BASE}/agencyclients").mock(
+        return_value=Response(
+            200, json={"error": {"error_code": 8100, "error_string": "Not agency", "error_detail": ""}}
+        )
+    )
     # fallback clients.get (под агентским) отдаёт self
     # Нужен routing по заголовку: первый clients.get = self, второй = friend
     call_count = {"n": 0}
@@ -998,9 +1090,16 @@ def test_cli_accounts_merges_api_and_env(monkeypatch) -> None:
     def _clients_resp(request):
         call_count["n"] += 1
         login = request.headers.get("client-login", "")
-        return Response(200, json={"result": {"Clients": [
-            {"Login": login or "infinitylab", "Currency": "RUB"},
-        ]}})
+        return Response(
+            200,
+            json={
+                "result": {
+                    "Clients": [
+                        {"Login": login or "infinitylab", "Currency": "RUB"},
+                    ]
+                }
+            },
+        )
 
     respx.post(f"{PROD_BASE}/clients").mock(side_effect=_clients_resp)
 
@@ -1018,8 +1117,7 @@ def test_cli_campaigns_set_negative_keywords(monkeypatch) -> None:
     runner = CliRunner()
     result = runner.invoke(
         cli,
-        ["campaigns", "set-negative-keywords", "1",
-         "--words", "минус1,минус2", "-y"],
+        ["campaigns", "set-negative-keywords", "1", "--words", "минус1,минус2", "-y"],
     )
     assert result.exit_code == 0, result.output
     body = json.loads(route.calls.last.request.content)

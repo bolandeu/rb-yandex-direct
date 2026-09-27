@@ -22,12 +22,11 @@ import socket
 import threading
 import urllib.parse
 import webbrowser
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
-from typing import Callable
+from collections.abc import Callable
+from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 
 import httpx
-from loguru import logger
 
 from rb_yandex_direct.core.errors import DirectAuthError
 
@@ -44,14 +43,14 @@ class OAuthToken:
     access_token: str
     refresh_token: str | None = None
     expires_at: datetime | None = None
-    token_type: str = "bearer"
+    token_type: str = "bearer"  # noqa: S105 — тип токена, не секрет
     scope: str = ""
 
     @classmethod
-    def from_response(cls, data: dict) -> "OAuthToken":
+    def from_response(cls, data: dict) -> OAuthToken:
         expires_at = None
         if "expires_in" in data:
-            expires_at = datetime.now(timezone.utc) + timedelta(seconds=int(data["expires_in"]))
+            expires_at = datetime.now(UTC) + timedelta(seconds=int(data["expires_in"]))
         return cls(
             access_token=data["access_token"],
             refresh_token=data.get("refresh_token"),
@@ -64,7 +63,7 @@ class OAuthToken:
     def is_expired(self) -> bool:
         if self.expires_at is None:
             return False
-        return datetime.now(timezone.utc) >= self.expires_at - timedelta(minutes=5)
+        return datetime.now(UTC) >= self.expires_at - timedelta(minutes=5)
 
     def to_env_dict(self) -> dict[str, str]:
         out = {"YANDEX_DIRECT_TOKEN": self.access_token}
@@ -96,7 +95,7 @@ class _CallbackHandler(http.server.BaseHTTPRequestHandler):
             body = f"<h1>Ошибка</h1><p>{error or 'код не получен'}</p>"
         self.wfile.write(body.encode("utf-8"))
 
-    def log_message(self, *args, **kwargs) -> None:  # noqa: D401
+    def log_message(self, *args, **kwargs) -> None:
         pass
 
 
@@ -203,6 +202,7 @@ class YandexOAuth:
     @staticmethod
     def _wait_for_code(timeout_sec: int) -> str:
         import time
+
         start = time.time()
         while time.time() - start < timeout_sec:
             if _CallbackHandler.received_error:

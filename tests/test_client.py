@@ -46,9 +46,9 @@ async def test_call_ok_and_headers() -> None:
 @respx.mock
 async def test_call_error_1002() -> None:
     respx.post(f"{PROD_BASE}/campaigns").mock(
-        return_value=Response(200, json={
-            "error": {"error_code": 1002, "error_string": "Invalid token", "error_detail": "expired"}
-        })
+        return_value=Response(
+            200, json={"error": {"error_code": 1002, "error_string": "Invalid token", "error_detail": "expired"}}
+        )
     )
     c = DirectClient(token="t")
     with pytest.raises(DirectAPIError) as exc:

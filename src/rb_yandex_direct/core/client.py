@@ -24,23 +24,53 @@ SANDBOX_BASE = "https://api-sandbox.direct.yandex.com/json/v5"
 
 # Разумные дефолты полей для быстрой отладки в CLI/MCP.
 DEFAULT_CAMPAIGN_FIELDS = [
-    "Id", "Name", "State", "Status", "Type", "StartDate", "EndDate",
-    "DailyBudget", "Currency", "ClientInfo",
+    "Id",
+    "Name",
+    "State",
+    "Status",
+    "Type",
+    "StartDate",
+    "EndDate",
+    "DailyBudget",
+    "Currency",
+    "ClientInfo",
 ]
 DEFAULT_ADGROUP_FIELDS = [
-    "Id", "Name", "CampaignId", "Type", "Status", "RegionIds", "TrackingParams",
+    "Id",
+    "Name",
+    "CampaignId",
+    "Type",
+    "Status",
+    "RegionIds",
+    "TrackingParams",
 ]
 DEFAULT_AD_FIELDS = [
-    "Id", "AdGroupId", "CampaignId", "Type", "State", "Status", "AdCategories",
+    "Id",
+    "AdGroupId",
+    "CampaignId",
+    "Type",
+    "State",
+    "Status",
+    "AdCategories",
 ]
 DEFAULT_AD_TEXT_FIELDS = ["Title", "Title2", "Text", "Href", "Mobile", "DisplayUrlPath"]
 DEFAULT_KEYWORD_FIELDS = [
-    "Id", "Keyword", "AdGroupId", "CampaignId", "State", "Status",
-    "UserParam", "ServingStatus",
+    "Id",
+    "Keyword",
+    "AdGroupId",
+    "CampaignId",
+    "State",
+    "Status",
+    "UserParam",
+    "ServingStatus",
 ]
 DEFAULT_KEYWORD_BID_FIELDS = [
-    "KeywordId", "AdGroupId", "CampaignId", "ServingStatus",
-    "Search", "Network",  # вложенные объекты с текущими ставками и позициями
+    "KeywordId",
+    "AdGroupId",
+    "CampaignId",
+    "ServingStatus",
+    "Search",
+    "Network",  # вложенные объекты с текущими ставками и позициями
     "StrategyPriority",
 ]
 
@@ -166,10 +196,14 @@ class DirectClient:
         """Для агентств — список клиентов; для обычного аккаунта — запись о себе."""
         fields = field_names or ["Login", "ClientInfo", "AccountQuality", "Currency"]
         try:
-            result = await self.call("agencyclients", "get", {
-                "SelectionCriteria": {},
-                "FieldNames": fields,
-            })
+            result = await self.call(
+                "agencyclients",
+                "get",
+                {
+                    "SelectionCriteria": {},
+                    "FieldNames": fields,
+                },
+            )
             return result.get("Clients", [])
         except DirectAPIError as e:
             if e.error_code == 8100:
@@ -207,10 +241,14 @@ class DirectClient:
         )
 
     async def get_campaign(self, campaign_id: int, field_names: list[str] | None = None) -> dict | None:
-        result = await self.call("campaigns", "get", {
-            "SelectionCriteria": {"Ids": [campaign_id]},
-            "FieldNames": field_names or DEFAULT_CAMPAIGN_FIELDS,
-        })
+        result = await self.call(
+            "campaigns",
+            "get",
+            {
+                "SelectionCriteria": {"Ids": [campaign_id]},
+                "FieldNames": field_names or DEFAULT_CAMPAIGN_FIELDS,
+            },
+        )
         items = result.get("Campaigns", [])
         return items[0] if items else None
 
@@ -383,10 +421,14 @@ class DirectClient:
 
     async def check_dictionaries(self, timestamp: str) -> dict:
         """Проверить timestamp актуальности справочников."""
-        return await self.call("changes", "checkDictionaries", {
-            "FieldNames": ["Timestamp"],
-            "Timestamp": timestamp,
-        })
+        return await self.call(
+            "changes",
+            "checkDictionaries",
+            {
+                "FieldNames": ["Timestamp"],
+                "Timestamp": timestamp,
+            },
+        )
 
     async def check_campaign_changes(
         self,
@@ -418,10 +460,18 @@ class DirectClient:
     ) -> dict:
         """`changes.check` — массовая проверка для инкрементального синка."""
         params: dict[str, Any] = {
-            "FieldNames": field_names or [
-                "CampaignIds", "AdGroupIds", "AdIds", "Timestamp",
-                "ModifiedCampaignIds", "ModifiedAdGroupIds", "ModifiedAdIds",
-                "NotFoundCampaignIds", "NotFoundAdGroupIds", "NotFoundAdIds",
+            "FieldNames": field_names
+            or [
+                "CampaignIds",
+                "AdGroupIds",
+                "AdIds",
+                "Timestamp",
+                "ModifiedCampaignIds",
+                "ModifiedAdGroupIds",
+                "ModifiedAdIds",
+                "NotFoundCampaignIds",
+                "NotFoundAdGroupIds",
+                "NotFoundAdIds",
             ],
             "Timestamp": timestamp,
         }
@@ -514,13 +564,16 @@ class DirectClient:
         """
         if campaign_type not in self._CAMPAIGN_TYPE_KEYS:
             raise ValueError(
-                f"неизвестный campaign_type={campaign_type!r}, "
-                f"ожидается один из: {sorted(self._CAMPAIGN_TYPE_KEYS)}"
+                f"неизвестный campaign_type={campaign_type!r}, ожидается один из: {sorted(self._CAMPAIGN_TYPE_KEYS)}"
             )
-        return await self.update_campaigns([{
-            "Id": campaign_id,
-            campaign_type: {"NegativeKeywords": {"Items": negative_keywords}},
-        }])
+        return await self.update_campaigns(
+            [
+                {
+                    "Id": campaign_id,
+                    campaign_type: {"NegativeKeywords": {"Items": negative_keywords}},
+                }
+            ]
+        )
 
     async def set_adgroup_negative_keywords(
         self,
@@ -531,10 +584,14 @@ class DirectClient:
 
         Передаётся полный список (заменяет текущие, не добавляет).
         """
-        return await self.update_adgroups([{
-            "Id": adgroup_id,
-            "NegativeKeywords": {"Items": negative_keywords},
-        }])
+        return await self.update_adgroups(
+            [
+                {
+                    "Id": adgroup_id,
+                    "NegativeKeywords": {"Items": negative_keywords},
+                }
+            ]
+        )
 
     async def set_campaign_daily_budget(
         self,
@@ -547,10 +604,14 @@ class DirectClient:
         mode: STANDARD (равномерно) или DISTRIBUTED (ускоренно).
         Amount в микро — `amount_rub × 1_000_000`. Нужны права «менять бюджет».
         """
-        return await self.update_campaigns([{
-            "Id": campaign_id,
-            "DailyBudget": {"Amount": int(amount_rub * 1_000_000), "Mode": mode},
-        }])
+        return await self.update_campaigns(
+            [
+                {
+                    "Id": campaign_id,
+                    "DailyBudget": {"Amount": int(amount_rub * 1_000_000), "Mode": mode},
+                }
+            ]
+        )
 
     # --- Write: ставки ---
 
@@ -593,14 +654,24 @@ class DirectClient:
 
     # Валидные ключи type-specific блоков для ads.add и ads.update.
     # См. https://yandex.ru/dev/direct/doc/ref-v5/ads/add.html
-    _AD_TYPE_KEYS = frozenset([
-        "TextAd", "DynamicTextAd", "MobileAppAd",
-        "TextImageAd", "MobileAppImageAd",
-        "TextAdBuilderAd", "MobileAppAdBuilderAd",
-        "CpcVideoAdBuilderAd", "MobileAppCpcVideoAdBuilderAd",
-        "CpmBannerAdBuilderAd", "CpmVideoAdBuilderAd",
-        "SmartAdBuilderAd", "ShoppingAd", "ListingAd",
-    ])
+    _AD_TYPE_KEYS = frozenset(
+        [
+            "TextAd",
+            "DynamicTextAd",
+            "MobileAppAd",
+            "TextImageAd",
+            "MobileAppImageAd",
+            "TextAdBuilderAd",
+            "MobileAppAdBuilderAd",
+            "CpcVideoAdBuilderAd",
+            "MobileAppCpcVideoAdBuilderAd",
+            "CpmBannerAdBuilderAd",
+            "CpmVideoAdBuilderAd",
+            "SmartAdBuilderAd",
+            "ShoppingAd",
+            "ListingAd",
+        ]
+    )
 
     async def add_ads(self, ads: list[dict]) -> dict:
         """Создать объявления (до 1000 за вызов).
@@ -626,8 +697,7 @@ class DirectClient:
             type_keys = self._AD_TYPE_KEYS & ad.keys()
             if len(type_keys) != 1:
                 raise ValueError(
-                    f"ads[{i}]: нужен ровно один type-specific блок, "
-                    f"нашёл {sorted(type_keys) or 'ни одного'}"
+                    f"ads[{i}]: нужен ровно один type-specific блок, нашёл {sorted(type_keys) or 'ни одного'}"
                 )
         return await self.call("ads", "add", {"Ads": ads})
 
@@ -653,10 +723,14 @@ class DirectClient:
             "TextAd": {"Title": title, "Text": text, "Href": href},
         }
         for key, value in [
-            ("Title2", title2), ("DisplayUrlPath", display_url_path),
-            ("Mobile", mobile), ("AgeLabel", age_label),
-            ("VCardId", vcard_id), ("SitelinkSetId", sitelink_set_id),
-            ("AdImageHash", ad_image_hash), ("TurboPageId", turbo_page_id),
+            ("Title2", title2),
+            ("DisplayUrlPath", display_url_path),
+            ("Mobile", mobile),
+            ("AgeLabel", age_label),
+            ("VCardId", vcard_id),
+            ("SitelinkSetId", sitelink_set_id),
+            ("AdImageHash", ad_image_hash),
+            ("TurboPageId", turbo_page_id),
         ]:
             if value is not None:
                 ad["TextAd"][key] = value
@@ -673,21 +747,27 @@ class DirectClient:
                 raise ValueError(f"ads[{i}]: нет Id")
             type_keys = self._AD_TYPE_KEYS & ad.keys()
             if len(type_keys) != 1:
-                raise ValueError(
-                    f"ads[{i}]: нужен ровно один type-specific блок"
-                )
+                raise ValueError(f"ads[{i}]: нужен ровно один type-specific блок")
         return await self.call("ads", "update", {"Ads": ads})
 
     # --- Группы объявлений: write ---
 
     # Type-specific блоки для adgroups.add. Группа задаёт тип объявлений в ней.
     # https://yandex.ru/dev/direct/doc/ref-v5/adgroups/add.html
-    _ADGROUP_TYPE_KEYS = frozenset([
-        "MobileAppAdGroup", "DynamicTextAdGroup", "DynamicTextFeedAdGroup",
-        "CpmBannerAdGroup", "CpmBannerNonSkippableAdGroup",
-        "CpmVideoAdGroup", "CpmPriceAdGroup", "SmartAdGroup",
-        "ShoppingAdGroup", "ListingAdGroup",
-    ])
+    _ADGROUP_TYPE_KEYS = frozenset(
+        [
+            "MobileAppAdGroup",
+            "DynamicTextAdGroup",
+            "DynamicTextFeedAdGroup",
+            "CpmBannerAdGroup",
+            "CpmBannerNonSkippableAdGroup",
+            "CpmVideoAdGroup",
+            "CpmPriceAdGroup",
+            "SmartAdGroup",
+            "ShoppingAdGroup",
+            "ListingAdGroup",
+        ]
+    )
 
     async def add_adgroups(self, groups: list[dict]) -> dict:
         """Создать группы объявлений (до 1000 за вызов).
@@ -709,9 +789,7 @@ class DirectClient:
                     raise ValueError(f"adgroups[{i}]: нет {required}")
             type_keys = self._ADGROUP_TYPE_KEYS & g.keys()
             if len(type_keys) > 1:
-                raise ValueError(
-                    f"adgroups[{i}]: не более одного type-specific блока"
-                )
+                raise ValueError(f"adgroups[{i}]: не более одного type-specific блока")
         return await self.call("adgroups", "add", {"AdGroups": groups})
 
     async def update_adgroups(self, groups: list[dict]) -> dict:
@@ -742,9 +820,13 @@ class DirectClient:
             raise ValueError("sets пустой")
         if len(sets) > 30:
             raise ValueError("negativekeywordsharedsets.add — не более 30 за вызов")
-        return await self.call("negativekeywordsharedsets", "add", {
-            "NegativeKeywordSharedSets": sets,
-        })
+        return await self.call(
+            "negativekeywordsharedsets",
+            "add",
+            {
+                "NegativeKeywordSharedSets": sets,
+            },
+        )
 
     async def delete_negative_keyword_shared_sets(self, ids: list[int]) -> dict:
         """Удалить наборы общих минус-слов (до 30 за вызов).
@@ -752,9 +834,13 @@ class DirectClient:
         Не удалятся наборы, которые привязаны к группам объявлений —
         API вернёт Warning с перечислением adgroup_id.
         """
-        return await self.call("negativekeywordsharedsets", "delete", {
-            "SelectionCriteria": {"Ids": ids},
-        })
+        return await self.call(
+            "negativekeywordsharedsets",
+            "delete",
+            {
+                "SelectionCriteria": {"Ids": ids},
+            },
+        )
 
     async def update_negative_keyword_shared_set(
         self,
@@ -777,9 +863,13 @@ class DirectClient:
             item["Name"] = name
         if negative_keywords is not None:
             item["NegativeKeywords"] = {"Items": negative_keywords}
-        return await self.call("negativekeywordsharedsets", "update", {
-            "NegativeKeywordSharedSets": [item],
-        })
+        return await self.call(
+            "negativekeywordsharedsets",
+            "update",
+            {
+                "NegativeKeywordSharedSets": [item],
+            },
+        )
 
     # --- Корректировки ставок ---
 
@@ -808,9 +898,17 @@ class DirectClient:
         if types:
             criteria["Types"] = types
         fields = field_names or [
-            "Id", "CampaignId", "AdGroupId", "Type", "Level",
-            "MobileAdjustment", "DesktopAdjustment", "DemographicsAdjustment",
-            "RetargetingAdjustment", "RegionalAdjustment", "VideoAdjustment",
+            "Id",
+            "CampaignId",
+            "AdGroupId",
+            "Type",
+            "Level",
+            "MobileAdjustment",
+            "DesktopAdjustment",
+            "DemographicsAdjustment",
+            "RetargetingAdjustment",
+            "RegionalAdjustment",
+            "VideoAdjustment",
             "IncomeGradeAdjustment",
         ]
         return await self._paginated_get(
@@ -889,9 +987,15 @@ class DirectClient:
             "RetargetingLists",
             {
                 "SelectionCriteria": criteria,
-                "FieldNames": field_names or [
-                    "Id", "Name", "Description", "Type", "Rules",
-                    "IsAvailable", "CryptaScoring",
+                "FieldNames": field_names
+                or [
+                    "Id",
+                    "Name",
+                    "Description",
+                    "Type",
+                    "Rules",
+                    "IsAvailable",
+                    "CryptaScoring",
                 ],
             },
             page_limit=1000,
@@ -970,8 +1074,7 @@ class DirectClient:
             keys = scope_keys & item.keys()
             if len(keys) != 1:
                 raise ValueError(
-                    f"bids[{i}]: нужен ровно один из Id/AdGroupId/CampaignId, "
-                    f"нашёл {sorted(keys) or 'ни одного'}"
+                    f"bids[{i}]: нужен ровно один из Id/AdGroupId/CampaignId, нашёл {sorted(keys) or 'ни одного'}"
                 )
         return await self.call("audiencetargets", "setBids", {"Bids": bids})
 
@@ -998,9 +1101,16 @@ class DirectClient:
             "AudienceTargets",
             {
                 "SelectionCriteria": criteria,
-                "FieldNames": field_names or [
-                    "Id", "AdGroupId", "CampaignId", "RetargetingListId",
-                    "InterestId", "State", "ContextBid", "StrategyPriority",
+                "FieldNames": field_names
+                or [
+                    "Id",
+                    "AdGroupId",
+                    "CampaignId",
+                    "RetargetingListId",
+                    "InterestId",
+                    "State",
+                    "ContextBid",
+                    "StrategyPriority",
                 ],
             },
             page_limit=10000,
@@ -1027,20 +1137,32 @@ class DirectClient:
 
     async def keywords_deduplicate(self, keyword_ids: list[int]) -> dict:
         """Найти и приостановить дубли среди переданных фраз (write-операция)."""
-        return await self.call("keywordsresearch", "deduplicate", {
-            "KeywordIds": keyword_ids,
-        })
+        return await self.call(
+            "keywordsresearch",
+            "deduplicate",
+            {
+                "KeywordIds": keyword_ids,
+            },
+        )
 
     # --- Write: создание/удаление кампаний (P3) ---
 
     # Валидные type-specific блоки для campaigns.add.
     # https://yandex.ru/dev/direct/doc/ref-v5/campaigns/add.html
-    _CAMPAIGN_TYPE_KEYS = frozenset([
-        "TextCampaign", "DynamicTextCampaign",
-        "MobileAppCampaign", "CpmBannerCampaign", "CpmVideoCampaign",
-        "SmartCampaign", "UnifiedCampaign", "CpmPriceCampaign",
-        "ContentPromotionCampaign", "McBannerCampaign",
-    ])
+    _CAMPAIGN_TYPE_KEYS = frozenset(
+        [
+            "TextCampaign",
+            "DynamicTextCampaign",
+            "MobileAppCampaign",
+            "CpmBannerCampaign",
+            "CpmVideoCampaign",
+            "SmartCampaign",
+            "UnifiedCampaign",
+            "CpmPriceCampaign",
+            "ContentPromotionCampaign",
+            "McBannerCampaign",
+        ]
+    )
 
     async def add_campaigns(self, campaigns: list[dict]) -> dict:
         """Создать кампании (до 10 за вызов — лимит API жёстче других методов).
@@ -1064,8 +1186,7 @@ class DirectClient:
             type_keys = self._CAMPAIGN_TYPE_KEYS & c.keys()
             if len(type_keys) != 1:
                 raise ValueError(
-                    f"campaigns[{i}]: нужен ровно один type-specific блок, "
-                    f"нашёл {sorted(type_keys) or 'ни одного'}"
+                    f"campaigns[{i}]: нужен ровно один type-specific блок, нашёл {sorted(type_keys) or 'ни одного'}"
                 )
         return await self.call("campaigns", "add", {"Campaigns": campaigns})
 
@@ -1102,9 +1223,16 @@ class DirectClient:
             "Feeds",
             {
                 "SelectionCriteria": criteria,
-                "FieldNames": field_names or [
-                    "Id", "Name", "BusinessType", "SourceType",
-                    "FilterQuantity", "UpdatedTime", "FilenameSource", "UrlSource",
+                "FieldNames": field_names
+                or [
+                    "Id",
+                    "Name",
+                    "BusinessType",
+                    "SourceType",
+                    "FilterQuantity",
+                    "UpdatedTime",
+                    "FilenameSource",
+                    "UrlSource",
                 ],
             },
             page_limit=1000,
@@ -1138,8 +1266,12 @@ class DirectClient:
             "Businesses",
             {
                 "SelectionCriteria": criteria,
-                "FieldNames": field_names or [
-                    "Id", "Name", "ChainId", "Status",
+                "FieldNames": field_names
+                or [
+                    "Id",
+                    "Name",
+                    "ChainId",
+                    "Status",
                 ],
             },
             page_limit=1000,
@@ -1175,9 +1307,14 @@ class DirectClient:
             "Leads",
             {
                 "SelectionCriteria": criteria,
-                "FieldNames": field_names or [
-                    "Id", "CampaignId", "AdGroupId", "AdId",
-                    "SubmitDateTime", "FormFields",
+                "FieldNames": field_names
+                or [
+                    "Id",
+                    "CampaignId",
+                    "AdGroupId",
+                    "AdId",
+                    "SubmitDateTime",
+                    "FormFields",
                 ],
             },
             page_limit=10000,
@@ -1208,8 +1345,13 @@ class DirectClient:
             {
                 "SelectionCriteria": criteria,
                 "FieldNames": [
-                    "Id", "AdGroupId", "Name", "State",
-                    "Bid", "ContextBid", "StrategyPriority",
+                    "Id",
+                    "AdGroupId",
+                    "Name",
+                    "State",
+                    "Bid",
+                    "ContextBid",
+                    "StrategyPriority",
                 ],
             },
             page_limit=10000,
@@ -1262,8 +1404,12 @@ class DirectClient:
             {
                 "SelectionCriteria": criteria,
                 "FieldNames": [
-                    "Id", "AdGroupId", "Name", "State",
-                    "Bid", "StrategyPriority",
+                    "Id",
+                    "AdGroupId",
+                    "Name",
+                    "State",
+                    "Bid",
+                    "StrategyPriority",
                 ],
             },
             page_limit=10000,
@@ -1341,9 +1487,18 @@ class DirectClient:
             "VCards",
             {
                 "SelectionCriteria": criteria,
-                "FieldNames": field_names or [
-                    "Id", "CampaignId", "Country", "City", "CompanyName",
-                    "WorkTime", "Phone", "Street", "House", "ContactEmail",
+                "FieldNames": field_names
+                or [
+                    "Id",
+                    "CampaignId",
+                    "Country",
+                    "City",
+                    "CompanyName",
+                    "WorkTime",
+                    "Phone",
+                    "Street",
+                    "House",
+                    "ContactEmail",
                 ],
             },
             page_limit=1000,
@@ -1430,9 +1585,15 @@ class DirectClient:
             "AdImages",
             {
                 "SelectionCriteria": criteria,
-                "FieldNames": field_names or [
-                    "AdImageHash", "OriginalUrl", "PreviewUrl", "Name",
-                    "Type", "Subtype", "Associated",
+                "FieldNames": field_names
+                or [
+                    "AdImageHash",
+                    "OriginalUrl",
+                    "PreviewUrl",
+                    "Name",
+                    "Type",
+                    "Subtype",
+                    "Associated",
                 ],
             },
             page_limit=1000,
@@ -1454,9 +1615,13 @@ class DirectClient:
 
     async def delete_ad_images(self, hashes: list[str]) -> dict:
         """Удалить изображения по хэшам (до 10000). Нельзя удалить привязанные."""
-        return await self.call("adimages", "delete", {
-            "SelectionCriteria": {"AdImageHashes": hashes},
-        })
+        return await self.call(
+            "adimages",
+            "delete",
+            {
+                "SelectionCriteria": {"AdImageHashes": hashes},
+            },
+        )
 
     async def list_creatives(
         self,
@@ -1476,9 +1641,16 @@ class DirectClient:
             criteria["Types"] = types
         params: dict[str, Any] = {
             "SelectionCriteria": criteria,
-            "FieldNames": field_names or [
-                "Id", "Type", "Name", "PreviewUrl",
-                "Width", "Height", "ThumbnailUrl", "Associated",
+            "FieldNames": field_names
+            or [
+                "Id",
+                "Type",
+                "Name",
+                "PreviewUrl",
+                "Width",
+                "Height",
+                "ThumbnailUrl",
+                "Associated",
             ],
             "VideoExtensionCreativeFieldNames": ["Duration"],
             "CpcVideoCreativeFieldNames": ["Duration"],
@@ -1514,9 +1686,14 @@ class DirectClient:
             "TurboPages",
             {
                 "SelectionCriteria": criteria,
-                "FieldNames": field_names or [
-                    "Id", "Name", "PreviewUrl", "Href",
-                    "ModerationStatus", "CampaignType",
+                "FieldNames": field_names
+                or [
+                    "Id",
+                    "Name",
+                    "PreviewUrl",
+                    "Href",
+                    "ModerationStatus",
+                    "CampaignType",
                 ],
             },
             page_limit=1000,
@@ -1529,6 +1706,10 @@ class DirectClient:
         AdCategories, OperationSystemVersions, ProductivityIndicators,
         SupplyChainStages, AutoBusinesses.
         """
-        return await self.call("dictionaries", "get", {
-            "DictionaryNames": dictionary_names,
-        })
+        return await self.call(
+            "dictionaries",
+            "get",
+            {
+                "DictionaryNames": dictionary_names,
+            },
+        )

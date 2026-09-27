@@ -48,12 +48,14 @@ def analyze(cache: Path) -> str:
 
     if clients:
         c = clients[0]
-        out.append(f"**Клиент:** `{c.get('Login')}` · валюта: {c.get('Currency')} · "
-                   f"качество: {c.get('AccountQuality')}\n")
+        out.append(
+            f"**Клиент:** `{c.get('Login')}` · валюта: {c.get('Currency')} · качество: {c.get('AccountQuality')}\n"
+        )
     if balance:
         b = balance[0]
-        out.append(f"**API баллы:** rate={b.get('RateLimit')}/{b.get('RateLimitInHours')}ч · "
-                   f"daily={b.get('DailyLimit')}\n")
+        out.append(
+            f"**API баллы:** rate={b.get('RateLimit')}/{b.get('RateLimitInHours')}ч · daily={b.get('DailyLimit')}\n"
+        )
 
     on = [c for c in campaigns if c.get("State") == "ON"]
     out.append(f"\n**Кампании:** всего {len(campaigns)}, активных {len(on)}\n")
@@ -80,9 +82,7 @@ def analyze(cache: Path) -> str:
     queries = _read_tsv(cache / "reports" / "queries.tsv")
     if queries:
         no_conv = [
-            q for q in queries
-            if int(q.get("Clicks", "0") or 0) >= 5
-            and int(q.get("Conversions", "0") or 0) == 0
+            q for q in queries if int(q.get("Clicks", "0") or 0) >= 5 and int(q.get("Conversions", "0") or 0) == 0
         ]
         no_conv.sort(key=lambda q: float(q.get("Cost", "0") or 0), reverse=True)
         if no_conv:

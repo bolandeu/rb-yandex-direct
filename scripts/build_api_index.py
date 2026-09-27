@@ -46,14 +46,37 @@ NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 OUTPUT_HOST = "https://yandex.com"
 
 # Реальные API-сервисы (из client.py + типовые v5-сервисы).
-API_SERVICES = frozenset([
-    "adextensions", "adgroups", "adimages", "ads", "advideos", "agencyclients",
-    "audiencetargets", "bidmodifiers", "businesses", "campaigns", "changes",
-    "clients", "creatives", "dictionaries", "dynamictextadtargets", "feeds",
-    "keywords", "keywordbids", "keywordsresearch", "leads",
-    "negativekeywordsharedsets", "reports", "retargetinglists",
-    "sitelinks", "smartadtargets", "turbopages", "vcards",
-])
+API_SERVICES = frozenset(
+    [
+        "adextensions",
+        "adgroups",
+        "adimages",
+        "ads",
+        "advideos",
+        "agencyclients",
+        "audiencetargets",
+        "bidmodifiers",
+        "businesses",
+        "campaigns",
+        "changes",
+        "clients",
+        "creatives",
+        "dictionaries",
+        "dynamictextadtargets",
+        "feeds",
+        "keywords",
+        "keywordbids",
+        "keywordsresearch",
+        "leads",
+        "negativekeywordsharedsets",
+        "reports",
+        "retargetinglists",
+        "sitelinks",
+        "smartadtargets",
+        "turbopages",
+        "vcards",
+    ]
+)
 
 # Методы, которых нет в sitemap, но URL рабочий (проверено через WebFetch).
 # service → list[method]. URL собирается как <base>/<service>/<method>.
@@ -64,8 +87,14 @@ KNOWN_EXTRA_METHODS: dict[str, list[str]] = {
     "audiencetargets": ["setBids", "suspend", "resume"],
     "bidmodifiers": ["toggle", "set"],
     "campaigns": [
-        "archive", "unarchive", "suspend", "resume", "delete", "update",
-        "add", "get",
+        "archive",
+        "unarchive",
+        "suspend",
+        "resume",
+        "delete",
+        "update",
+        "add",
+        "get",
     ],
     "dynamictextadtargets": ["get", "add", "delete", "suspend", "resume", "setBids"],
     "feeds": ["get", "add", "update", "delete"],
@@ -79,7 +108,7 @@ KNOWN_EXTRA_METHODS: dict[str, list[str]] = {
 def build(lang: str) -> dict:
     resp = httpx.get(SITEMAP_URL, timeout=30.0, follow_redirects=True)
     resp.raise_for_status()
-    root = ET.fromstring(resp.text)
+    root = ET.fromstring(resp.text)  # noqa: S314 — sitemap Яндекса по HTTPS, не пользовательский ввод
 
     services: dict[str, dict] = {}
     guides: dict[str, str] = {}
@@ -91,7 +120,7 @@ def build(lang: str) -> dict:
         path = urlparse(loc.text).path
         if not path.startswith(prefix):
             continue
-        rel = path[len(prefix):].rstrip("/")
+        rel = path[len(prefix) :].rstrip("/")
         url = f"{OUTPUT_HOST}{path}"
 
         parts = rel.split("/")
@@ -116,9 +145,7 @@ def build(lang: str) -> dict:
         if svc["overview"] is None:
             svc["overview"] = f"{OUTPUT_HOST}{DOC_ROOT}{lang}/{service}/{service}"
         for method in extra:
-            svc["methods"].setdefault(
-                method, f"{OUTPUT_HOST}{DOC_ROOT}{lang}/{service}/{method}"
-            )
+            svc["methods"].setdefault(method, f"{OUTPUT_HOST}{DOC_ROOT}{lang}/{service}/{method}")
 
     services_sorted = {
         name: {
@@ -149,8 +176,10 @@ def main() -> None:
     args.out.write_text(json.dumps(index, ensure_ascii=False, indent=2) + "\n")
 
     total_methods = sum(len(s["methods"]) for s in index["services"].values())
-    print(f"[ok] {len(index['services'])} API-сервисов, {total_methods} методов, "
-          f"{len(index['guides'])} гайдов → {args.out}")
+    print(
+        f"[ok] {len(index['services'])} API-сервисов, {total_methods} методов, "
+        f"{len(index['guides'])} гайдов → {args.out}"
+    )
 
 
 if __name__ == "__main__":

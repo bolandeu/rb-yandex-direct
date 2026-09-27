@@ -43,7 +43,7 @@ class Report:
             parts = ln.split("\t")
             if len(parts) != len(header):
                 continue
-            out.append(dict(zip(header, parts)))
+            out.append(dict(zip(header, parts, strict=True)))
         return out
 
 
@@ -167,9 +167,19 @@ class ReportsClient:
         extra_fields: list[str] | None = None,
     ) -> Report:
         fields = [
-            "Date", "CampaignId", "CampaignName", "CampaignType",
-            "Impressions", "Clicks", "Cost", "Ctr", "AvgCpc",
-            "Conversions", "CostPerConversion", "Bounces", "AvgImpressionPosition",
+            "Date",
+            "CampaignId",
+            "CampaignName",
+            "CampaignType",
+            "Impressions",
+            "Clicks",
+            "Cost",
+            "Ctr",
+            "AvgCpc",
+            "Conversions",
+            "CostPerConversion",
+            "Bounces",
+            "AvgImpressionPosition",
         ] + (extra_fields or [])
         return await self.run(
             report_type="CAMPAIGN_PERFORMANCE_REPORT",
@@ -186,8 +196,16 @@ class ReportsClient:
         extra_fields: list[str] | None = None,
     ) -> Report:
         fields = [
-            "Date", "CampaignId", "AdGroupId", "AdId",
-            "Impressions", "Clicks", "Cost", "Ctr", "AvgCpc", "Conversions",
+            "Date",
+            "CampaignId",
+            "AdGroupId",
+            "AdId",
+            "Impressions",
+            "Clicks",
+            "Cost",
+            "Ctr",
+            "AvgCpc",
+            "Conversions",
         ] + (extra_fields or [])
         return await self.run(
             report_type="AD_PERFORMANCE_REPORT",
@@ -205,17 +223,29 @@ class ReportsClient:
         extra_fields: list[str] | None = None,
     ) -> Report:
         fields = [
-            "Date", "CampaignId", "AdGroupId", "CriterionId", "Criterion",
-            "Query", "MatchType",
-            "Impressions", "Clicks", "Cost", "Ctr", "AvgCpc", "Conversions",
+            "Date",
+            "CampaignId",
+            "AdGroupId",
+            "CriterionId",
+            "Criterion",
+            "Query",
+            "MatchType",
+            "Impressions",
+            "Clicks",
+            "Cost",
+            "Ctr",
+            "AvgCpc",
+            "Conversions",
         ] + (extra_fields or [])
         filters: list[dict] = []
         if campaign_ids:
-            filters.append({
-                "Field": "CampaignId",
-                "Operator": "IN",
-                "Values": [str(x) for x in campaign_ids],
-            })
+            filters.append(
+                {
+                    "Field": "CampaignId",
+                    "Operator": "IN",
+                    "Values": [str(x) for x in campaign_ids],
+                }
+            )
         return await self.run(
             report_type="SEARCH_QUERY_PERFORMANCE_REPORT",
             field_names=fields,
@@ -232,8 +262,14 @@ class ReportsClient:
         extra_fields: list[str] | None = None,
     ) -> Report:
         fields = [
-            "Date", "Impressions", "Clicks", "Cost", "Ctr", "AvgCpc",
-            "Conversions", "CostPerConversion",
+            "Date",
+            "Impressions",
+            "Clicks",
+            "Cost",
+            "Ctr",
+            "AvgCpc",
+            "Conversions",
+            "CostPerConversion",
         ] + (extra_fields or [])
         return await self.run(
             report_type="ACCOUNT_PERFORMANCE_REPORT",

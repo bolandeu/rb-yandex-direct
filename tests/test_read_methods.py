@@ -1,6 +1,7 @@
 """Тесты P0-read методов DirectClient и пресетов отчётов."""
 
 import json
+
 import pytest
 import respx
 from httpx import Response
@@ -49,7 +50,10 @@ async def test_list_ads_moderation_filter() -> None:
     await c.list_ads_in_moderation(campaign_ids=[1])
     body = json.loads(route.calls.last.request.content)
     assert set(body["params"]["SelectionCriteria"]["Statuses"]) == {
-        "DRAFT", "MODERATION", "PREACCEPTED", "REJECTED",
+        "DRAFT",
+        "MODERATION",
+        "PREACCEPTED",
+        "REJECTED",
     }
 
 
@@ -61,9 +65,7 @@ async def test_paginated_get_iterates_limited_by() -> None:
         {"result": {"Campaigns": [{"Id": i} for i in range(500, 730)]}},
     ]
     calls = iter(pages)
-    respx.post(f"{PROD_BASE}/campaigns").mock(
-        side_effect=lambda *_: Response(200, json=next(calls))
-    )
+    respx.post(f"{PROD_BASE}/campaigns").mock(side_effect=lambda *_: Response(200, json=next(calls)))
     c = DirectClient(token="t")
     data = await c.list_campaigns(page_limit=500)
     assert len(data) == 730
@@ -112,9 +114,16 @@ async def test_check_dictionaries() -> None:
 @pytest.mark.asyncio
 @respx.mock
 async def test_negative_keyword_shared_sets() -> None:
-    _route_service("negativekeywordsharedsets", {"result": {"NegativeKeywordSharedSets": [
-        {"Id": 1, "Name": "Set1", "NegativeKeywords": {"Items": ["stop1", "stop2"]}}
-    ]}})
+    _route_service(
+        "negativekeywordsharedsets",
+        {
+            "result": {
+                "NegativeKeywordSharedSets": [
+                    {"Id": 1, "Name": "Set1", "NegativeKeywords": {"Items": ["stop1", "stop2"]}}
+                ]
+            }
+        },
+    )
     c = DirectClient(token="t")
     sets = await c.list_negative_keyword_shared_sets()
     assert sets[0]["Name"] == "Set1"
@@ -124,9 +133,7 @@ async def test_negative_keyword_shared_sets() -> None:
 @respx.mock
 async def test_report_preset_campaign_performance() -> None:
     tsv = '"Report"\nDate\tCampaignId\tImpressions\tClicks\tCost\n2026-04-01\t1\t100\t10\t500\n'
-    respx.post(f"{PROD_BASE}/reports").mock(
-        return_value=Response(200, text=tsv, headers={"RequestId": "r1"})
-    )
+    respx.post(f"{PROD_BASE}/reports").mock(return_value=Response(200, text=tsv, headers={"RequestId": "r1"}))
     rc = ReportsClient(token="t")
     rep = await rc.campaign_performance("2026-04-01", "2026-04-19")
     rows = rep.parse()
@@ -138,9 +145,7 @@ async def test_report_preset_campaign_performance() -> None:
 @respx.mock
 async def test_report_search_query_with_filter() -> None:
     tsv = "Query\tImpressions\nтест\t10\n"
-    route = respx.post(f"{PROD_BASE}/reports").mock(
-        return_value=Response(200, text=tsv, headers={"RequestId": "r1"})
-    )
+    route = respx.post(f"{PROD_BASE}/reports").mock(return_value=Response(200, text=tsv, headers={"RequestId": "r1"}))
     rc = ReportsClient(token="t")
     await rc.search_query_performance("2026-04-01", "2026-04-19", campaign_ids=[1, 2])
     body = json.loads(route.calls.last.request.content)

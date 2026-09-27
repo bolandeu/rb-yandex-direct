@@ -52,6 +52,7 @@ def _reports(login: str | None = None) -> ReportsClient:
 
 # ---- Клиенты и баланс ----
 
+
 def _managed_logins() -> list[str]:
     raw = os.getenv("YANDEX_DIRECT_MANAGED_LOGINS", "")
     return [s.strip() for s in raw.split(",") if s.strip()]
@@ -89,14 +90,13 @@ async def list_managed_accounts() -> list[dict]:
         agency = DirectClient(token=token, sandbox=sandbox, use_operator_units=use_op)
         for c in await agency.list_clients():
             seen[c.get("Login")] = c
-    except Exception:
+    except Exception:  # noqa: S110 — не агентство: списка подопечных нет, это обычный случай
         pass
 
     for managed_login in _managed_logins():
         if managed_login in seen:
             continue
-        c = DirectClient(token=token, client_login=managed_login,
-                         sandbox=sandbox, use_operator_units=use_op)
+        c = DirectClient(token=token, client_login=managed_login, sandbox=sandbox, use_operator_units=use_op)
         try:
             items = await c.list_clients()
             seen[managed_login] = items[0] if items else {"Login": managed_login}
@@ -113,6 +113,7 @@ async def get_clients_units(logins: list[str] | None = None, login: str | None =
 
 
 # ---- Кампании ----
+
 
 @mcp.tool()
 async def list_campaigns(
@@ -144,6 +145,7 @@ async def get_campaign(campaign_id: int, login: str | None = None) -> dict:
 
 # ---- Группы объявлений ----
 
+
 @mcp.tool()
 async def list_adgroups(
     campaign_ids: list[int] | None = None,
@@ -155,6 +157,7 @@ async def list_adgroups(
 
 
 # ---- Объявления ----
+
 
 @mcp.tool()
 async def list_ads(
@@ -188,6 +191,7 @@ async def list_ads_in_moderation(
 
 
 # ---- Ключи и ставки ----
+
 
 @mcp.tool()
 async def list_keywords(
@@ -224,6 +228,7 @@ async def get_keyword_bids(
 
 # ---- Общие минус-слова ----
 
+
 @mcp.tool()
 async def list_negative_keyword_shared_sets(login: str | None = None) -> list[dict]:
     """Наборы общих минус-слов клиента."""
@@ -231,6 +236,7 @@ async def list_negative_keyword_shared_sets(login: str | None = None) -> list[di
 
 
 # ---- Изменения ----
+
 
 @mcp.tool()
 async def check_dictionaries(timestamp: str) -> dict:
@@ -281,6 +287,7 @@ async def check_changes(
 
 # ---- Отчёты ----
 
+
 @mcp.tool()
 async def report_campaigns(
     date_from: str,
@@ -328,6 +335,7 @@ async def report_account(
 
 # ---- P1 read: корректировки, ретаргетинг, аудитории, исследование ключей ----
 
+
 @mcp.tool()
 async def list_bid_modifiers(
     campaign_ids: list[int] | None = None,
@@ -339,7 +347,9 @@ async def list_bid_modifiers(
     RETARGETING_ADJUSTMENT, REGIONAL_ADJUSTMENT, VIDEO_ADJUSTMENT, INCOME_GRADE_ADJUSTMENT.
     """
     return await _client(login).list_bid_modifiers(
-        campaign_ids=campaign_ids, adgroup_ids=adgroup_ids, types=types,
+        campaign_ids=campaign_ids,
+        adgroup_ids=adgroup_ids,
+        types=types,
     )
 
 
@@ -363,7 +373,9 @@ async def list_audience_targets(
 ) -> list[dict]:
     """Привязки аудиторий к группам — показывает где и с какой ставкой работает ретаргетинг."""
     return await _client(login).list_audience_targets(
-        adgroup_ids=adgroup_ids, campaign_ids=campaign_ids, states=states,
+        adgroup_ids=adgroup_ids,
+        campaign_ids=campaign_ids,
+        states=states,
     )
 
 
@@ -584,13 +596,18 @@ async def add_text_ad(
     Лимиты: Title ≤ 56, Title2 ≤ 30, Text ≤ 81, Href ≤ 1024.
     """
     if not confirm:
-        return _dry_run("ads.add[TextAd]", adgroup_id=adgroup_id,
-                        title=title, text=text, href=href)
+        return _dry_run("ads.add[TextAd]", adgroup_id=adgroup_id, title=title, text=text, href=href)
     return await _client(login).add_text_ad(
-        adgroup_id=adgroup_id, title=title, text=text, href=href,
-        title2=title2, display_url_path=display_url_path,
-        ad_image_hash=ad_image_hash, sitelink_set_id=sitelink_set_id,
-        vcard_id=vcard_id, turbo_page_id=turbo_page_id,
+        adgroup_id=adgroup_id,
+        title=title,
+        text=text,
+        href=href,
+        title2=title2,
+        display_url_path=display_url_path,
+        ad_image_hash=ad_image_hash,
+        sitelink_set_id=sitelink_set_id,
+        vcard_id=vcard_id,
+        turbo_page_id=turbo_page_id,
     )
 
 
@@ -741,11 +758,14 @@ async def set_campaign_negative_keywords(
     if not confirm:
         return _dry_run(
             "campaigns.update[NegativeKeywords]",
-            campaign_id=campaign_id, campaign_type=campaign_type,
+            campaign_id=campaign_id,
+            campaign_type=campaign_type,
             keywords_count=len(negative_keywords),
         )
     return await _client(login).set_campaign_negative_keywords(
-        campaign_id, negative_keywords, campaign_type=campaign_type,
+        campaign_id,
+        negative_keywords,
+        campaign_type=campaign_type,
     )
 
 
@@ -760,10 +780,12 @@ async def set_adgroup_negative_keywords(
     if not confirm:
         return _dry_run(
             "adgroups.update[NegativeKeywords]",
-            adgroup_id=adgroup_id, keywords_count=len(negative_keywords),
+            adgroup_id=adgroup_id,
+            keywords_count=len(negative_keywords),
         )
     return await _client(login).set_adgroup_negative_keywords(
-        adgroup_id, negative_keywords,
+        adgroup_id,
+        negative_keywords,
     )
 
 
@@ -782,7 +804,9 @@ async def set_campaign_daily_budget(
     if not confirm:
         return _dry_run(
             "campaigns.update[DailyBudget]",
-            campaign_id=campaign_id, amount_rub=amount_rub, mode=mode,
+            campaign_id=campaign_id,
+            amount_rub=amount_rub,
+            mode=mode,
         )
     return await _client(login).set_campaign_daily_budget(campaign_id, amount_rub, mode=mode)
 
@@ -852,8 +876,9 @@ async def add_retargeting_lists(
     """
     if not confirm:
         return _dry_run(
-            "retargetinglists.add", count=len(lists),
-            names=[l.get("Name") for l in lists[:5]],
+            "retargetinglists.add",
+            count=len(lists),
+            names=[lst.get("Name") for lst in lists[:5]],
         )
     return await _client(login).add_retargeting_lists(lists)
 
@@ -1009,7 +1034,8 @@ async def delete_negative_keyword_shared_sets(
     if not confirm:
         return _dry_run(
             "negativekeywordsharedsets.delete",
-            set_ids=set_ids, irreversible=True,
+            set_ids=set_ids,
+            irreversible=True,
         )
     return await _client(login).delete_negative_keyword_shared_sets(set_ids)
 
@@ -1031,11 +1057,14 @@ async def update_negative_keyword_shared_set(
     if not confirm:
         return _dry_run(
             "negativekeywordsharedsets.update",
-            set_id=set_id, name=name,
+            set_id=set_id,
+            name=name,
             keywords_count=len(negative_keywords) if negative_keywords else None,
         )
     return await _client(login).update_negative_keyword_shared_set(
-        set_id=set_id, name=name, negative_keywords=negative_keywords,
+        set_id=set_id,
+        name=name,
+        negative_keywords=negative_keywords,
     )
 
 
@@ -1172,7 +1201,9 @@ async def list_leads(
 ) -> list[dict]:
     """Лиды с lead-форм и Турбо-страниц (за последние 30 дней по умолчанию)."""
     return await _client(login).list_leads(
-        campaign_ids=campaign_ids, date_from=date_from, date_to=date_to,
+        campaign_ids=campaign_ids,
+        date_from=date_from,
+        date_to=date_to,
     )
 
 
@@ -1184,7 +1215,8 @@ async def list_dynamic_text_ad_targets(
 ) -> list[dict]:
     """Условия таргетинга для динамических объявлений."""
     return await _client(login).list_dynamic_text_ad_targets(
-        adgroup_ids=adgroup_ids, campaign_ids=campaign_ids,
+        adgroup_ids=adgroup_ids,
+        campaign_ids=campaign_ids,
     )
 
 
@@ -1256,7 +1288,8 @@ async def list_smart_ad_targets(
 ) -> list[dict]:
     """Условия таргетинга для смарт-баннеров."""
     return await _client(login).list_smart_ad_targets(
-        adgroup_ids=adgroup_ids, campaign_ids=campaign_ids,
+        adgroup_ids=adgroup_ids,
+        campaign_ids=campaign_ids,
     )
 
 
@@ -1461,6 +1494,7 @@ async def add_ad_images_from_file(
     создании/обновлении объявлений. image_type: REGULAR | WIDE | FIXED_IMAGE | AUTO.
     """
     import base64
+
     if not confirm:
         return _dry_run("adimages.add", file_paths=file_paths, image_type=image_type)
     items = []

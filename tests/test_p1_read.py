@@ -1,6 +1,7 @@
 """Тесты P1-read методов (Спринт 4)."""
 
 import json
+
 import pytest
 import respx
 from httpx import Response
@@ -31,9 +32,14 @@ async def test_list_bid_modifiers_filters() -> None:
 @pytest.mark.asyncio
 @respx.mock
 async def test_list_retargeting_lists() -> None:
-    _route("retargetinglists", {"RetargetingLists": [
-        {"Id": 1, "Name": "Все посетители", "Type": "RETARGETING"},
-    ]})
+    _route(
+        "retargetinglists",
+        {
+            "RetargetingLists": [
+                {"Id": 1, "Name": "Все посетители", "Type": "RETARGETING"},
+            ]
+        },
+    )
     c = DirectClient(token="t")
     data = await c.list_retargeting_lists()
     assert data[0]["Name"] == "Все посетители"
@@ -42,9 +48,14 @@ async def test_list_retargeting_lists() -> None:
 @pytest.mark.asyncio
 @respx.mock
 async def test_list_audience_targets_by_adgroup() -> None:
-    route = _route("audiencetargets", {"AudienceTargets": [
-        {"Id": 7, "AdGroupId": 50, "RetargetingListId": 1, "State": "ON"},
-    ]})
+    route = _route(
+        "audiencetargets",
+        {
+            "AudienceTargets": [
+                {"Id": 7, "AdGroupId": 50, "RetargetingListId": 1, "State": "ON"},
+            ]
+        },
+    )
     c = DirectClient(token="t")
     await c.list_audience_targets(adgroup_ids=[50])
     body = json.loads(route.calls.last.request.content)
@@ -54,10 +65,15 @@ async def test_list_audience_targets_by_adgroup() -> None:
 @pytest.mark.asyncio
 @respx.mock
 async def test_keywords_has_search_volume_with_regions() -> None:
-    route = _route("keywordsresearch", {"SearchVolumeItems": [
-        {"Phrase": "купить диван", "HasSearchVolume": True},
-        {"Phrase": "купить бегемота", "HasSearchVolume": False},
-    ]})
+    route = _route(
+        "keywordsresearch",
+        {
+            "SearchVolumeItems": [
+                {"Phrase": "купить диван", "HasSearchVolume": True},
+                {"Phrase": "купить бегемота", "HasSearchVolume": False},
+            ]
+        },
+    )
     c = DirectClient(token="t")
     result = await c.keywords_has_search_volume(
         keywords=["купить диван", "купить бегемота"],
@@ -84,6 +100,7 @@ async def test_keywords_deduplicate() -> None:
 @respx.mock
 async def test_mcp_keywords_deduplicate_dry_run(monkeypatch) -> None:
     from rb_yandex_direct import mcp_server
+
     monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
     result = await mcp_server.keywords_deduplicate(keyword_ids=[1, 2])
     assert result["requires_confirm"] is True

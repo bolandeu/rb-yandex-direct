@@ -12,12 +12,15 @@ from rb_yandex_direct.core.oauth import TOKEN_URL, OAuthToken, YandexOAuth
 @respx.mock
 async def test_exchange_code_ok() -> None:
     respx.post(TOKEN_URL).mock(
-        return_value=Response(200, json={
-            "access_token": "y0_AA",
-            "refresh_token": "y0_RR",
-            "expires_in": 31536000,
-            "token_type": "bearer",
-        })
+        return_value=Response(
+            200,
+            json={
+                "access_token": "y0_AA",
+                "refresh_token": "y0_RR",
+                "expires_in": 31536000,
+                "token_type": "bearer",
+            },
+        )
     )
     oauth = YandexOAuth("id", "secret")
     tok = await oauth.exchange_code("code123")
