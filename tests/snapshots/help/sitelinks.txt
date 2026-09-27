@@ -1,0 +1,11 @@
+Usage: rb-yandex-direct sitelinks [OPTIONS] [COMMAND] [ARGS]...
+
+  Наборы быстрых ссылок.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  add     Создать набор быстрых ссылок из JSON-файла.
+  delete  Удалить наборы быстрых ссылок.
+  list    Наборы быстрых ссылок.

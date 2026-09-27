@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct ads resume [OPTIONS] IDS...
+
+  Возобновить показы остановленных объявлений.
+
+  Example: rb-yandex-direct ads resume 777
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

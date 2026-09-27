@@ -1,0 +1,17 @@
+Usage: rb-yandex-direct auth [OPTIONS] [COMMAND] [ARGS]...
+
+  OAuth-токен Директа: вход, статус, обновление, выход.
+
+  Токен хранится в keychain ОС (yandex-oauth:direct) и обновляется сам по refresh_token. Без
+  keychain (сервер, CI) — переменные окружения YANDEX_OAUTH_DIRECT_REFRESH_TOKEN,
+  YANDEX_OAUTH_DIRECT_CLIENT_ID, YANDEX_OAUTH_DIRECT_CLIENT_SECRET или готовый токен в
+  YANDEX_DIRECT_TOKEN. Файлы .env не читаются.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  login    Получить OAuth-токен Директа и сохранить в keychain вместе с refresh_token.
+  logout   Удалить токен и данные приложения из keychain (переменные окружения не трогает).
+  refresh  Принудительно обновить токен по refresh_token (без браузера).
+  status   Откуда берётся токен и работает ли он.

@@ -1,0 +1,10 @@
+Usage: rb-yandex-direct keywords check-volume [OPTIONS] PHRASES...
+
+  Проверить, есть ли у фраз поисковый спрос.
+
+  Example: rb-yandex-direct keywords check-volume 'купить диван' 'диван недорого' --region 213
+
+Options:
+  --region INTEGER  регион Яндекса (213=Москва, 2=СПб)
+  --output PATH     сохранить JSON в файл
+  --help            Show this message and exit.

@@ -1,0 +1,11 @@
+Usage: rb-yandex-direct campaigns add-json [OPTIONS]
+
+  Создать кампании из JSON-файла (сложная структура — смотри доку campaigns.add).
+
+  Example: rb-yandex-direct campaigns add-json --from-json campaigns.json
+
+Options:
+  --from-json PATH  JSON-массив объектов кампаний с TextCampaign/SmartCampaign/... блоками
+                    [required]
+  -y, --yes         без подтверждения
+  --help            Show this message and exit.

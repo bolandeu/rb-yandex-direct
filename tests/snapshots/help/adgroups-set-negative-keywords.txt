@@ -1,0 +1,11 @@
+Usage: rb-yandex-direct adgroups set-negative-keywords [OPTIONS] ADGROUP_ID
+
+  Заменить минус-слова на уровне группы (полный список заменяет текущий).
+
+  Example: rb-yandex-direct adgroups set-negative-keywords 555 --words 'бу,ремонт'
+
+Options:
+  --words TEXT      минус-фразы через запятую
+  --from-file PATH  файл с фразами построчно
+  -y, --yes         без подтверждения
+  --help            Show this message and exit.

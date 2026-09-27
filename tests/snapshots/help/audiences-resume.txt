@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct audiences resume [OPTIONS] IDS...
+
+  Возобновить привязки аудиторий.
+
+  Example: rb-yandex-direct audiences resume 5001
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

@@ -1,0 +1,14 @@
+Usage: rb-yandex-direct keywords update [OPTIONS]
+
+  Обновить ключевую фразу.
+
+  Example: rb-yandex-direct keywords update --id 901 --text 'купить угловой диван'
+
+Options:
+  --id INTEGER                  ID ключевой фразы  [required]
+  --text TEXT                   новый текст фразы
+  --priority [HIGH|NORMAL|LOW]  приоритет для автостратегии
+  --user-param1 TEXT            значение {param1} для подстановки в ссылку
+  --user-param2 TEXT            значение {param2} для подстановки в ссылку
+  -y, --yes                     без подтверждения
+  --help                        Show this message and exit.

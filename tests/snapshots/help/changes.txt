@@ -1,0 +1,10 @@
+Usage: rb-yandex-direct changes [OPTIONS] [COMMAND] [ARGS]...
+
+  Синхронизация изменений (changes.* API).
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  check         Что изменилось с указанного timestamp (ISO 8601, UTC).
+  dictionaries  Актуальность справочников.

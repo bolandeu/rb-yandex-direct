@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct campaigns archive [OPTIONS] IDS...
+
+  Архивировать. Кампания должна быть suspended и без остатка средств.
+
+  Example: rb-yandex-direct campaigns archive 12345
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

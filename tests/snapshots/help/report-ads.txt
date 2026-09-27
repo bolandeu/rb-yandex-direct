@@ -1,0 +1,11 @@
+Usage: rb-yandex-direct report ads [OPTIONS]
+
+  AD_PERFORMANCE_REPORT: эффективность объявлений.
+
+  Example: rb-yandex-direct report ads --date-from 2026-09-01 --date-to 2026-09-27 -o ads.json
+
+Options:
+  --date-from TEXT   начало периода, YYYY-MM-DD  [required]
+  --date-to TEXT     конец периода, YYYY-MM-DD  [required]
+  -o, --output PATH  сохранить строки отчёта в JSON-файл
+  --help             Show this message and exit.

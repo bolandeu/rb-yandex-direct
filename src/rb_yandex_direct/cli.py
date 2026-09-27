@@ -1,16 +1,7 @@
-"""CLI rb-yandex-direct.
+"""CLI rb-yandex-direct — Яндекс.Директ API v5.
 
-Команды в этом скелете:
-  auth                — интерактивная OAuth-авторизация (browser → localhost → token)
-  auth --oob          — ручная вставка кода (для ssh без браузера)
-  auth --device       — device flow
-  auth refresh        — обновить токен по refresh_token
-  whoami              — тест токена: показать баланс/клиента
-  sandbox on|off|show — переключить prod/sandbox в .env
-  clients             — список клиентов (для агентств)
-  campaigns list      — список кампаний (флаги --state --type)
-  report              — запуск отчёта с polling
-  mcp                 — запустить MCP-сервер (stdio)
+Голый `rb-yandex-direct` (и любая группа без подкоманды) печатает справку.
+Токен — из keychain/переменных окружения через rb-yandex-oauth (см. core/auth.py).
 """
 
 from __future__ import annotations
@@ -19,47 +10,45 @@ import asyncio
 import json
 import os
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import click
-from dotenv import load_dotenv
 from loguru import logger
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
+from yandex_oauth.errors import CliError
+from yandex_oauth.oauth import TokenSet, parse_manual_token
 
+from rb_yandex_direct.core import auth as direct_auth
 from rb_yandex_direct.core.client import DirectClient
 from rb_yandex_direct.core.errors import DirectAPIError
-from rb_yandex_direct.core.oauth import (
-    OAuthToken,
-    YandexOAuth,
-)
+from rb_yandex_direct.core.oauth import OAuthToken, YandexOAuth
 from rb_yandex_direct.core.reports import ReportsClient
 
 console = Console()
-load_dotenv()
 
 
-def _env_path() -> Path:
-    """Предпочитаем общий .env проекта, иначе — локальный."""
-    shared = Path.home() / "Projects/_shared/credentials/.env.shared"
-    if shared.exists():
-        return shared
-    return Path.cwd() / ".env"
+class _Group(click.Group):
+    """Группа: без подкоманды печатает справку (exit 0); CliError → сообщение + action, свой код выхода."""
 
+    group_class = type  # подгруппы `@cli.group()` — тоже _Group
 
-def _save_env(updates: dict[str, str]) -> Path:
-    path = _env_path()
-    existing: dict[str, str] = {}
-    if path.exists():
-        for line in path.read_text().splitlines():
-            if "=" in line and not line.lstrip().startswith("#"):
-                k, v = line.split("=", 1)
-                existing[k.strip()] = v.strip()
-    existing.update(updates)
-    lines = [f"{k}={v}" for k, v in existing.items()]
-    path.write_text("\n".join(lines) + "\n")
-    return path
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        kwargs.setdefault("invoke_without_command", True)
+        super().__init__(*args, **kwargs)
+
+    def invoke(self, ctx: click.Context) -> Any:
+        try:
+            rv = super().invoke(ctx)
+        except CliError as exc:
+            click.echo(f"Error: {exc.message}" + (f"\n{exc.action}" if exc.action else ""), err=True)
+            ctx.exit(exc.exit_code)
+        if ctx.invoked_subcommand is None:
+            click.echo(ctx.get_help())
+        return rv
 
 
 def _managed_logins() -> list[str]:
@@ -96,9 +85,7 @@ def _resolve_login(login: str | None) -> str | None:
 
 
 def _get_client(ctx: click.Context) -> DirectClient:
-    token = os.getenv("YANDEX_DIRECT_TOKEN")
-    if not token:
-        raise click.ClickException("Нет YANDEX_DIRECT_TOKEN. Запусти: rb-yandex-direct auth")
+    token = direct_auth.resolve_token()
     login = _resolve_login(ctx.obj.get("login")) or os.getenv("YANDEX_DIRECT_LOGIN")
     return DirectClient(
         token=token,
@@ -108,7 +95,8 @@ def _get_client(ctx: click.Context) -> DirectClient:
     )
 
 
-@click.group()
+@click.group(cls=_Group)
+@click.version_option(package_name=direct_auth.DIST_NAME, message="%(version)s")
 @click.option("--login", help="Client-Login (логин рекламодателя для агентского доступа)")
 @click.option("--sandbox/--prod", default=None, help="Переключить окружение для этого вызова")
 @click.option("-v", "--verbose", is_flag=True, help="Подробные логи")
@@ -125,46 +113,69 @@ def cli(ctx: click.Context, login: str | None, sandbox: bool | None, verbose: bo
 # ---------- auth ----------
 
 
-@cli.group(invoke_without_command=True)
-@click.option("--oob", is_flag=True, help="Out-of-band: ручная вставка кода (для headless)")
-@click.option("--device", is_flag=True, help="Device flow (QR/код на другом устройстве)")
-@click.option("--client-id", envvar="YANDEX_DIRECT_CLIENT_ID", help="ID приложения OAuth")
-@click.option("--client-secret", envvar="YANDEX_DIRECT_CLIENT_SECRET", help="secret приложения OAuth")
-@click.pass_context
-def auth(ctx: click.Context, oob: bool, device: bool, client_id: str | None, client_secret: str | None) -> None:
-    """OAuth-авторизация в Яндексе.
+@cli.group()
+def auth() -> None:
+    """OAuth-токен Директа: вход, статус, обновление, выход.
 
-    Перед первым запуском зарегистрируй приложение:
-        https://oauth.yandex.ru/?dialog=create-client-entry
-    Разрешения: direct:api + passport:business
-    Для prod нужна заявка на API: direct.yandex.ru → Настройки API → Мои заявки (до 7 дней).
+    Токен хранится в keychain ОС (yandex-oauth:direct) и обновляется сам по refresh_token.
+    Без keychain (сервер, CI) — переменные окружения YANDEX_OAUTH_DIRECT_REFRESH_TOKEN,
+    YANDEX_OAUTH_DIRECT_CLIENT_ID, YANDEX_OAUTH_DIRECT_CLIENT_SECRET или готовый токен в
+    YANDEX_DIRECT_TOKEN. Файлы .env не читаются.
     """
-    if ctx.invoked_subcommand is not None:
-        return
-    if not client_id or not client_secret:
-        raise click.ClickException(
-            "Не задан client_id/client_secret.\n"
-            "Зарегистрируй приложение на https://oauth.yandex.ru/?dialog=create-client-entry\n"
-            "(scope: direct:api + passport:business),\n"
-            "затем передай --client-id/--client-secret или экспортируй\n"
-            "YANDEX_DIRECT_CLIENT_ID/YANDEX_DIRECT_CLIENT_SECRET."
-        )
-    oauth = YandexOAuth(client_id, client_secret)
 
-    if device:
-        token = asyncio.run(_auth_device(oauth))
-    elif oob:
-        token = asyncio.run(_auth_oob(oauth))
+
+def _token_set(token: OAuthToken) -> TokenSet:
+    expires_in = int((token.expires_at - datetime.now(UTC)).total_seconds()) if token.expires_at else None
+    return TokenSet(token.access_token, token.refresh_token, expires_in)
+
+
+def _print_token(bag: dict) -> None:
+    expires = direct_auth.store.expires_at(bag)
+    if expires:
+        console.print(f"  действует до: {expires.date().isoformat()}")
+    refreshable = direct_auth.store.can_refresh(bag)
+    console.print(f"  автообновление: {'да' if refreshable else 'нет (токен вставлен вручную)'}")
+
+
+@auth.command("login")
+@click.option("--token", help="готовый OAuth-токен или адрес …verification_code#access_token=… (без автообновления)")
+@click.option("--oob", is_flag=True, help="ввести код со страницы подтверждения вручную (ssh, без браузера)")
+@click.option("--device", is_flag=True, help="device flow: код подтверждается на другом устройстве")
+@click.option("--client-id", help="ID OAuth-приложения (или YANDEX_OAUTH_DIRECT_CLIENT_ID)")
+@click.option("--client-secret", help="секрет OAuth-приложения (или YANDEX_OAUTH_DIRECT_CLIENT_SECRET)")
+def auth_login(token: str | None, oob: bool, device: bool, client_id: str | None, client_secret: str | None) -> None:
+    """Получить OAuth-токен Директа и сохранить в keychain вместе с refresh_token.
+
+    По умолчанию открывает браузер и ловит код на localhost; --oob — код вручную,
+    --device — подтверждение на другом устройстве, --token — готовый токен.
+    Приложение: --client-id/--client-secret, иначе YANDEX_OAUTH_DIRECT_CLIENT_ID/SECRET
+    (прежние YANDEX_DIRECT_CLIENT_ID/SECRET тоже читаются), иначе — с прошлого входа.
+    Создать приложение: https://oauth.yandex.ru/?dialog=create-client-entry, права
+    direct:api и passport:business; для prod нужна подтверждённая заявка на доступ к API
+    (direct.yandex.ru → Настройки API → Мои заявки), иначе API отвечает кодом 58.
+
+    Example: rb-yandex-direct auth login --client-id abc123 --client-secret s3cr3t
+    """
+    cid, secret = direct_auth.app_credentials(client_id, client_secret)
+    if token:
+        bag = direct_auth.store.store_token_set(parse_manual_token(token), cid, secret)
     else:
-        token = asyncio.run(_auth_interactive(oauth))
-
-    env_path = _save_env(token.to_env_dict())
-    console.print(f"[green]✓[/] Токен сохранён в {env_path}")
-    console.print(f"  access_token: {token.access_token[:12]}...{token.access_token[-4:]}")
-    if token.expires_at:
-        console.print(f"  истекает:     {token.expires_at.isoformat()}")
-    if token.refresh_token:
-        console.print("  refresh_token сохранён (используй [cyan]rb-yandex-direct auth refresh[/])")
+        if not cid or not secret:
+            raise click.UsageError(
+                "Не задан client_id/client_secret: передай --client-id/--client-secret или задай "
+                "YANDEX_OAUTH_DIRECT_CLIENT_ID/YANDEX_OAUTH_DIRECT_CLIENT_SECRET. "
+                "Приложение: https://oauth.yandex.ru/?dialog=create-client-entry (direct:api + passport:business)."
+            )
+        oauth = YandexOAuth(cid, secret)
+        if device:
+            got = asyncio.run(_auth_device(oauth))
+        elif oob:
+            got = asyncio.run(_auth_oob(oauth))
+        else:
+            got = asyncio.run(_auth_interactive(oauth))
+        bag = direct_auth.store.store_token_set(_token_set(got), cid, secret)
+    console.print("[green]✓[/] Токен сохранён в keychain (yandex-oauth:direct)")
+    _print_token(bag)
 
 
 async def _auth_interactive(oauth: YandexOAuth) -> OAuthToken:
@@ -190,30 +201,61 @@ async def _auth_device(oauth: YandexOAuth) -> OAuthToken:
 
 
 @auth.command("refresh")
-@click.option("--client-id", envvar="YANDEX_DIRECT_CLIENT_ID", required=True)
-@click.option("--client-secret", envvar="YANDEX_DIRECT_CLIENT_SECRET", required=True)
-def auth_refresh(client_id: str, client_secret: str) -> None:
-    """Обновить access_token по refresh_token."""
-    rt = os.getenv("YANDEX_DIRECT_REFRESH_TOKEN")
-    if not rt:
-        raise click.ClickException("Нет YANDEX_DIRECT_REFRESH_TOKEN")
-    oauth = YandexOAuth(client_id, client_secret)
-    token = asyncio.run(oauth.refresh(rt))
-    env_path = _save_env(token.to_env_dict())
-    console.print(f"[green]✓[/] Обновлён, сохранён в {env_path}")
+def auth_refresh() -> None:
+    """Принудительно обновить токен по refresh_token (без браузера).
+
+    Обычно не нужно: токен обновляется сам за 30 дней до истечения.
+    Без keychain обновлённый токен живёт только в памяти процесса.
+
+    Example: rb-yandex-direct auth refresh
+    """
+    bag = direct_auth.store.refresh()
+    console.print("[green]✓[/] Токен обновлён")
+    _print_token(bag)
 
 
-@auth.command("show")
-def auth_show() -> None:
-    """Показать статус текущего токена."""
-    token = os.getenv("YANDEX_DIRECT_TOKEN")
-    expires = os.getenv("YANDEX_DIRECT_TOKEN_EXPIRES")
-    if not token:
-        console.print("[red]токен не задан[/]")
-        return
-    console.print(f"token:   {token[:12]}...{token[-4:]}")
-    if expires:
-        console.print(f"expires: {expires}")
+@auth.command("logout")
+def auth_logout() -> None:
+    """Удалить токен и данные приложения из keychain (переменные окружения не трогает).
+
+    Example: rb-yandex-direct auth logout
+    """
+    direct_auth.store.delete()
+    console.print("Учётные данные Директа удалены из keychain.")
+
+
+@auth.command("status")
+@click.option("--check", "check", is_flag=True, help="проверить токен запросом clients.get (не дольше 10 с)")
+@click.option("--json", "as_json", is_flag=True, help="отчёт JSON по контракту §8 стандарта tools")
+@click.pass_context
+def auth_status(ctx: click.Context, check: bool, as_json: bool) -> None:
+    """Откуда берётся токен и работает ли он. Значений секретов не печатает.
+
+    Без --check — только наличие и срок (unchecked / missing / expired), без сети.
+    Код выхода 0 — всё в порядке, 3 — токена нет, он истёк или Директ его не принимает.
+    --json: {ok, tool, version, checked_at, credentials[]} — provider, required, fields,
+    source, source_ref, status, expires_at, quota (баллы API: остаток и суточный лимит),
+    message; при коде 3 — ok: false и error CREDENTIALS_UNHEALTHY рядом с отчётом.
+
+    Example: rb-yandex-direct auth status --check --json
+    """
+    report, error = direct_auth.status_report(check=check, sandbox=bool(ctx.obj.get("sandbox")))
+    if as_json:
+        envelope = {"ok": error is None, **({"error": error.to_dict()} if error else {}), **report}
+        click.echo(json.dumps(envelope, ensure_ascii=False))
+    else:
+        for entry in report["credentials"]:
+            mark = {"ok": "✓", "unchecked": "·"}.get(entry["status"], "✗")
+            expires = f", до {entry['expires_at'][:10]}" if entry["expires_at"] else ""
+            quota = entry["quota"]
+            units = f", баллы {quota['remaining']}/{quota['limit']}" if quota else ""
+            detail = f" — {entry['message']}" if entry["message"] else ""
+            line = f"{entry['provider']}: {entry['status']} ({entry['source']}: {entry['source_ref']}){expires}{units}"
+            console.print(f"{mark} {escape(line + detail)}")
+        if error:
+            click.echo(f"Error: {error.message}\n{error.action}", err=True)
+    if error:
+        ctx.exit(error.exit_code)
 
 
 # ---------- whoami ----------
@@ -222,7 +264,7 @@ def auth_show() -> None:
 @cli.command()
 @click.pass_context
 def whoami(ctx: click.Context) -> None:
-    """Проверить токен и показать клиента.
+    """Проверить токен и показать клиентов (clients.get). Отказ по учётным данным — exit 3.
 
     Example: rb-yandex-direct whoami
     """
@@ -234,9 +276,7 @@ def whoami(ctx: click.Context) -> None:
     try:
         clients = asyncio.run(run())
     except DirectAPIError as e:
-        if e.is_auth_error:
-            raise click.ClickException("Токен недействителен (код 1002). Перезапусти: rb-yandex-direct auth")
-        raise click.ClickException(str(e))
+        raise direct_auth.as_cli_error(e) from e
 
     t = Table(title="Клиенты")
     t.add_column("Login")
@@ -250,22 +290,6 @@ def whoami(ctx: click.Context) -> None:
         )
     console.print(t)
     console.print(f"[dim]Units: {client.last_units}  RequestId: {client.last_request_id}[/]")
-
-
-# ---------- sandbox ----------
-
-
-@cli.command()
-@click.argument("mode", type=click.Choice(["on", "off", "show"]))
-def sandbox(mode: str) -> None:
-    """Переключить окружение prod/sandbox в .env."""
-    current = os.getenv("YANDEX_DIRECT_SANDBOX", "false")
-    if mode == "show":
-        console.print(f"sandbox: {current}")
-        return
-    new = "true" if mode == "on" else "false"
-    path = _save_env({"YANDEX_DIRECT_SANDBOX": new})
-    console.print(f"[green]✓[/] YANDEX_DIRECT_SANDBOX={new} → {path}")
 
 
 # ---------- clients ----------
@@ -322,13 +346,12 @@ def accounts(ctx: click.Context, output: str | None, managed_only: bool) -> None
     Сначала пробует получить список через API (если ты агентство — оно вернёт
     список подопечных). Если не агентство — API вернёт только твой логин,
     поэтому дополняется списком из YANDEX_DIRECT_MANAGED_LOGINS и для каждого
-    делается clients.get чтобы показать валюту/баллы/статус.
+    делается clients.get чтобы показать валюту/баллы/статус. Токен — из auth login
+    (keychain) или переменных окружения, как у остальных команд.
 
     Example: rb-yandex-direct accounts --output accounts.json
     """
-    token = os.getenv("YANDEX_DIRECT_TOKEN")
-    if not token:
-        raise click.ClickException("Нет YANDEX_DIRECT_TOKEN. Запусти: rb-yandex-direct auth")
+    token = direct_auth.resolve_token()
 
     sandbox = ctx.obj.get("sandbox") or os.getenv("YANDEX_DIRECT_SANDBOX", "").lower() == "true"
     use_op = os.getenv("YANDEX_DIRECT_USE_OPERATOR_UNITS", "").lower() == "true"
@@ -385,7 +408,7 @@ def accounts(ctx: click.Context, output: str | None, managed_only: bool) -> None
     console.print(t)
     if not managed and not data:
         console.print(
-            "[yellow]Пусто. Добавь YANDEX_DIRECT_MANAGED_LOGINS=a@yandex.ru,b@yandex.ru в .env или Doppler.[/]"
+            "[yellow]Пусто. Задай YANDEX_DIRECT_MANAGED_LOGINS=a@yandex.ru,b@yandex.ru в окружении (Doppler, shell).[/]"
         )
 
 
@@ -1366,7 +1389,7 @@ def modifiers_add(
       rb-yandex-direct modifiers add --adgroup 456 --type DEMOGRAPHICS --gender GENDER_MALE --age AGE_25_34 --value 120
       rb-yandex-direct modifiers add --campaign 123 --type REGIONAL --region 213 --value 150
 
-    Example: rb-yandex-direct modifiers add --campaign 12345 --type MOBILE_ADJUSTMENT --value 50
+    Example: rb-yandex-direct modifiers add --campaign 12345 --type MOBILE --value 50
     """
     if (campaign_id is None) == (adgroup_id is None):
         raise click.ClickException("укажи ровно один из --campaign / --adgroup")
@@ -2699,11 +2722,8 @@ def _run_report(ctx: click.Context, coro, output: str | None) -> None:
 
 
 def _reports_client(ctx: click.Context) -> ReportsClient:
-    token = os.getenv("YANDEX_DIRECT_TOKEN")
-    if not token:
-        raise click.ClickException("Нет YANDEX_DIRECT_TOKEN")
     return ReportsClient(
-        token=token,
+        token=direct_auth.resolve_token(),
         client_login=ctx.obj.get("login") or os.getenv("YANDEX_DIRECT_LOGIN"),
         sandbox=bool(ctx.obj.get("sandbox")) or os.getenv("YANDEX_DIRECT_SANDBOX", "").lower() == "true",
     )

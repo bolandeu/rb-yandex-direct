@@ -3,11 +3,13 @@
 ## Commands
 
 ```bash
-uv sync --all-extras
-uv run rb-yandex-direct auth
+uv sync
+uv run rb-yandex-direct auth login
+uv run rb-yandex-direct auth status --check
 uv run rb-yandex-direct whoami
 uv run rb-yandex-direct campaigns list --state ON
-uv run pytest
+uv run pytest                          # --snapshot-update после правки справки
+uv run scripts/release.py --check      # весь гейт перед каждым коммитом
 uv run rb-yandex-direct mcp
 ```
 
@@ -17,12 +19,13 @@ uv run rb-yandex-direct mcp
 
 **Source layout:** `src/rb_yandex_direct/`
 
+- `core/auth.py` — токен через rb-yandex-oauth (`PROFILE`, `store`, `resolve_token()`), `auth status` по §8, маппинг ошибок API в CliError (53/54/58/513/1002 → exit 3, прочее → 5).
 - `core/oauth.py` — `YandexOAuth`. Три потока: authorization-code с локальным callback (основной), OOB (ручная вставка кода), device flow. Scope: `direct:api passport:business`.
 - `core/client.py` — `DirectClient`. JSON-RPC-подобный вызов v5: `POST /json/v5/<service>` с `{"method": ..., "params": ...}`. Ошибки — в теле под `error`, код 1002 = невалидный токен. Заголовки: `Authorization: Bearer`, `Client-Login`, `Accept-Language`, `Use-Operator-Units`. Логирует `Units` и `RequestId` из ответа.
 - `core/reports.py` — `ReportsClient`. Отдельный базовый URL, polling 200/201/202 по `retryIn`, парсинг TSV в `list[dict]`.
 - `core/errors.py` — `DirectAPIError` (с `.is_auth_error`), `DirectAuthError`.
 - `cli.py` — Click. Группы:
-  - **Клиенты/баланс:** `auth`, `whoami`, `clients`, `client` (update/update-agency), `sandbox`.
+  - **Клиенты/баланс:** `auth login/refresh/logout/status`, `whoami`, `clients`, `client` (update/update-agency), `accounts`.
   - **Кампании:** `campaigns list/suspend/resume/archive/unarchive/update/set-budget/set-negative-keywords/add-json/delete`.
   - **Группы объявлений:** `adgroups list/add/update/delete/set-negative-keywords`.
   - **Объявления:** `ads list/moderate/suspend/resume/archive/unarchive/delete/moderation/add-text/add-json`.
@@ -44,7 +47,9 @@ uv run rb-yandex-direct mcp
 - OAuth register: `https://oauth.yandex.ru/?dialog=create-client-entry`
 - Заявка на Direct API: `https://direct.yandex.ru/registered/main.pl?cmd=apiCertificationRequestList` (до 7 дней модерации для prod)
 
-**Credentials:** токены пишутся в `.env` (или `~/Projects/_shared/credentials/.env.shared` если существует).
+**Credentials:** rb-yandex-oauth — keychain `yandex-oauth:direct` (свой слот, не общий `yandex-oauth:yandex`: общее приложение не прошло заявку на API Директа, код 58) или env `YANDEX_OAUTH_DIRECT_*`; готовый токен — `YANDEX_DIRECT_TOKEN`. `.env` не читается. Тесты изолированы от keychain фикстурой `tests/conftest.py`.
+
+**Справка = docstring'и команд в `cli.py`** (Click, `[tool.cli-generator] commands` в pyproject): у каждой команды строка `Example: rb-yandex-direct …`, у каждой опции `help=`. Тесты: `tests/test_help.py` (контракт + снапшоты), `tests/test_examples.py` (каждый Example выполняется против замоканного API), `tests/test_mcp_tools.py` (каждый MCP-инструмент, dry-run и confirm).
 
 **host_id (в webmaster) здесь не применяется** — аналог «кто клиент»: `Client-Login` из `list_clients`. MCP принимает `login` опциональным параметром каждого инструмента, чтобы Claude мог автоматически находить клиента по домену/названию (как `list_hosts` в webmaster).
 
@@ -58,11 +63,11 @@ uv run rb-yandex-direct mcp
 - Pydantic-модели для ответов — не вводили, сохраняем raw-dict подход с валидацией на входе.
 - `AdVideos` сервис для загрузки видео — не нужен, используется только как источник VideoId для `creatives.add`.
 
-**Предохранитель:** MCP write-tools требуют `confirm=true`; CLI write-команды — интерактивный `y/n` (где реализовано — пока только в задумке).
+**Предохранитель:** MCP write-tools требуют `confirm=true`; CLI write-команды — интерактивный `y/n`, `-y/--yes` — без вопроса.
 
 **API Units логируются** при verbose-режиме: `Units: used/daily/weekly`.
 
-**Код ошибки 1002 = невалидный токен** → `DirectAPIError.is_auth_error == True` → в CLI подсказываем перезапуск `auth`.
+**Ошибки учётных данных** (53, 54, 58, 513, 1002) → `core.auth.as_cli_error` → exit 3 с подсказкой `auth login`.
 
 **Индекс документации API:** `docs/api_links.json` — 27 сервисов × методы с URL на `yandex.com/dev/direct/doc/en/*`. Генерируется из sitemap + ручного дополнения: `uv run scripts/build_api_index.py`. Использовать так: смотри ключ `services.<service>.methods.<method>` → WebFetch по URL, если нужна сверка формата запроса.
 

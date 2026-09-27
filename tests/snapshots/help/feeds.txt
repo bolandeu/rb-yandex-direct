@@ -1,0 +1,12 @@
+Usage: rb-yandex-direct feeds [OPTIONS] [COMMAND] [ARGS]...
+
+  Товарные фиды.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  add-json     Создать фиды из JSON-файла (структура — как в feeds.add).
+  delete       Удалить фиды.
+  list         Товарные фиды.
+  update-json  Обновить фиды из JSON-файла.

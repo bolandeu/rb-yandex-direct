@@ -5,7 +5,7 @@ import respx
 from httpx import Response
 
 from rb_yandex_direct.core.errors import DirectAuthError
-from rb_yandex_direct.core.oauth import TOKEN_URL, OAuthToken, YandexOAuth
+from rb_yandex_direct.core.oauth import TOKEN_URL, YandexOAuth
 
 
 @pytest.mark.asyncio
@@ -51,10 +51,3 @@ def test_build_authorize_url() -> None:
 def test_token_empty_credentials() -> None:
     with pytest.raises(DirectAuthError):
         YandexOAuth("", "secret")
-
-
-def test_token_to_env_dict() -> None:
-    tok = OAuthToken(access_token="AA", refresh_token="RR")
-    env = tok.to_env_dict()
-    assert env["YANDEX_DIRECT_TOKEN"] == "AA"
-    assert env["YANDEX_DIRECT_REFRESH_TOKEN"] == "RR"

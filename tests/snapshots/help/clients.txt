@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct clients [OPTIONS]
+
+  Список клиентов агентства (или себя для обычного аккаунта).
+
+  Example: rb-yandex-direct clients
+
+Options:
+  --output PATH  сохранить JSON в файл
+  --help         Show this message and exit.

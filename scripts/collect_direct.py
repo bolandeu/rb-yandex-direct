@@ -19,12 +19,9 @@ import json
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
-
+from rb_yandex_direct.core.auth import resolve_token
 from rb_yandex_direct.core.client import DirectClient
 from rb_yandex_direct.core.reports import ReportsClient
-
-load_dotenv()
 
 
 def _dump(path: Path, data) -> None:
@@ -33,7 +30,7 @@ def _dump(path: Path, data) -> None:
 
 
 async def collect(login: str | None, date_from: str, date_to: str, out_dir: Path) -> None:
-    token = os.environ["YANDEX_DIRECT_TOKEN"]
+    token = resolve_token()
     sandbox = os.getenv("YANDEX_DIRECT_SANDBOX", "").lower() == "true"
 
     client = DirectClient(token=token, client_login=login, sandbox=sandbox)

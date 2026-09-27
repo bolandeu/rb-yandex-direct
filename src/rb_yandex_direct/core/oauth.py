@@ -65,14 +65,6 @@ class OAuthToken:
             return False
         return datetime.now(UTC) >= self.expires_at - timedelta(minutes=5)
 
-    def to_env_dict(self) -> dict[str, str]:
-        out = {"YANDEX_DIRECT_TOKEN": self.access_token}
-        if self.refresh_token:
-            out["YANDEX_DIRECT_REFRESH_TOKEN"] = self.refresh_token
-        if self.expires_at:
-            out["YANDEX_DIRECT_TOKEN_EXPIRES"] = self.expires_at.isoformat()
-        return out
-
 
 class _CallbackHandler(http.server.BaseHTTPRequestHandler):
     received_code: str | None = None

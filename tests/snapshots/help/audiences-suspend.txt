@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct audiences suspend [OPTIONS] IDS...
+
+  Остановить привязки аудиторий.
+
+  Example: rb-yandex-direct audiences suspend 5001
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

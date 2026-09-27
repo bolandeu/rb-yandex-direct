@@ -1,0 +1,11 @@
+Usage: rb-yandex-direct retargeting list [OPTIONS]
+
+  Списки ретаргетинга и аудиторий.
+
+  Example: rb-yandex-direct retargeting list --type AUDIENCE
+
+Options:
+  --type [RETARGETING|AUDIENCE|SHARED_AUDIENCE|YANDEX_PROVIDER]
+                                  фильтр по типу списка (можно несколько раз)
+  --output PATH                   сохранить JSON в файл
+  --help                          Show this message and exit.

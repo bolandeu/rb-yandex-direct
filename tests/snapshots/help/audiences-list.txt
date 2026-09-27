@@ -1,0 +1,13 @@
+Usage: rb-yandex-direct audiences list [OPTIONS]
+
+  Привязки аудиторий к группам объявлений.
+
+  Example: rb-yandex-direct audiences list --campaign 12345
+
+Options:
+  --adgroup INTEGER               фильтр по группе объявлений (можно несколько раз)
+  --campaign INTEGER              фильтр по кампании (можно несколько раз)
+  --state [ON|OFF|SUSPENDED|UNKNOWN]
+                                  фильтр по состоянию (можно несколько раз)
+  --output PATH                   сохранить JSON в файл
+  --help                          Show this message and exit.

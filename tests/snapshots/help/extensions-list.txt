@@ -1,0 +1,13 @@
+Usage: rb-yandex-direct extensions list [OPTIONS]
+
+  Уточнения объявлений (callouts).
+
+  Example: rb-yandex-direct extensions list --status REJECTED
+
+Options:
+  --state [ON|OFF|SUSPENDED|UNKNOWN]
+                                  фильтр по состоянию (можно несколько раз)
+  --status [ACCEPTED|DRAFT|MODERATION|REJECTED|UNKNOWN]
+                                  фильтр по статусу модерации (можно несколько раз)
+  --output PATH                   сохранить JSON в файл
+  --help                          Show this message and exit.

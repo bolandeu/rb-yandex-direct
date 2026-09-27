@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct ads archive [OPTIONS] IDS...
+
+  Архивировать объявления.
+
+  Example: rb-yandex-direct ads archive 777
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

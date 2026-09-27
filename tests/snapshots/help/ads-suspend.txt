@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct ads suspend [OPTIONS] IDS...
+
+  Остановить показы объявлений.
+
+  Example: rb-yandex-direct ads suspend 777
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

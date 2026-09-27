@@ -1,0 +1,10 @@
+Usage: rb-yandex-direct vcards add [OPTIONS]
+
+  Создать визитки из JSON-файла.
+
+  Example: rb-yandex-direct vcards add --from-json vcards.json
+
+Options:
+  --from-json PATH  JSON-файл с массивом vcard-объектов (см. client.add_vcards)  [required]
+  -y, --yes         без подтверждения
+  --help            Show this message and exit.

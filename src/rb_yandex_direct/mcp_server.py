@@ -9,14 +9,12 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
 from loguru import logger
 from mcp.server.fastmcp import FastMCP
 
+from rb_yandex_direct.core.auth import resolve_token
 from rb_yandex_direct.core.client import DirectClient
 from rb_yandex_direct.core.reports import ReportsClient
-
-load_dotenv()
 
 LOG_PATH = Path.home() / ".local/state/logs/mcp-rb-yandex-direct.log"
 LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -27,9 +25,7 @@ mcp = FastMCP("rb-yandex-direct")
 
 
 def _client(login: str | None = None, sandbox: bool | None = None) -> DirectClient:
-    token = os.getenv("YANDEX_DIRECT_TOKEN")
-    if not token:
-        raise RuntimeError("Не задан YANDEX_DIRECT_TOKEN. Авторизуйся: rb-yandex-direct auth")
+    token = resolve_token()  # keychain/env через rb-yandex-oauth; нет токена — AuthRequired
     sb = sandbox if sandbox is not None else os.getenv("YANDEX_DIRECT_SANDBOX", "").lower() == "true"
     return DirectClient(
         token=token,
@@ -40,11 +36,8 @@ def _client(login: str | None = None, sandbox: bool | None = None) -> DirectClie
 
 
 def _reports(login: str | None = None) -> ReportsClient:
-    token = os.getenv("YANDEX_DIRECT_TOKEN")
-    if not token:
-        raise RuntimeError("Не задан YANDEX_DIRECT_TOKEN")
     return ReportsClient(
-        token=token,
+        token=resolve_token(),
         client_login=login or os.getenv("YANDEX_DIRECT_LOGIN"),
         sandbox=os.getenv("YANDEX_DIRECT_SANDBOX", "").lower() == "true",
     )
@@ -79,9 +72,7 @@ async def list_managed_accounts() -> list[dict]:
     Используй как первый шаг, когда пользователь просит «посмотри у клиента X»:
     тут ты получишь список логинов и сможешь сопоставить с именем/доменом.
     """
-    token = os.getenv("YANDEX_DIRECT_TOKEN")
-    if not token:
-        raise RuntimeError("Нет YANDEX_DIRECT_TOKEN")
+    token = resolve_token()
     sandbox = os.getenv("YANDEX_DIRECT_SANDBOX", "").lower() == "true"
     use_op = os.getenv("YANDEX_DIRECT_USE_OPERATOR_UNITS", "").lower() == "true"
 
@@ -244,9 +235,7 @@ async def check_dictionaries(timestamp: str) -> dict:
 
     Возвращает Timestamp — если он больше переданного, словари обновились.
     """
-    token = os.getenv("YANDEX_DIRECT_TOKEN")
-    if not token:
-        raise RuntimeError("Нет YANDEX_DIRECT_TOKEN")
+    token = resolve_token()
     c = DirectClient(token=token)
     return await c.check_dictionaries(timestamp)
 

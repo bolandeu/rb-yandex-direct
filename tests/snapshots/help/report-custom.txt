@@ -1,0 +1,14 @@
+Usage: rb-yandex-direct report custom [OPTIONS]
+
+  Произвольный отчёт с указанием полей.
+
+  Example: rb-yandex-direct report custom --type CUSTOM_REPORT --date-from 2026-09-01 --date-to
+  2026-09-27 --fields Date,Clicks,Cost
+
+Options:
+  --type TEXT        CAMPAIGN_PERFORMANCE_REPORT | AD_PERFORMANCE_REPORT | ...  [required]
+  --date-from TEXT   начало периода, YYYY-MM-DD  [required]
+  --date-to TEXT     конец периода, YYYY-MM-DD  [required]
+  --fields TEXT      поля отчёта через запятую
+  -o, --output PATH  сохранить строки отчёта в JSON-файл
+  --help             Show this message and exit.

@@ -1,0 +1,13 @@
+Usage: rb-yandex-direct report [OPTIONS] [COMMAND] [ARGS]...
+
+  Отчёты v5 (TSV, polling).
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  account    ACCOUNT_PERFORMANCE_REPORT: итог по аккаунту.
+  ads        AD_PERFORMANCE_REPORT: эффективность объявлений.
+  campaigns  CAMPAIGN_PERFORMANCE_REPORT: эффективность кампаний.
+  custom     Произвольный отчёт с указанием полей.
+  queries    SEARCH_QUERY_PERFORMANCE_REPORT: реальные поисковые запросы пользователей.

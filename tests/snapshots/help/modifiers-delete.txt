@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct modifiers delete [OPTIONS] IDS...
+
+  Удалить корректировки ставок.
+
+  Example: rb-yandex-direct modifiers delete 3001
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

@@ -1,0 +1,8 @@
+Usage: rb-yandex-direct whoami [OPTIONS]
+
+  Проверить токен и показать клиентов (clients.get). Отказ по учётным данным — exit 3.
+
+  Example: rb-yandex-direct whoami
+
+Options:
+  --help  Show this message and exit.

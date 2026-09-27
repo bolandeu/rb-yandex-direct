@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct campaigns resume [OPTIONS] IDS...
+
+  Возобновить приостановленные кампании.
+
+  Example: rb-yandex-direct campaigns resume 12345
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

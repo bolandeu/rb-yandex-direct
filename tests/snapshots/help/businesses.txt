@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct businesses [OPTIONS]
+
+  Список бизнес-данных (Яндекс.Бизнес).
+
+  Example: rb-yandex-direct businesses
+
+Options:
+  --output PATH  сохранить JSON в файл
+  --help         Show this message and exit.

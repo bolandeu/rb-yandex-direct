@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct ads unarchive [OPTIONS] IDS...
+
+  Вернуть объявления из архива.
+
+  Example: rb-yandex-direct ads unarchive 777
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct extensions delete [OPTIONS] IDS...
+
+  Удалить уточнения.
+
+  Example: rb-yandex-direct extensions delete 1301
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

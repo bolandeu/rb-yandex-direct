@@ -1,0 +1,10 @@
+Usage: rb-yandex-direct client [OPTIONS] [COMMAND] [ARGS]...
+
+  Настройки одного клиента (clients.update / agencyclients.update).
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  update         Обновить настройки клиента (clients.update).
+  update-agency  Обновить агентские настройки (agencyclients.update).

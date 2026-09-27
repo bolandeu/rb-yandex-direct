@@ -1,0 +1,13 @@
+Usage: rb-yandex-direct retargeting update [OPTIONS] LIST_ID
+
+  Обновить имя/описание списка ретаргетинга.
+
+  Для изменения Rules используй Python API: это многомерная структура.
+
+  Example: rb-yandex-direct retargeting update 4001 --name 'Корзина 30 дней'
+
+Options:
+  --name TEXT         новое имя списка
+  --description TEXT  новое описание списка
+  -y, --yes           без подтверждения
+  --help              Show this message and exit.

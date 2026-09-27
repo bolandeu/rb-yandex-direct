@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct dict [OPTIONS] [COMMAND] [ARGS]...
+
+  Справочники: регионы, валюты, таймзоны, категории.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  get  Получить один или несколько справочников.

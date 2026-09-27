@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct minus-sets list [OPTIONS]
+
+  Наборы общих минус-слов.
+
+  Example: rb-yandex-direct minus-sets list
+
+Options:
+  --output PATH  сохранить JSON в файл
+  --help         Show this message and exit.

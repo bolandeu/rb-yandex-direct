@@ -1,0 +1,10 @@
+Usage: rb-yandex-direct images list [OPTIONS]
+
+  Изображения, загруженные в кабинет.
+
+  Example: rb-yandex-direct images list --output images.json
+
+Options:
+  --associated [YES|NO]  YES — привязанные к объявлениям, NO — свободные
+  --output PATH          сохранить JSON в файл
+  --help                 Show this message and exit.

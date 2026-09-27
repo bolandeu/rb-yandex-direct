@@ -1,0 +1,10 @@
+Usage: rb-yandex-direct campaigns set-budget [OPTIONS] CAMPAIGN_ID AMOUNT_RUB
+
+  Задать дневной бюджет кампании в рублях.
+
+  Example: rb-yandex-direct campaigns set-budget 12345 1500
+
+Options:
+  --mode [STANDARD|DISTRIBUTED]  STANDARD — равномерно, DISTRIBUTED — ускоренно
+  -y, --yes                      без подтверждения
+  --help                         Show this message and exit.

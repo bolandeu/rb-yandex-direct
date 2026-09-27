@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct dynamic-targets delete [OPTIONS] IDS...
+
+  Удалить условия таргетинга динамических объявлений.
+
+  Example: rb-yandex-direct dynamic-targets delete 8001
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

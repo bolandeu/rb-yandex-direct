@@ -1,0 +1,10 @@
+Usage: rb-yandex-direct client update [OPTIONS]
+
+  Обновить настройки клиента (clients.update).
+
+  Example: rb-yandex-direct client update --from-json client.json
+
+Options:
+  --from-json PATH  JSON-файл c параметрами clients.update (см. доку)  [required]
+  -y, --yes         без подтверждения
+  --help            Show this message and exit.

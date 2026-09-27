@@ -1,0 +1,14 @@
+Usage: rb-yandex-direct smart-targets [OPTIONS] [COMMAND] [ARGS]...
+
+  Условия таргетинга для смарт-баннеров.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  add-json  Создать условия таргетинга смарт-баннеров из JSON-файла (smartadtargets.add).
+  delete    Удалить условия таргетинга смарт-баннеров.
+  list      Условия таргетинга смарт-баннеров.
+  resume    Возобновить условия таргетинга смарт-баннеров.
+  set-bid   Установить ставку на условии таргетинга Smart-баннера.
+  suspend   Остановить условия таргетинга смарт-баннеров.

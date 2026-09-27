@@ -1,0 +1,12 @@
+Usage: rb-yandex-direct extensions [OPTIONS] [COMMAND] [ARGS]...
+
+  Уточнения объявлений (callouts).
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  add       Создать уточнения (callouts).
+  delete    Удалить уточнения.
+  list      Уточнения объявлений (callouts).
+  moderate  Отправить уточнения на модерацию.

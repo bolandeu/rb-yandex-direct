@@ -1,0 +1,18 @@
+Usage: rb-yandex-direct retargeting add [OPTIONS]
+
+  Создать список ретаргетинга из одного набора целей.
+
+  Для сложных правил (несколько блоков Operator) используй Python API.
+
+  Example: rb-yandex-direct retargeting add --name 'Корзина' --goal 123456 --days 30
+
+Options:
+  --name TEXT                    имя списка (до 250 симв.)  [required]
+  --description TEXT             описание (до 4096 симв.)
+  --type [RETARGETING|AUDIENCE]  тип списка
+  --goal INTEGER                 ID целей/сегментов Метрики (повторяй флаг для нескольких)
+                                 [required]
+  --days INTEGER                 MembershipLifeSpan — срок проверки цели, 1-540 дней (default 30)
+  --operator [ALL|ANY|NONE]      как сочетать цели: ALL — все, ANY — любая, NONE — ни одной
+  -y, --yes                      без подтверждения
+  --help                         Show this message and exit.

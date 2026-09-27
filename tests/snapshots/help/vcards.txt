@@ -1,0 +1,11 @@
+Usage: rb-yandex-direct vcards [OPTIONS] [COMMAND] [ARGS]...
+
+  Визитки (контактная информация).
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  add     Создать визитки из JSON-файла.
+  delete  Удалить визитки.
+  list    Визитки (контактная информация).

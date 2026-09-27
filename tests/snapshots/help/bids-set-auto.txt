@@ -1,0 +1,11 @@
+Usage: rb-yandex-direct bids set-auto [OPTIONS]
+
+  Приоритет ключа для авто-стратегии.
+
+  Example: rb-yandex-direct bids set-auto --keyword 901 --priority HIGH
+
+Options:
+  --keyword INTEGER             ID ключевой фразы  [required]
+  --priority [HIGH|NORMAL|LOW]  приоритет для автостратегии  [required]
+  -y, --yes                     без подтверждения
+  --help                        Show this message and exit.

@@ -1,0 +1,11 @@
+Usage: rb-yandex-direct bids [OPTIONS] [COMMAND] [ARGS]...
+
+  Ставки по ключевым фразам.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  list      Ставки по ключевым фразам (нужен хотя бы один фильтр).
+  set       Установить ручную ставку по ключу.
+  set-auto  Приоритет ключа для авто-стратегии.

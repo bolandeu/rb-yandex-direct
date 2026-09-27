@@ -1,0 +1,10 @@
+Usage: rb-yandex-direct smart-targets add-json [OPTIONS]
+
+  Создать условия таргетинга смарт-баннеров из JSON-файла (smartadtargets.add).
+
+  Example: rb-yandex-direct smart-targets add-json --from-json targets.json
+
+Options:
+  --from-json PATH  JSON-массив объектов Filter с AdGroupId и Conditions  [required]
+  -y, --yes         без подтверждения
+  --help            Show this message and exit.

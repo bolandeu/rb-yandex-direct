@@ -1,0 +1,12 @@
+Usage: rb-yandex-direct minus-sets add [OPTIONS]
+
+  Создать набор общих минус-слов.
+
+  Example: rb-yandex-direct minus-sets add --name 'Общие' --words 'бесплатно,скачать'
+
+Options:
+  --name TEXT       имя набора  [required]
+  --words TEXT      список минус-фраз через запятую
+  --from-file PATH  файл с фразами построчно
+  -y, --yes         без подтверждения
+  --help            Show this message and exit.

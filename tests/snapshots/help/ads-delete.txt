@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct ads delete [OPTIONS] IDS...
+
+  Удалить объявления безвозвратно (только черновики и отклонённые).
+
+  Example: rb-yandex-direct ads delete 777
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

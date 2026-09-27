@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct audiences delete [OPTIONS] IDS...
+
+  Удалить привязки аудиторий.
+
+  Example: rb-yandex-direct audiences delete 5001
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

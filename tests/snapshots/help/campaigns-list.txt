@@ -1,0 +1,13 @@
+Usage: rb-yandex-direct campaigns list [OPTIONS]
+
+  Список кампаний с фильтром по состоянию и типу.
+
+  Example: rb-yandex-direct campaigns list --state ON
+
+Options:
+  --state [ON|OFF|SUSPENDED|ENDED|CONVERTED|ARCHIVED]
+                                  фильтр по состоянию
+  --type TEXT                     TEXT_CAMPAIGN, MCBANNER_CAMPAIGN, CPM_BANNER_CAMPAIGN,
+                                  SMART_CAMPAIGN, и т.д.
+  --output PATH                   сохранить JSON в файл
+  --help                          Show this message and exit.

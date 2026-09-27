@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct campaigns unarchive [OPTIONS] IDS...
+
+  Вернуть кампании из архива.
+
+  Example: rb-yandex-direct campaigns unarchive 12345
+
+Options:
+  -y, --yes  без подтверждения
+  --help     Show this message and exit.

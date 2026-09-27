@@ -1,0 +1,12 @@
+Usage: rb-yandex-direct minus-sets [OPTIONS] [COMMAND] [ARGS]...
+
+  Общие наборы минус-слов.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  add     Создать набор общих минус-слов.
+  delete  Удалить наборы минус-слов.
+  list    Наборы общих минус-слов.
+  update  Обновить набор минус-слов (целиком заменяет фразы).

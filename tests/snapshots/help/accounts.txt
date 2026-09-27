@@ -1,0 +1,16 @@
+Usage: rb-yandex-direct accounts [OPTIONS]
+
+  Кабинеты, к которым есть доступ (представитель/агентство).
+
+  Сначала пробует получить список через API (если ты агентство — оно вернёт список подопечных). Если
+  не агентство — API вернёт только твой логин, поэтому дополняется списком из
+  YANDEX_DIRECT_MANAGED_LOGINS и для каждого делается clients.get чтобы показать
+  валюту/баллы/статус. Токен — из auth login (keychain) или переменных окружения, как у остальных
+  команд.
+
+  Example: rb-yandex-direct accounts --output accounts.json
+
+Options:
+  --output PATH   сохранить JSON в файл
+  --managed-only  только логины из YANDEX_DIRECT_MANAGED_LOGINS (не зовёт API под агентским)
+  --help          Show this message and exit.

@@ -1,0 +1,12 @@
+Usage: rb-yandex-direct leads [OPTIONS]
+
+  Лиды с lead-форм и Турбо-страниц.
+
+  Example: rb-yandex-direct leads --campaign 12345 --date-from 2026-09-01 --date-to 2026-09-27
+
+Options:
+  --campaign INTEGER  фильтр по кампании (можно несколько раз)
+  --date-from TEXT    YYYY-MM-DD UTC
+  --date-to TEXT      YYYY-MM-DD UTC
+  --output PATH       сохранить JSON в файл
+  --help              Show this message and exit.

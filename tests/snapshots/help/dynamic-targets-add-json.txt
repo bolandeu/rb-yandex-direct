@@ -1,0 +1,10 @@
+Usage: rb-yandex-direct dynamic-targets add-json [OPTIONS]
+
+  Создать условия таргетинга динамических объявлений из JSON-файла (dynamictextadtargets.add).
+
+  Example: rb-yandex-direct dynamic-targets add-json --from-json targets.json
+
+Options:
+  --from-json PATH  JSON-массив объектов Webpage с AdGroupId и Condition  [required]
+  -y, --yes         без подтверждения
+  --help            Show this message and exit.

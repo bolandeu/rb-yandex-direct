@@ -1,0 +1,9 @@
+Usage: rb-yandex-direct feeds list [OPTIONS]
+
+  Товарные фиды.
+
+  Example: rb-yandex-direct feeds list
+
+Options:
+  --output PATH  сохранить JSON в файл
+  --help         Show this message and exit.
