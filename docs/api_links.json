@@ -1,0 +1,407 @@
+{
+  "generated_from": "https://yandex.ru/dev/direct/doc/sitemap.xml",
+  "lang": "en",
+  "base_url": "https://yandex.com/dev/direct/doc/en/",
+  "services": {
+    "adextensions": {
+      "overview": "https://yandex.com/dev/direct/doc/en/adextensions/adextensions",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/adextensions/add",
+        "delete": "https://yandex.com/dev/direct/doc/en/adextensions/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/adextensions/get",
+        "moderate": "https://yandex.com/dev/direct/doc/en/adextensions/moderate"
+      }
+    },
+    "adgroups": {
+      "overview": "https://yandex.com/dev/direct/doc/en/adgroups/adgroups",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/adgroups/add",
+        "delete": "https://yandex.com/dev/direct/doc/en/adgroups/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/adgroups/get",
+        "update": "https://yandex.com/dev/direct/doc/en/adgroups/update"
+      }
+    },
+    "adimages": {
+      "overview": "https://yandex.com/dev/direct/doc/en/adimages/adimages",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/adimages/add",
+        "delete": "https://yandex.com/dev/direct/doc/en/adimages/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/adimages/get",
+        "update": "https://yandex.com/dev/direct/doc/en/adimages/update"
+      }
+    },
+    "ads": {
+      "overview": "https://yandex.com/dev/direct/doc/en/ads/ads",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/ads/add",
+        "archive": "https://yandex.com/dev/direct/doc/en/ads/archive",
+        "delete": "https://yandex.com/dev/direct/doc/en/ads/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/ads/get",
+        "moderate": "https://yandex.com/dev/direct/doc/en/ads/moderate",
+        "resume": "https://yandex.com/dev/direct/doc/en/ads/resume",
+        "suspend": "https://yandex.com/dev/direct/doc/en/ads/suspend",
+        "unarchive": "https://yandex.com/dev/direct/doc/en/ads/unarchive",
+        "update": "https://yandex.com/dev/direct/doc/en/ads/update"
+      }
+    },
+    "advideos": {
+      "overview": "https://yandex.com/dev/direct/doc/en/advideos/advideos",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/advideos/add",
+        "get": "https://yandex.com/dev/direct/doc/en/advideos/get"
+      }
+    },
+    "agencyclients": {
+      "overview": "https://yandex.com/dev/direct/doc/en/agencyclients/agencyclients",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/agencyclients/add",
+        "addPassportOrganization": "https://yandex.com/dev/direct/doc/en/agencyclients/addPassportOrganization",
+        "addPassportOrganizationMember": "https://yandex.com/dev/direct/doc/en/agencyclients/addPassportOrganizationMember",
+        "get": "https://yandex.com/dev/direct/doc/en/agencyclients/get",
+        "update": "https://yandex.com/dev/direct/doc/en/agencyclients/update"
+      }
+    },
+    "audiencetargets": {
+      "overview": "https://yandex.com/dev/direct/doc/en/audiencetargets/audiencetargets",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/audiencetargets/add",
+        "delete": "https://yandex.com/dev/direct/doc/en/audiencetargets/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/audiencetargets/get",
+        "resume": "https://yandex.com/dev/direct/doc/en/audiencetargets/resume",
+        "setBids": "https://yandex.com/dev/direct/doc/en/audiencetargets/setBids",
+        "suspend": "https://yandex.com/dev/direct/doc/en/audiencetargets/suspend"
+      }
+    },
+    "bidmodifiers": {
+      "overview": "https://yandex.com/dev/direct/doc/en/bidmodifiers/bidmodifiers",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/bidmodifiers/add",
+        "delete": "https://yandex.com/dev/direct/doc/en/bidmodifiers/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/bidmodifiers/get",
+        "set": "https://yandex.com/dev/direct/doc/en/bidmodifiers/set",
+        "toggle": "https://yandex.com/dev/direct/doc/en/bidmodifiers/toggle"
+      }
+    },
+    "businesses": {
+      "overview": "https://yandex.com/dev/direct/doc/en/businesses/businesses",
+      "methods": {
+        "get": "https://yandex.com/dev/direct/doc/en/businesses/get"
+      }
+    },
+    "campaigns": {
+      "overview": "https://yandex.com/dev/direct/doc/en/campaigns/campaigns",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/campaigns/add",
+        "add-cpm-banner-campaign": "https://yandex.com/dev/direct/doc/en/campaigns/add-cpm-banner-campaign",
+        "add-mobile-app-campaign": "https://yandex.com/dev/direct/doc/en/campaigns/add-mobile-app-campaign",
+        "add-text-campaign": "https://yandex.com/dev/direct/doc/en/campaigns/add-text-campaign",
+        "add-unified-campaign": "https://yandex.com/dev/direct/doc/en/campaigns/add-unified-campaign",
+        "archive": "https://yandex.com/dev/direct/doc/en/campaigns/archive",
+        "delete": "https://yandex.com/dev/direct/doc/en/campaigns/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/campaigns/get",
+        "get-cpm-banner-campaign": "https://yandex.com/dev/direct/doc/en/campaigns/get-cpm-banner-campaign",
+        "get-mobile-app-campaign": "https://yandex.com/dev/direct/doc/en/campaigns/get-mobile-app-campaign",
+        "get-text-campaign": "https://yandex.com/dev/direct/doc/en/campaigns/get-text-campaign",
+        "get-unified-campaign": "https://yandex.com/dev/direct/doc/en/campaigns/get-unified-campaign",
+        "resume": "https://yandex.com/dev/direct/doc/en/campaigns/resume",
+        "suspend": "https://yandex.com/dev/direct/doc/en/campaigns/suspend",
+        "unarchive": "https://yandex.com/dev/direct/doc/en/campaigns/unarchive",
+        "update": "https://yandex.com/dev/direct/doc/en/campaigns/update",
+        "update-cpm-banner-campaign": "https://yandex.com/dev/direct/doc/en/campaigns/update-cpm-banner-campaign",
+        "update-mobile-app-campaign": "https://yandex.com/dev/direct/doc/en/campaigns/update-mobile-app-campaign",
+        "update-text-campaign": "https://yandex.com/dev/direct/doc/en/campaigns/update-text-campaign",
+        "update-unified-campaign": "https://yandex.com/dev/direct/doc/en/campaigns/update-unified-campaign"
+      }
+    },
+    "changes": {
+      "overview": "https://yandex.com/dev/direct/doc/en/changes/changes",
+      "methods": {
+        "check": "https://yandex.com/dev/direct/doc/en/changes/check",
+        "checkCampaigns": "https://yandex.com/dev/direct/doc/en/changes/checkCampaigns",
+        "checkDictionaries": "https://yandex.com/dev/direct/doc/en/changes/checkDictionaries"
+      }
+    },
+    "clients": {
+      "overview": "https://yandex.com/dev/direct/doc/en/clients/clients",
+      "methods": {
+        "get": "https://yandex.com/dev/direct/doc/en/clients/get",
+        "update": "https://yandex.com/dev/direct/doc/en/clients/update"
+      }
+    },
+    "creatives": {
+      "overview": "https://yandex.com/dev/direct/doc/en/creatives/creatives",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/creatives/add",
+        "get": "https://yandex.com/dev/direct/doc/en/creatives/get"
+      }
+    },
+    "dictionaries": {
+      "overview": "https://yandex.com/dev/direct/doc/en/dictionaries/dictionaries",
+      "methods": {
+        "get": "https://yandex.com/dev/direct/doc/en/dictionaries/get",
+        "getGeoRegions": "https://yandex.com/dev/direct/doc/en/dictionaries/getGeoRegions"
+      }
+    },
+    "dynamictextadtargets": {
+      "overview": "https://yandex.com/dev/direct/doc/en/dynamictextadtargets/dynamictextadtargets",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/dynamictextadtargets/add",
+        "delete": "https://yandex.com/dev/direct/doc/en/dynamictextadtargets/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/dynamictextadtargets/get",
+        "resume": "https://yandex.com/dev/direct/doc/en/dynamictextadtargets/resume",
+        "setBids": "https://yandex.com/dev/direct/doc/en/dynamictextadtargets/setBids",
+        "suspend": "https://yandex.com/dev/direct/doc/en/dynamictextadtargets/suspend"
+      }
+    },
+    "feeds": {
+      "overview": "https://yandex.com/dev/direct/doc/en/feeds/feeds",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/feeds/add",
+        "delete": "https://yandex.com/dev/direct/doc/en/feeds/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/feeds/get",
+        "update": "https://yandex.com/dev/direct/doc/en/feeds/update"
+      }
+    },
+    "keywordbids": {
+      "overview": "https://yandex.com/dev/direct/doc/en/keywordbids/keywordbids",
+      "methods": {
+        "get": "https://yandex.com/dev/direct/doc/en/keywordbids/get",
+        "set": "https://yandex.com/dev/direct/doc/en/keywordbids/set",
+        "setAuto": "https://yandex.com/dev/direct/doc/en/keywordbids/setAuto"
+      }
+    },
+    "keywords": {
+      "overview": "https://yandex.com/dev/direct/doc/en/keywords/keywords",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/keywords/add",
+        "delete": "https://yandex.com/dev/direct/doc/en/keywords/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/keywords/get",
+        "resume": "https://yandex.com/dev/direct/doc/en/keywords/resume",
+        "suspend": "https://yandex.com/dev/direct/doc/en/keywords/suspend",
+        "update": "https://yandex.com/dev/direct/doc/en/keywords/update"
+      }
+    },
+    "keywordsresearch": {
+      "overview": "https://yandex.com/dev/direct/doc/en/keywordsresearch/keywordsresearch",
+      "methods": {
+        "deduplicate": "https://yandex.com/dev/direct/doc/en/keywordsresearch/deduplicate",
+        "hasSearchVolume": "https://yandex.com/dev/direct/doc/en/keywordsresearch/hasSearchVolume"
+      }
+    },
+    "leads": {
+      "overview": "https://yandex.com/dev/direct/doc/en/leads/leads",
+      "methods": {
+        "get": "https://yandex.com/dev/direct/doc/en/leads/get"
+      }
+    },
+    "negativekeywordsharedsets": {
+      "overview": "https://yandex.com/dev/direct/doc/en/negativekeywordsharedsets/negativekeywordsharedsets",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/negativekeywordsharedsets/add",
+        "delete": "https://yandex.com/dev/direct/doc/en/negativekeywordsharedsets/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/negativekeywordsharedsets/get",
+        "update": "https://yandex.com/dev/direct/doc/en/negativekeywordsharedsets/update"
+      }
+    },
+    "reports": {
+      "overview": "https://yandex.com/dev/direct/doc/en/reports",
+      "methods": {
+        "reports": "https://yandex.com/dev/direct/doc/en/reports/reports"
+      }
+    },
+    "retargetinglists": {
+      "overview": "https://yandex.com/dev/direct/doc/en/retargetinglists/retargetinglists",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/retargetinglists/add",
+        "delete": "https://yandex.com/dev/direct/doc/en/retargetinglists/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/retargetinglists/get",
+        "update": "https://yandex.com/dev/direct/doc/en/retargetinglists/update"
+      }
+    },
+    "sitelinks": {
+      "overview": "https://yandex.com/dev/direct/doc/en/sitelinks/sitelinks",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/sitelinks/add",
+        "delete": "https://yandex.com/dev/direct/doc/en/sitelinks/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/sitelinks/get"
+      }
+    },
+    "smartadtargets": {
+      "overview": "https://yandex.com/dev/direct/doc/en/smartadtargets/smartadtargets",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/smartadtargets/add",
+        "delete": "https://yandex.com/dev/direct/doc/en/smartadtargets/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/smartadtargets/get",
+        "resume": "https://yandex.com/dev/direct/doc/en/smartadtargets/resume",
+        "setBids": "https://yandex.com/dev/direct/doc/en/smartadtargets/setBids",
+        "suspend": "https://yandex.com/dev/direct/doc/en/smartadtargets/suspend"
+      }
+    },
+    "turbopages": {
+      "overview": "https://yandex.com/dev/direct/doc/en/turbopages/turbopages",
+      "methods": {
+        "get": "https://yandex.com/dev/direct/doc/en/turbopages/get"
+      }
+    },
+    "vcards": {
+      "overview": "https://yandex.com/dev/direct/doc/en/vcards/vcards",
+      "methods": {
+        "add": "https://yandex.com/dev/direct/doc/en/vcards/add",
+        "delete": "https://yandex.com/dev/direct/doc/en/vcards/delete",
+        "get": "https://yandex.com/dev/direct/doc/en/vcards/get"
+      }
+    }
+  },
+  "guides": {
+    "_index": "https://yandex.com/dev/direct/doc/en/",
+    "about": "https://yandex.com/dev/direct/doc/en/about",
+    "access-request": "https://yandex.com/dev/direct/doc/en/access-request",
+    "actual": "https://yandex.com/dev/direct/doc/en/actual",
+    "annex/campaign-options": "https://yandex.com/dev/direct/doc/en/annex/campaign-options",
+    "annex/strategies": "https://yandex.com/dev/direct/doc/en/annex/strategies",
+    "best-practice/agency": "https://yandex.com/dev/direct/doc/en/best-practice/agency",
+    "best-practice/auto-targeting": "https://yandex.com/dev/direct/doc/en/best-practice/auto-targeting",
+    "best-practice/check-changes": "https://yandex.com/dev/direct/doc/en/best-practice/check-changes",
+    "best-practice/cpm-banner": "https://yandex.com/dev/direct/doc/en/best-practice/cpm-banner",
+    "best-practice/get": "https://yandex.com/dev/direct/doc/en/best-practice/get",
+    "best-practice/launch-campaign": "https://yandex.com/dev/direct/doc/en/best-practice/launch-campaign",
+    "best-practice/modify": "https://yandex.com/dev/direct/doc/en/best-practice/modify",
+    "best-practice/nillable": "https://yandex.com/dev/direct/doc/en/best-practice/nillable",
+    "best-practice/part-update": "https://yandex.com/dev/direct/doc/en/best-practice/part-update",
+    "best-practice/principles": "https://yandex.com/dev/direct/doc/en/best-practice/principles",
+    "best-practice/quick-start": "https://yandex.com/dev/direct/doc/en/best-practice/quick-start",
+    "best-practice/smart-ads": "https://yandex.com/dev/direct/doc/en/best-practice/smart-ads",
+    "best-practice/statistics": "https://yandex.com/dev/direct/doc/en/best-practice/statistics",
+    "bids/bids": "https://yandex.com/dev/direct/doc/en/bids/bids",
+    "bids/get": "https://yandex.com/dev/direct/doc/en/bids/get",
+    "bids/set": "https://yandex.com/dev/direct/doc/en/bids/set",
+    "bids/setAuto": "https://yandex.com/dev/direct/doc/en/bids/setAuto",
+    "changelog": "https://yandex.com/dev/direct/doc/en/changelog",
+    "codes": "https://yandex.com/dev/direct/doc/en/codes",
+    "compatibility": "https://yandex.com/dev/direct/doc/en/compatibility",
+    "concepts/about": "https://yandex.com/dev/direct/doc/en/concepts/about",
+    "concepts/access": "https://yandex.com/dev/direct/doc/en/concepts/access",
+    "concepts/auth-token": "https://yandex.com/dev/direct/doc/en/concepts/auth-token",
+    "concepts/banners": "https://yandex.com/dev/direct/doc/en/concepts/banners",
+    "concepts/campaigns": "https://yandex.com/dev/direct/doc/en/concepts/campaigns",
+    "concepts/clients": "https://yandex.com/dev/direct/doc/en/concepts/clients",
+    "concepts/compare": "https://yandex.com/dev/direct/doc/en/concepts/compare",
+    "concepts/contact-info": "https://yandex.com/dev/direct/doc/en/concepts/contact-info",
+    "concepts/errors": "https://yandex.com/dev/direct/doc/en/concepts/errors",
+    "concepts/errors-list": "https://yandex.com/dev/direct/doc/en/concepts/errors-list",
+    "concepts/format": "https://yandex.com/dev/direct/doc/en/concepts/format",
+    "concepts/glossary": "https://yandex.com/dev/direct/doc/en/concepts/glossary",
+    "concepts/headers": "https://yandex.com/dev/direct/doc/en/concepts/headers",
+    "concepts/json": "https://yandex.com/dev/direct/doc/en/concepts/json",
+    "concepts/methods": "https://yandex.com/dev/direct/doc/en/concepts/methods",
+    "concepts/overview": "https://yandex.com/dev/direct/doc/en/concepts/overview",
+    "concepts/phrases": "https://yandex.com/dev/direct/doc/en/concepts/phrases",
+    "concepts/register": "https://yandex.com/dev/direct/doc/en/concepts/register",
+    "concepts/res": "https://yandex.com/dev/direct/doc/en/concepts/res",
+    "concepts/retargetings": "https://yandex.com/dev/direct/doc/en/concepts/retargetings",
+    "concepts/sandbox": "https://yandex.com/dev/direct/doc/en/concepts/sandbox",
+    "concepts/sandbox-init": "https://yandex.com/dev/direct/doc/en/concepts/sandbox-init",
+    "concepts/soap": "https://yandex.com/dev/direct/doc/en/concepts/soap",
+    "concepts/stat": "https://yandex.com/dev/direct/doc/en/concepts/stat",
+    "concepts/stat-example": "https://yandex.com/dev/direct/doc/en/concepts/stat-example",
+    "concepts/units": "https://yandex.com/dev/direct/doc/en/concepts/units",
+    "concepts/use-cases": "https://yandex.com/dev/direct/doc/en/concepts/use-cases",
+    "curl": "https://yandex.com/dev/direct/doc/en/curl",
+    "curl-ads-keywords-modify": "https://yandex.com/dev/direct/doc/en/curl-ads-keywords-modify",
+    "curl-ads-launch": "https://yandex.com/dev/direct/doc/en/curl-ads-launch",
+    "curl-bids": "https://yandex.com/dev/direct/doc/en/curl-bids",
+    "curl-campaigns-strategy": "https://yandex.com/dev/direct/doc/en/curl-campaigns-strategy",
+    "curl-campaigns-timetargeting": "https://yandex.com/dev/direct/doc/en/curl-campaigns-timetargeting",
+    "example": "https://yandex.com/dev/direct/doc/en/example",
+    "example-metrika": "https://yandex.com/dev/direct/doc/en/example-metrika",
+    "fields": "https://yandex.com/dev/direct/doc/en/fields",
+    "fields-list": "https://yandex.com/dev/direct/doc/en/fields-list",
+    "filters": "https://yandex.com/dev/direct/doc/en/filters",
+    "format": "https://yandex.com/dev/direct/doc/en/format",
+    "get": "https://yandex.com/dev/direct/doc/en/get",
+    "headers": "https://yandex.com/dev/direct/doc/en/headers",
+    "how-to": "https://yandex.com/dev/direct/doc/en/how-to",
+    "intro": "https://yandex.com/dev/direct/doc/en/intro",
+    "mode": "https://yandex.com/dev/direct/doc/en/mode",
+    "modify": "https://yandex.com/dev/direct/doc/en/modify",
+    "money": "https://yandex.com/dev/direct/doc/en/money",
+    "objects/ad": "https://yandex.com/dev/direct/doc/en/objects/ad",
+    "objects/adextension": "https://yandex.com/dev/direct/doc/en/objects/adextension",
+    "objects/adgroup": "https://yandex.com/dev/direct/doc/en/objects/adgroup",
+    "objects/adimage": "https://yandex.com/dev/direct/doc/en/objects/adimage",
+    "objects/advideos": "https://yandex.com/dev/direct/doc/en/objects/advideos",
+    "objects/audience-target": "https://yandex.com/dev/direct/doc/en/objects/audience-target",
+    "objects/bid-priority": "https://yandex.com/dev/direct/doc/en/objects/bid-priority",
+    "objects/bidmodifier": "https://yandex.com/dev/direct/doc/en/objects/bidmodifier",
+    "objects/campaign": "https://yandex.com/dev/direct/doc/en/objects/campaign",
+    "objects/campaign-params": "https://yandex.com/dev/direct/doc/en/objects/campaign-params",
+    "objects/campaign-strategies": "https://yandex.com/dev/direct/doc/en/objects/campaign-strategies",
+    "objects/client": "https://yandex.com/dev/direct/doc/en/objects/client",
+    "objects/creative": "https://yandex.com/dev/direct/doc/en/objects/creative",
+    "objects/feed": "https://yandex.com/dev/direct/doc/en/objects/feed",
+    "objects/keyword": "https://yandex.com/dev/direct/doc/en/objects/keyword",
+    "objects/negative-keywords": "https://yandex.com/dev/direct/doc/en/objects/negative-keywords",
+    "objects/objects": "https://yandex.com/dev/direct/doc/en/objects/objects",
+    "objects/representatives-recommendations": "https://yandex.com/dev/direct/doc/en/objects/representatives-recommendations",
+    "objects/retargeting-list": "https://yandex.com/dev/direct/doc/en/objects/retargeting-list",
+    "objects/roles": "https://yandex.com/dev/direct/doc/en/objects/roles",
+    "objects/shared-account": "https://yandex.com/dev/direct/doc/en/objects/shared-account",
+    "objects/sitelink": "https://yandex.com/dev/direct/doc/en/objects/sitelink",
+    "objects/strategy": "https://yandex.com/dev/direct/doc/en/objects/strategy",
+    "objects/turbo-page": "https://yandex.com/dev/direct/doc/en/objects/turbo-page",
+    "optimize": "https://yandex.com/dev/direct/doc/en/optimize",
+    "period": "https://yandex.com/dev/direct/doc/en/period",
+    "php5": "https://yandex.com/dev/direct/doc/en/php5",
+    "php5-curl-ads": "https://yandex.com/dev/direct/doc/en/php5-curl-ads",
+    "php5-curl-campaigns": "https://yandex.com/dev/direct/doc/en/php5-curl-campaigns",
+    "php5-curl-stat1": "https://yandex.com/dev/direct/doc/en/php5-curl-stat1",
+    "php5-curl-stat2": "https://yandex.com/dev/direct/doc/en/php5-curl-stat2",
+    "php5-file_get_contents-ads": "https://yandex.com/dev/direct/doc/en/php5-file_get_contents-ads",
+    "php5-file_get_contents-campaings": "https://yandex.com/dev/direct/doc/en/php5-file_get_contents-campaings",
+    "php5-file_get_contents-points": "https://yandex.com/dev/direct/doc/en/php5-file_get_contents-points",
+    "php5-file_get_contents-token": "https://yandex.com/dev/direct/doc/en/php5-file_get_contents-token",
+    "php5-json": "https://yandex.com/dev/direct/doc/en/php5-json",
+    "php5-json-curl": "https://yandex.com/dev/direct/doc/en/php5-json-curl",
+    "php5-json-file_get_contents": "https://yandex.com/dev/direct/doc/en/php5-json-file_get_contents",
+    "php5-soap": "https://yandex.com/dev/direct/doc/en/php5-soap",
+    "php5-soap-ads": "https://yandex.com/dev/direct/doc/en/php5-soap-ads",
+    "php5-soap-campaigns": "https://yandex.com/dev/direct/doc/en/php5-soap-campaigns",
+    "python3": "https://yandex.com/dev/direct/doc/en/python3",
+    "python3-json": "https://yandex.com/dev/direct/doc/en/python3-json",
+    "python3-requests-ads": "https://yandex.com/dev/direct/doc/en/python3-requests-ads",
+    "python3-requests-campaigns": "https://yandex.com/dev/direct/doc/en/python3-requests-campaigns",
+    "python3-requests-points": "https://yandex.com/dev/direct/doc/en/python3-requests-points",
+    "python3-requests-token": "https://yandex.com/dev/direct/doc/en/python3-requests-token",
+    "python3-soap": "https://yandex.com/dev/direct/doc/en/python3-soap",
+    "python3-suds-ads": "https://yandex.com/dev/direct/doc/en/python3-suds-ads",
+    "python3-suds-campaigns": "https://yandex.com/dev/direct/doc/en/python3-suds-campaigns",
+    "python3-xml": "https://yandex.com/dev/direct/doc/en/python3-xml",
+    "python3_pyxb_stat1": "https://yandex.com/dev/direct/doc/en/python3_pyxb_stat1",
+    "python3_pyxb_stat2": "https://yandex.com/dev/direct/doc/en/python3_pyxb_stat2",
+    "python3_requests_stat1": "https://yandex.com/dev/direct/doc/en/python3_requests_stat1",
+    "python3_requests_stat2": "https://yandex.com/dev/direct/doc/en/python3_requests_stat2",
+    "python3_requests_stat_agency": "https://yandex.com/dev/direct/doc/en/python3_requests_stat_agency",
+    "real-world": "https://yandex.com/dev/direct/doc/en/real-world",
+    "register": "https://yandex.com/dev/direct/doc/en/register",
+    "report-format": "https://yandex.com/dev/direct/doc/en/report-format",
+    "restrictions": "https://yandex.com/dev/direct/doc/en/restrictions",
+    "sandbox": "https://yandex.com/dev/direct/doc/en/sandbox",
+    "spec": "https://yandex.com/dev/direct/doc/en/spec",
+    "start": "https://yandex.com/dev/direct/doc/en/start",
+    "strategies/add": "https://yandex.com/dev/direct/doc/en/strategies/add",
+    "strategies/archive": "https://yandex.com/dev/direct/doc/en/strategies/archive",
+    "strategies/get": "https://yandex.com/dev/direct/doc/en/strategies/get",
+    "strategies/strategies": "https://yandex.com/dev/direct/doc/en/strategies/strategies",
+    "strategies/unarchive": "https://yandex.com/dev/direct/doc/en/strategies/unarchive",
+    "strategies/update": "https://yandex.com/dev/direct/doc/en/strategies/update",
+    "token": "https://yandex.com/dev/direct/doc/en/token",
+    "troubleshooting/add-client": "https://yandex.com/dev/direct/doc/en/troubleshooting/add-client",
+    "troubleshooting/issue": "https://yandex.com/dev/direct/doc/en/troubleshooting/issue",
+    "troubleshooting/limits": "https://yandex.com/dev/direct/doc/en/troubleshooting/limits",
+    "troubleshooting/other": "https://yandex.com/dev/direct/doc/en/troubleshooting/other",
+    "troubleshooting/proposal": "https://yandex.com/dev/direct/doc/en/troubleshooting/proposal",
+    "troubleshooting/register": "https://yandex.com/dev/direct/doc/en/troubleshooting/register",
+    "type": "https://yandex.com/dev/direct/doc/en/type",
+    "unified-campaign-update": "https://yandex.com/dev/direct/doc/en/unified-campaign-update"
+  }
+}

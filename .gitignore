@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.env
+.env.shared
+.claude/settings.local.json
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.python-version
+*.token
+data/
+reports/
