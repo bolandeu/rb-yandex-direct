@@ -1,1 +1,0 @@
-Команда переименована: `rb-yandex-direct` → `yd` (дистрибутив по-прежнему `rb-yandex-direct`). Ломающее: скрипты, вызывающие `rb-yandex-direct`, нужно поправить; поле `tool` в `auth status --json` теперь `yd`. После обновления: `uv tool install --reinstall`.
