@@ -6,6 +6,10 @@
           {
             "type": "command",
             "command": "git -C \"$CLAUDE_PROJECT_DIR\" config core.hooksPath .githooks 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "n=\"$CLAUDE_PROJECT_DIR/../scripts/herdr_name.sh\"; [ -x \"$n\" ] || n=\"$HOME/Projects/tools/scripts/herdr_name.sh\"; [ -x \"$n\" ] && \"$n\" || true"
           }
         ]
       }
