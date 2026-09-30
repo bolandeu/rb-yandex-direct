@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct keywords dedup [OPTIONS] IDS...
+Usage: yd keywords dedup [OPTIONS] IDS...
 
   Найти дубли среди переданных ключей и приостановить копии.
 
-  Example: rb-yandex-direct keywords dedup 901 902 903
+  Example: yd keywords dedup 901 902 903
 
 Options:
   -y, --yes  без подтверждения

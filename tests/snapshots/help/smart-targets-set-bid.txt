@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct smart-targets set-bid [OPTIONS]
+Usage: yd smart-targets set-bid [OPTIONS]
 
   Установить ставку на условии таргетинга Smart-баннера.
 
-  Example: rb-yandex-direct smart-targets set-bid --id 9001 --bid 10
+  Example: yd smart-targets set-bid --id 9001 --bid 10
 
 Options:
   --id INTEGER                  ID условия таргетинга  [required]

@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct images delete [OPTIONS] HASHES...
+Usage: yd images delete [OPTIONS] HASHES...
 
   Удалить изображения по хэшам.
 
-  Example: rb-yandex-direct images delete abc123hash
+  Example: yd images delete abc123hash
 
 Options:
   -y, --yes  без подтверждения

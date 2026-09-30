@@ -1,9 +1,8 @@
-Usage: rb-yandex-direct report queries [OPTIONS]
+Usage: yd report queries [OPTIONS]
 
   SEARCH_QUERY_PERFORMANCE_REPORT: реальные поисковые запросы пользователей.
 
-  Example: rb-yandex-direct report queries --date-from 2026-09-01 --date-to 2026-09-27 --campaign
-  12345
+  Example: yd report queries --date-from 2026-09-01 --date-to 2026-09-27 --campaign 12345
 
 Options:
   --date-from TEXT    начало периода, YYYY-MM-DD  [required]

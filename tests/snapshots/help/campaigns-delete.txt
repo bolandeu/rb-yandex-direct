@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct campaigns delete [OPTIONS] IDS...
+Usage: yd campaigns delete [OPTIONS] IDS...
 
   Удалить кампании безвозвратно (должны быть archived).
 
-  Example: rb-yandex-direct campaigns delete 12345
+  Example: yd campaigns delete 12345
 
 Options:
   -y, --yes  без подтверждения

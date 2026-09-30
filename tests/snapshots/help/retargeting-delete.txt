@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct retargeting delete [OPTIONS] IDS...
+Usage: yd retargeting delete [OPTIONS] IDS...
 
   Удалить списки ретаргетинга.
 
-  Example: rb-yandex-direct retargeting delete 4001
+  Example: yd retargeting delete 4001
 
 Options:
   -y, --yes  без подтверждения

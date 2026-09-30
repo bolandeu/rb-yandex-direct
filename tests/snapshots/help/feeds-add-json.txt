@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct feeds add-json [OPTIONS]
+Usage: yd feeds add-json [OPTIONS]
 
   Создать фиды из JSON-файла (структура — как в feeds.add).
 
-  Example: rb-yandex-direct feeds add-json --from-json feeds.json
+  Example: yd feeds add-json --from-json feeds.json
 
 Options:
   --from-json PATH  JSON-файл со структурой для API (формат — как в документации метода)  [required]

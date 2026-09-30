@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct minus-sets add [OPTIONS]
+Usage: yd minus-sets add [OPTIONS]
 
   Создать набор общих минус-слов.
 
-  Example: rb-yandex-direct minus-sets add --name 'Общие' --words 'бесплатно,скачать'
+  Example: yd minus-sets add --name 'Общие' --words 'бесплатно,скачать'
 
 Options:
   --name TEXT       имя набора  [required]

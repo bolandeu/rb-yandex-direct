@@ -94,15 +94,3 @@ async def test_keywords_deduplicate() -> None:
     body = json.loads(route.calls.last.request.content)
     assert body["method"] == "deduplicate"
     assert body["params"]["KeywordIds"] == [1, 2, 3]
-
-
-@pytest.mark.asyncio
-@respx.mock
-async def test_mcp_keywords_deduplicate_dry_run(monkeypatch) -> None:
-    from rb_yandex_direct import mcp_server
-
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    result = await mcp_server.keywords_deduplicate(keyword_ids=[1, 2])
-    assert result["requires_confirm"] is True
-    assert result["action"] == "keywordsresearch.deduplicate"
-    assert respx.calls.call_count == 0

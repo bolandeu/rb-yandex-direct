@@ -25,7 +25,7 @@ from rb_yandex_direct.core.client import DirectClient
 from rb_yandex_direct.core.errors import DirectAPIError
 
 DIST_NAME = "rb-yandex-direct"
-CLI_NAME = "rb-yandex-direct"
+CLI_NAME = "yd"
 
 PROFILE = Profile(
     cli_name=CLI_NAME,

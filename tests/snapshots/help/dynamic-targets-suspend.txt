@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct dynamic-targets suspend [OPTIONS] IDS...
+Usage: yd dynamic-targets suspend [OPTIONS] IDS...
 
   Остановить условия таргетинга динамических объявлений.
 
-  Example: rb-yandex-direct dynamic-targets suspend 8001
+  Example: yd dynamic-targets suspend 8001
 
 Options:
   -y, --yes  без подтверждения

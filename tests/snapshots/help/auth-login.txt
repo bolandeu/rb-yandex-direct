@@ -1,4 +1,4 @@
-Usage: rb-yandex-direct auth login [OPTIONS]
+Usage: yd auth login [OPTIONS]
 
   Получить OAuth-токен Директа и сохранить в keychain вместе с refresh_token.
 
@@ -9,7 +9,7 @@ Usage: rb-yandex-direct auth login [OPTIONS]
   client-entry, права direct:api и passport:business; для prod нужна подтверждённая заявка на доступ
   к API (direct.yandex.ru → Настройки API → Мои заявки), иначе API отвечает кодом 58.
 
-  Example: rb-yandex-direct auth login --client-id abc123 --client-secret s3cr3t
+  Example: yd auth login --client-id abc123 --client-secret s3cr3t
 
 Options:
   --token TEXT          готовый OAuth-токен или адрес …verification_code#access_token=… (без

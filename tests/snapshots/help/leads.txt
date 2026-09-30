@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct leads [OPTIONS]
+Usage: yd leads [OPTIONS]
 
   Лиды с lead-форм и Турбо-страниц.
 
-  Example: rb-yandex-direct leads --campaign 12345 --date-from 2026-09-01 --date-to 2026-09-27
+  Example: yd leads --campaign 12345 --date-from 2026-09-01 --date-to 2026-09-27
 
 Options:
   --campaign INTEGER  фильтр по кампании (можно несколько раз)

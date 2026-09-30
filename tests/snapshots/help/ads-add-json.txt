@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct ads add-json [OPTIONS]
+Usage: yd ads add-json [OPTIONS]
 
   Создать объявления из JSON-файла (любые типы: TextAd, MobileAppAd, ...).
 
-  Example: rb-yandex-direct ads add-json --from-json ads.json
+  Example: yd ads add-json --from-json ads.json
 
 Options:
   --from-json PATH  JSON-массив объектов объявлений (для MobileAppAd, DynamicTextAd и прочих)

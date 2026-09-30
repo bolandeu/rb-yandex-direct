@@ -1,6 +1,6 @@
-"""CLI rb-yandex-direct — Яндекс.Директ API v5.
+"""CLI yd — Яндекс.Директ API v5.
 
-Голый `rb-yandex-direct` (и любая группа без подкоманды) печатает справку.
+Голый `yd` (и любая группа без подкоманды) печатает справку.
 Токен — из keychain/переменных окружения через rb-yandex-oauth (см. core/auth.py).
 """
 
@@ -154,7 +154,7 @@ def auth_login(token: str | None, oob: bool, device: bool, client_id: str | None
     direct:api и passport:business; для prod нужна подтверждённая заявка на доступ к API
     (direct.yandex.ru → Настройки API → Мои заявки), иначе API отвечает кодом 58.
 
-    Example: rb-yandex-direct auth login --client-id abc123 --client-secret s3cr3t
+    Example: yd auth login --client-id abc123 --client-secret s3cr3t
     """
     cid, secret = direct_auth.app_credentials(client_id, client_secret)
     if token:
@@ -207,7 +207,7 @@ def auth_refresh() -> None:
     Обычно не нужно: токен обновляется сам за 30 дней до истечения.
     Без keychain обновлённый токен живёт только в памяти процесса.
 
-    Example: rb-yandex-direct auth refresh
+    Example: yd auth refresh
     """
     bag = direct_auth.store.refresh()
     console.print("[green]✓[/] Токен обновлён")
@@ -218,7 +218,7 @@ def auth_refresh() -> None:
 def auth_logout() -> None:
     """Удалить токен и данные приложения из keychain (переменные окружения не трогает).
 
-    Example: rb-yandex-direct auth logout
+    Example: yd auth logout
     """
     direct_auth.store.delete()
     console.print("Учётные данные Директа удалены из keychain.")
@@ -237,7 +237,7 @@ def auth_status(ctx: click.Context, check: bool, as_json: bool) -> None:
     source, source_ref, status, expires_at, quota (баллы API: остаток и суточный лимит),
     message; при коде 3 — ok: false и error CREDENTIALS_UNHEALTHY рядом с отчётом.
 
-    Example: rb-yandex-direct auth status --check --json
+    Example: yd auth status --check --json
     """
     report, error = direct_auth.status_report(check=check, sandbox=bool(ctx.obj.get("sandbox")))
     if as_json:
@@ -266,7 +266,7 @@ def auth_status(ctx: click.Context, check: bool, as_json: bool) -> None:
 def whoami(ctx: click.Context) -> None:
     """Проверить токен и показать клиентов (clients.get). Отказ по учётным данным — exit 3.
 
-    Example: rb-yandex-direct whoami
+    Example: yd whoami
     """
     client = _get_client(ctx)
 
@@ -309,7 +309,7 @@ def client_cli() -> None:
 def client_update(ctx, from_json, yes) -> None:
     """Обновить настройки клиента (clients.update).
 
-    Example: rb-yandex-direct client update --from-json client.json
+    Example: yd client update --from-json client.json
     """
     fields = json.loads(Path(from_json).read_text())
     _confirm(f"clients.update с {len(fields)} полями верхнего уровня", yes)
@@ -326,7 +326,7 @@ def client_update(ctx, from_json, yes) -> None:
 def client_update_agency(ctx, from_json, yes) -> None:
     """Обновить агентские настройки (agencyclients.update).
 
-    Example: rb-yandex-direct client update-agency --from-json client.json
+    Example: yd client update-agency --from-json client.json
     """
     fields = json.loads(Path(from_json).read_text())
     _confirm(f"agencyclients.update с {len(fields)} полями", yes)
@@ -349,7 +349,7 @@ def accounts(ctx: click.Context, output: str | None, managed_only: bool) -> None
     делается clients.get чтобы показать валюту/баллы/статус. Токен — из auth login
     (keychain) или переменных окружения, как у остальных команд.
 
-    Example: rb-yandex-direct accounts --output accounts.json
+    Example: yd accounts --output accounts.json
     """
     token = direct_auth.resolve_token()
 
@@ -418,7 +418,7 @@ def accounts(ctx: click.Context, output: str | None, managed_only: bool) -> None
 def clients(ctx: click.Context, output: str | None) -> None:
     """Список клиентов агентства (или себя для обычного аккаунта).
 
-    Example: rb-yandex-direct clients
+    Example: yd clients
     """
     client = _get_client(ctx)
     data = asyncio.run(client.list_clients())
@@ -478,7 +478,7 @@ def _print_result(title: str, data: dict) -> None:
 def campaigns_list(ctx: click.Context, state: str | None, type_: str | None, output: str | None) -> None:
     """Список кампаний с фильтром по состоянию и типу.
 
-    Example: rb-yandex-direct campaigns list --state ON
+    Example: yd campaigns list --state ON
     """
     client = _get_client(ctx)
     criteria: dict[str, Any] = {}
@@ -518,7 +518,7 @@ def campaigns_list(ctx: click.Context, state: str | None, type_: str | None, out
 def campaigns_suspend(ctx, ids, yes) -> None:
     """Приостановить кампании.
 
-    Example: rb-yandex-direct campaigns suspend 12345 67890
+    Example: yd campaigns suspend 12345 67890
     """
     _confirm(f"Приостановить {len(ids)} кампаний: {list(ids)}", yes)
     data = asyncio.run(_get_client(ctx).suspend_campaigns(list(ids)))
@@ -532,7 +532,7 @@ def campaigns_suspend(ctx, ids, yes) -> None:
 def campaigns_resume(ctx, ids, yes) -> None:
     """Возобновить приостановленные кампании.
 
-    Example: rb-yandex-direct campaigns resume 12345
+    Example: yd campaigns resume 12345
     """
     _confirm(f"Возобновить {len(ids)} кампаний: {list(ids)}", yes)
     data = asyncio.run(_get_client(ctx).resume_campaigns(list(ids)))
@@ -546,7 +546,7 @@ def campaigns_resume(ctx, ids, yes) -> None:
 def campaigns_archive(ctx, ids, yes) -> None:
     """Архивировать. Кампания должна быть suspended и без остатка средств.
 
-    Example: rb-yandex-direct campaigns archive 12345
+    Example: yd campaigns archive 12345
     """
     _confirm(f"Архивировать {len(ids)} кампаний", yes)
     data = asyncio.run(_get_client(ctx).archive_campaigns(list(ids)))
@@ -560,7 +560,7 @@ def campaigns_archive(ctx, ids, yes) -> None:
 def campaigns_unarchive(ctx, ids, yes) -> None:
     """Вернуть кампании из архива.
 
-    Example: rb-yandex-direct campaigns unarchive 12345
+    Example: yd campaigns unarchive 12345
     """
     _confirm(f"Разархивировать {len(ids)} кампаний", yes)
     data = asyncio.run(_get_client(ctx).unarchive_campaigns(list(ids)))
@@ -596,7 +596,7 @@ def campaigns_unarchive(ctx, ids, yes) -> None:
 def campaigns_set_neg(ctx, campaign_id, campaign_type, words, from_file, yes) -> None:
     """Заменить минус-слова на уровне кампании (полный список заменяет текущий).
 
-    Example: rb-yandex-direct campaigns set-negative-keywords 12345 --words 'бесплатно,скачать'
+    Example: yd campaigns set-negative-keywords 12345 --words 'бесплатно,скачать'
     """
     kws: list[str] = []
     if from_file:
@@ -633,7 +633,7 @@ def campaigns_set_neg(ctx, campaign_id, campaign_type, words, from_file, yes) ->
 def campaigns_set_budget(ctx, campaign_id, amount_rub, mode, yes) -> None:
     """Задать дневной бюджет кампании в рублях.
 
-    Example: rb-yandex-direct campaigns set-budget 12345 1500
+    Example: yd campaigns set-budget 12345 1500
     """
     _confirm(f"Поставить дневной бюджет {amount_rub}₽ (mode={mode}) на campaign={campaign_id}", yes)
     data = asyncio.run(_get_client(ctx).set_campaign_daily_budget(campaign_id, amount_rub, mode=mode))
@@ -654,7 +654,7 @@ def campaigns_set_budget(ctx, campaign_id, amount_rub, mode, yes) -> None:
 def campaigns_update(ctx, campaign_id, name, start_date, end_date, daily_budget, budget_mode, yes) -> None:
     """Обновить параметры кампании (имя, даты, бюджет).
 
-    Example: rb-yandex-direct campaigns update 12345 --name 'Весна 2026' --daily-budget 2000
+    Example: yd campaigns update 12345 --name 'Весна 2026' --daily-budget 2000
     """
     item: dict[str, Any] = {"Id": campaign_id}
     if name:
@@ -688,7 +688,7 @@ def adgroups() -> None:
 def adgroups_list(ctx, campaign_ids, types, output) -> None:
     """Список групп объявлений (фильтр по кампаниям и типам).
 
-    Example: rb-yandex-direct adgroups list --campaign 12345
+    Example: yd adgroups list --campaign 12345
     """
     client = _get_client(ctx)
     data = asyncio.run(
@@ -714,7 +714,7 @@ def adgroups_list(ctx, campaign_ids, types, output) -> None:
 def adgroups_add(ctx, campaign_id, name, region_ids, negative_keywords, yes) -> None:
     """Создать текстовую группу объявлений.
 
-    Example: rb-yandex-direct adgroups add --campaign 12345 --name 'Диваны' --region 213
+    Example: yd adgroups add --campaign 12345 --name 'Диваны' --region 213
     """
     item: dict[str, Any] = {
         "Name": name,
@@ -745,7 +745,7 @@ def adgroups_add(ctx, campaign_id, name, region_ids, negative_keywords, yes) -> 
 def adgroups_update(ctx, adgroup_id, name, region_ids, negative_keywords, yes) -> None:
     """Обновить группу объявлений (имя, регионы, минус-фразы группы).
 
-    Example: rb-yandex-direct adgroups update 555 --name 'Диваны Москва'
+    Example: yd adgroups update 555 --name 'Диваны Москва'
     """
     item: dict[str, Any] = {"Id": adgroup_id}
     if name:
@@ -768,7 +768,7 @@ def adgroups_update(ctx, adgroup_id, name, region_ids, negative_keywords, yes) -
 def adgroups_delete(ctx, ids, yes) -> None:
     """Удалить группы объявлений безвозвратно.
 
-    Example: rb-yandex-direct adgroups delete 555
+    Example: yd adgroups delete 555
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(ids)} групп объявлений (необратимо)", yes)
     data = asyncio.run(_get_client(ctx).delete_adgroups(list(ids)))
@@ -784,7 +784,7 @@ def adgroups_delete(ctx, ids, yes) -> None:
 def adgroups_set_neg(ctx, adgroup_id, words, from_file, yes) -> None:
     """Заменить минус-слова на уровне группы (полный список заменяет текущий).
 
-    Example: rb-yandex-direct adgroups set-negative-keywords 555 --words 'бу,ремонт'
+    Example: yd adgroups set-negative-keywords 555 --words 'бу,ремонт'
     """
     kws: list[str] = []
     if from_file:
@@ -830,7 +830,7 @@ def ads() -> None:
 def ads_list(ctx, campaign_ids, adgroup_ids, states, statuses, output) -> None:
     """Список объявлений (фильтр по кампаниям, группам, состоянию, статусу).
 
-    Example: rb-yandex-direct ads list --campaign 12345 --status REJECTED
+    Example: yd ads list --campaign 12345 --status REJECTED
     """
     client = _get_client(ctx)
     data = asyncio.run(
@@ -856,7 +856,7 @@ def ads_list(ctx, campaign_ids, adgroup_ids, states, statuses, output) -> None:
 def ads_moderate(ctx, ids, yes) -> None:
     """Отправить объявления на модерацию (из DRAFT в MODERATION).
 
-    Example: rb-yandex-direct ads moderate 777 778
+    Example: yd ads moderate 777 778
     """
     _confirm(f"Отправить {len(ids)} объявлений на модерацию", yes)
     data = asyncio.run(_get_client(ctx).moderate_ads(list(ids)))
@@ -870,7 +870,7 @@ def ads_moderate(ctx, ids, yes) -> None:
 def ads_suspend(ctx, ids, yes) -> None:
     """Остановить показы объявлений.
 
-    Example: rb-yandex-direct ads suspend 777
+    Example: yd ads suspend 777
     """
     _confirm(f"Остановить {len(ids)} объявлений", yes)
     data = asyncio.run(_get_client(ctx).suspend_ads(list(ids)))
@@ -884,7 +884,7 @@ def ads_suspend(ctx, ids, yes) -> None:
 def ads_resume(ctx, ids, yes) -> None:
     """Возобновить показы остановленных объявлений.
 
-    Example: rb-yandex-direct ads resume 777
+    Example: yd ads resume 777
     """
     _confirm(f"Включить {len(ids)} объявлений", yes)
     data = asyncio.run(_get_client(ctx).resume_ads(list(ids)))
@@ -898,7 +898,7 @@ def ads_resume(ctx, ids, yes) -> None:
 def ads_archive(ctx, ids, yes) -> None:
     """Архивировать объявления.
 
-    Example: rb-yandex-direct ads archive 777
+    Example: yd ads archive 777
     """
     _confirm(f"Архивировать {len(ids)} объявлений", yes)
     data = asyncio.run(_get_client(ctx).archive_ads(list(ids)))
@@ -912,7 +912,7 @@ def ads_archive(ctx, ids, yes) -> None:
 def ads_unarchive(ctx, ids, yes) -> None:
     """Вернуть объявления из архива.
 
-    Example: rb-yandex-direct ads unarchive 777
+    Example: yd ads unarchive 777
     """
     _confirm(f"Разархивировать {len(ids)} объявлений", yes)
     data = asyncio.run(_get_client(ctx).unarchive_ads(list(ids)))
@@ -926,7 +926,7 @@ def ads_unarchive(ctx, ids, yes) -> None:
 def ads_delete(ctx, ids, yes) -> None:
     """Удалить объявления безвозвратно (только черновики и отклонённые).
 
-    Example: rb-yandex-direct ads delete 777
+    Example: yd ads delete 777
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(ids)} объявлений (необратимо)", yes)
     data = asyncio.run(_get_client(ctx).delete_ads(list(ids)))
@@ -962,7 +962,7 @@ def ads_add_text(
 ) -> None:
     """Создать одно текстовое объявление (TextAd).
 
-    Example: rb-yandex-direct ads add-text --adgroup 555 --title 'Диваны от 9990 ₽' --text 'Доставка за день' --href https://example.com
+    Example: yd ads add-text --adgroup 555 --title 'Диваны от 9990 ₽' --text 'Доставка за день' --href https://example.com
     """
     _confirm(f"Создать текстовое объявление в группе {adgroup_id}", yes)
     data = asyncio.run(
@@ -994,7 +994,7 @@ def ads_add_text(
 def ads_add_json(ctx, from_json, yes) -> None:
     """Создать объявления из JSON-файла (любые типы: TextAd, MobileAppAd, ...).
 
-    Example: rb-yandex-direct ads add-json --from-json ads.json
+    Example: yd ads add-json --from-json ads.json
     """
     items = json.loads(Path(from_json).read_text())
     if not isinstance(items, list) or not items:
@@ -1011,7 +1011,7 @@ def ads_add_json(ctx, from_json, yes) -> None:
 def ads_moderation(ctx, campaign_ids, output) -> None:
     """Объявления, ждущие модерации или отклонённые.
 
-    Example: rb-yandex-direct ads moderation --campaign 12345
+    Example: yd ads moderation --campaign 12345
     """
     client = _get_client(ctx)
     data = asyncio.run(client.list_ads_in_moderation(campaign_ids=list(campaign_ids) or None))
@@ -1048,7 +1048,7 @@ def keywords() -> None:
 def keywords_list(ctx, adgroup_ids, campaign_ids, states, output) -> None:
     """Список ключевых фраз (фильтр по группам, кампаниям, состоянию).
 
-    Example: rb-yandex-direct keywords list --adgroup 555
+    Example: yd keywords list --adgroup 555
     """
     client = _get_client(ctx)
     data = asyncio.run(
@@ -1073,7 +1073,7 @@ def keywords_list(ctx, adgroup_ids, campaign_ids, states, output) -> None:
 def keywords_suspend(ctx, ids, yes) -> None:
     """Остановить показы по ключевым фразам.
 
-    Example: rb-yandex-direct keywords suspend 901 902
+    Example: yd keywords suspend 901 902
     """
     _confirm(f"Остановить {len(ids)} ключей", yes)
     data = asyncio.run(_get_client(ctx).suspend_keywords(list(ids)))
@@ -1087,7 +1087,7 @@ def keywords_suspend(ctx, ids, yes) -> None:
 def keywords_resume(ctx, ids, yes) -> None:
     """Возобновить показы по ключевым фразам.
 
-    Example: rb-yandex-direct keywords resume 901
+    Example: yd keywords resume 901
     """
     _confirm(f"Включить {len(ids)} ключей", yes)
     data = asyncio.run(_get_client(ctx).resume_keywords(list(ids)))
@@ -1102,7 +1102,7 @@ def keywords_resume(ctx, ids, yes) -> None:
 def keywords_check_volume(ctx, phrases, region_ids, output) -> None:
     """Проверить, есть ли у фраз поисковый спрос.
 
-    Example: rb-yandex-direct keywords check-volume 'купить диван' 'диван недорого' --region 213
+    Example: yd keywords check-volume 'купить диван' 'диван недорого' --region 213
     """
     client = _get_client(ctx)
     data = asyncio.run(
@@ -1121,7 +1121,7 @@ def keywords_check_volume(ctx, phrases, region_ids, output) -> None:
 def keywords_dedup(ctx, ids, yes) -> None:
     """Найти дубли среди переданных ключей и приостановить копии.
 
-    Example: rb-yandex-direct keywords dedup 901 902 903
+    Example: yd keywords dedup 901 902 903
     """
     _confirm(f"Дедуплицировать {len(ids)} ключей (приостановит дубли)", yes)
     data = asyncio.run(_get_client(ctx).keywords_deduplicate(list(ids)))
@@ -1135,7 +1135,7 @@ def keywords_dedup(ctx, ids, yes) -> None:
 def keywords_delete(ctx, ids, yes) -> None:
     """Удалить ключи безвозвратно.
 
-    Example: rb-yandex-direct keywords delete 901
+    Example: yd keywords delete 901
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(ids)} ключей (необратимо)", yes)
     data = asyncio.run(_get_client(ctx).delete_keywords(list(ids)))
@@ -1156,7 +1156,7 @@ def keywords_delete(ctx, ids, yes) -> None:
 def keywords_add(ctx, adgroup_id, phrases, from_file, search_bid, network_bid, priority, yes) -> None:
     """Добавить ключевые фразы в группу (до 1000 за вызов).
 
-    Example: rb-yandex-direct keywords add --adgroup 555 'купить диван' 'диван недорого' --search-bid 15
+    Example: yd keywords add --adgroup 555 'купить диван' 'диван недорого' --search-bid 15
     """
     texts: list[str] = list(phrases)
     if from_file:
@@ -1193,7 +1193,7 @@ def keywords_add(ctx, adgroup_id, phrases, from_file, search_bid, network_bid, p
 def keywords_update(ctx, keyword_id, text, priority, user_param1, user_param2, yes) -> None:
     """Обновить ключевую фразу.
 
-    Example: rb-yandex-direct keywords update --id 901 --text 'купить угловой диван'
+    Example: yd keywords update --id 901 --text 'купить угловой диван'
     """
     item: dict[str, Any] = {"Id": keyword_id}
     if text:
@@ -1232,7 +1232,7 @@ def bids() -> None:
 def bids_list(ctx, keyword_ids, adgroup_ids, campaign_ids, output) -> None:
     """Ставки по ключевым фразам (нужен хотя бы один фильтр).
 
-    Example: rb-yandex-direct bids list --campaign 12345
+    Example: yd bids list --campaign 12345
     """
     client = _get_client(ctx)
     if not (keyword_ids or adgroup_ids or campaign_ids):
@@ -1273,7 +1273,7 @@ def bids_list(ctx, keyword_ids, adgroup_ids, campaign_ids, output) -> None:
 def bids_set(ctx, keyword_id, search_bid, network_bid, yes) -> None:
     """Установить ручную ставку по ключу. Ставки задаются в рублях — домножаются на 1e6.
 
-    Example: rb-yandex-direct bids set --keyword 901 --search-bid 12.5
+    Example: yd bids set --keyword 901 --search-bid 12.5
     """
     if search_bid is None and network_bid is None:
         raise click.ClickException("укажи хотя бы одно: --search-bid или --network-bid")
@@ -1297,7 +1297,7 @@ def bids_set(ctx, keyword_id, search_bid, network_bid, yes) -> None:
 def bids_set_auto(ctx, keyword_id, priority, yes) -> None:
     """Приоритет ключа для авто-стратегии.
 
-    Example: rb-yandex-direct bids set-auto --keyword 901 --priority HIGH
+    Example: yd bids set-auto --keyword 901 --priority HIGH
     """
     _confirm(f"StrategyPriority={priority} для keyword={keyword_id}", yes)
     data = asyncio.run(
@@ -1340,7 +1340,7 @@ def modifiers() -> None:
 def modifiers_list(ctx, campaign_ids, adgroup_ids, types, output) -> None:
     """Корректировки ставок кампаний и групп.
 
-    Example: rb-yandex-direct modifiers list --campaign 12345
+    Example: yd modifiers list --campaign 12345
     """
     client = _get_client(ctx)
     data = asyncio.run(
@@ -1385,11 +1385,11 @@ def modifiers_add(
     """Добавить корректировку ставки.
 
     Примеры:
-      rb-yandex-direct modifiers add --campaign 123 --type MOBILE --value 80
-      rb-yandex-direct modifiers add --adgroup 456 --type DEMOGRAPHICS --gender GENDER_MALE --age AGE_25_34 --value 120
-      rb-yandex-direct modifiers add --campaign 123 --type REGIONAL --region 213 --value 150
+      yd modifiers add --campaign 123 --type MOBILE --value 80
+      yd modifiers add --adgroup 456 --type DEMOGRAPHICS --gender GENDER_MALE --age AGE_25_34 --value 120
+      yd modifiers add --campaign 123 --type REGIONAL --region 213 --value 150
 
-    Example: rb-yandex-direct modifiers add --campaign 12345 --type MOBILE --value 50
+    Example: yd modifiers add --campaign 12345 --type MOBILE --value 50
     """
     if (campaign_id is None) == (adgroup_id is None):
         raise click.ClickException("укажи ровно один из --campaign / --adgroup")
@@ -1442,7 +1442,7 @@ def modifiers_add(
 def modifiers_set(ctx, modifier_id, bid_modifier, yes) -> None:
     """Изменить значение существующей корректировки.
 
-    Example: rb-yandex-direct modifiers set --id 3001 --value 120
+    Example: yd modifiers set --id 3001 --value 120
     """
     _confirm(f"Поставить BidModifier={bid_modifier}% на id={modifier_id}", yes)
     data = asyncio.run(_get_client(ctx).set_bid_modifiers([{"Id": modifier_id, "BidModifier": bid_modifier}]))
@@ -1456,7 +1456,7 @@ def modifiers_set(ctx, modifier_id, bid_modifier, yes) -> None:
 def modifiers_delete(ctx, ids, yes) -> None:
     """Удалить корректировки ставок.
 
-    Example: rb-yandex-direct modifiers delete 3001
+    Example: yd modifiers delete 3001
     """
     _confirm(f"Удалить {len(ids)} корректировок", yes)
     data = asyncio.run(_get_client(ctx).delete_bid_modifiers(list(ids)))
@@ -1487,7 +1487,7 @@ def modifiers_delete(ctx, ids, yes) -> None:
 def modifiers_toggle(ctx, campaign_id, adgroup_id, mod_type, enabled, yes) -> None:
     """Включить/выключить корректировки группы/кампании по типу.
 
-    Example: rb-yandex-direct modifiers toggle --campaign 12345 --type DEMOGRAPHICS_ADJUSTMENT --enabled NO
+    Example: yd modifiers toggle --campaign 12345 --type DEMOGRAPHICS_ADJUSTMENT --enabled NO
     """
     if (campaign_id is None) == (adgroup_id is None):
         raise click.ClickException("укажи ровно один из --campaign / --adgroup")
@@ -1522,7 +1522,7 @@ def retargeting() -> None:
 def retargeting_list(ctx, types, output) -> None:
     """Списки ретаргетинга и аудиторий.
 
-    Example: rb-yandex-direct retargeting list --type AUDIENCE
+    Example: yd retargeting list --type AUDIENCE
     """
     client = _get_client(ctx)
     data = asyncio.run(client.list_retargeting_lists(types=list(types) or None))
@@ -1559,7 +1559,7 @@ def retargeting_add(ctx, name, description, list_type, goal_ids, days, operator,
 
     Для сложных правил (несколько блоков Operator) используй Python API.
 
-    Example: rb-yandex-direct retargeting add --name 'Корзина' --goal 123456 --days 30
+    Example: yd retargeting add --name 'Корзина' --goal 123456 --days 30
     """
     args = [{"ExternalId": gid, "MembershipLifeSpan": days} for gid in goal_ids]
     item: dict[str, Any] = {
@@ -1585,7 +1585,7 @@ def retargeting_update(ctx, list_id, name, description, yes) -> None:
 
     Для изменения Rules используй Python API: это многомерная структура.
 
-    Example: rb-yandex-direct retargeting update 4001 --name 'Корзина 30 дней'
+    Example: yd retargeting update 4001 --name 'Корзина 30 дней'
     """
     item: dict[str, Any] = {"Id": list_id}
     if name:
@@ -1606,7 +1606,7 @@ def retargeting_update(ctx, list_id, name, description, yes) -> None:
 def retargeting_delete(ctx, ids, yes) -> None:
     """Удалить списки ретаргетинга.
 
-    Example: rb-yandex-direct retargeting delete 4001
+    Example: yd retargeting delete 4001
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(ids)} списков ретаргетинга", yes)
     data = asyncio.run(_get_client(ctx).delete_retargeting_lists(list(ids)))
@@ -1638,7 +1638,7 @@ def audiences() -> None:
 def audiences_list(ctx, adgroup_ids, campaign_ids, states, output) -> None:
     """Привязки аудиторий к группам объявлений.
 
-    Example: rb-yandex-direct audiences list --campaign 12345
+    Example: yd audiences list --campaign 12345
     """
     client = _get_client(ctx)
     data = asyncio.run(
@@ -1669,7 +1669,7 @@ def audiences_list(ctx, adgroup_ids, campaign_ids, states, output) -> None:
 def audiences_add(ctx, adgroup_id, retargeting_list_id, interest_id, context_bid, priority, yes) -> None:
     """Привязать аудиторию к группе объявлений.
 
-    Example: rb-yandex-direct audiences add --adgroup 555 --retargeting 4001
+    Example: yd audiences add --adgroup 555 --retargeting 4001
     """
     if (retargeting_list_id is None) == (interest_id is None):
         raise click.ClickException("укажи ровно один из --retargeting / --interest")
@@ -1694,7 +1694,7 @@ def audiences_add(ctx, adgroup_id, retargeting_list_id, interest_id, context_bid
 def audiences_suspend(ctx, ids, yes) -> None:
     """Остановить привязки аудиторий.
 
-    Example: rb-yandex-direct audiences suspend 5001
+    Example: yd audiences suspend 5001
     """
     _confirm(f"Остановить {len(ids)} привязок аудиторий", yes)
     data = asyncio.run(_get_client(ctx).suspend_audience_targets(list(ids)))
@@ -1708,7 +1708,7 @@ def audiences_suspend(ctx, ids, yes) -> None:
 def audiences_resume(ctx, ids, yes) -> None:
     """Возобновить привязки аудиторий.
 
-    Example: rb-yandex-direct audiences resume 5001
+    Example: yd audiences resume 5001
     """
     _confirm(f"Включить {len(ids)} привязок аудиторий", yes)
     data = asyncio.run(_get_client(ctx).resume_audience_targets(list(ids)))
@@ -1722,7 +1722,7 @@ def audiences_resume(ctx, ids, yes) -> None:
 def audiences_delete(ctx, ids, yes) -> None:
     """Удалить привязки аудиторий.
 
-    Example: rb-yandex-direct audiences delete 5001
+    Example: yd audiences delete 5001
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(ids)} привязок аудиторий", yes)
     data = asyncio.run(_get_client(ctx).delete_audience_targets(list(ids)))
@@ -1742,7 +1742,7 @@ def audiences_set_bid(ctx, target_id, adgroup_id, campaign_id, context_bid, prio
 
     Ровно один из --id / --adgroup / --campaign.
 
-    Example: rb-yandex-direct audiences set-bid --id 5001 --context-bid 8
+    Example: yd audiences set-bid --id 5001 --context-bid 8
     """
     scope = [x for x in (target_id, adgroup_id, campaign_id) if x is not None]
     if len(scope) != 1:
@@ -1779,7 +1779,7 @@ def minus_sets() -> None:
 def minus_sets_list(ctx, output) -> None:
     """Наборы общих минус-слов.
 
-    Example: rb-yandex-direct minus-sets list
+    Example: yd minus-sets list
     """
     client = _get_client(ctx)
     data = asyncio.run(client.list_negative_keyword_shared_sets())
@@ -1807,7 +1807,7 @@ def minus_sets_list(ctx, output) -> None:
 def minus_sets_add(ctx, name, words, from_file, yes) -> None:
     """Создать набор общих минус-слов.
 
-    Example: rb-yandex-direct minus-sets add --name 'Общие' --words 'бесплатно,скачать'
+    Example: yd minus-sets add --name 'Общие' --words 'бесплатно,скачать'
     """
     kws: list[str] = []
     if from_file:
@@ -1828,7 +1828,7 @@ def minus_sets_add(ctx, name, words, from_file, yes) -> None:
 def minus_sets_delete(ctx, ids, yes) -> None:
     """Удалить наборы минус-слов.
 
-    Example: rb-yandex-direct minus-sets delete 6001
+    Example: yd minus-sets delete 6001
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(ids)} наборов минус-слов", yes)
     data = asyncio.run(_get_client(ctx).delete_negative_keyword_shared_sets(list(ids)))
@@ -1845,7 +1845,7 @@ def minus_sets_delete(ctx, ids, yes) -> None:
 def minus_sets_update(ctx, set_id, name, words, from_file, yes) -> None:
     """Обновить набор минус-слов (целиком заменяет фразы).
 
-    Example: rb-yandex-direct minus-sets update 6001 --from-file minus.txt
+    Example: yd minus-sets update 6001 --from-file minus.txt
     """
     kws: list[str] | None = None
     if from_file:
@@ -1883,7 +1883,7 @@ def changes() -> None:
 def changes_check(ctx, timestamp: str, campaign_ids) -> None:
     """Что изменилось с указанного timestamp (ISO 8601, UTC).
 
-    Example: rb-yandex-direct changes check 2026-09-01T00:00:00Z --campaign 12345
+    Example: yd changes check 2026-09-01T00:00:00Z --campaign 12345
     """
     client = _get_client(ctx)
     data = asyncio.run(
@@ -1901,7 +1901,7 @@ def changes_check(ctx, timestamp: str, campaign_ids) -> None:
 def changes_dict(ctx, timestamp: str) -> None:
     """Актуальность справочников.
 
-    Example: rb-yandex-direct changes dictionaries 2026-09-01T00:00:00Z
+    Example: yd changes dictionaries 2026-09-01T00:00:00Z
     """
     client = _get_client(ctx)
     data = asyncio.run(client.check_dictionaries(timestamp))
@@ -1923,7 +1923,7 @@ def changes_dict(ctx, timestamp: str) -> None:
 def campaigns_add(ctx, from_json, yes) -> None:
     """Создать кампании из JSON-файла (сложная структура — смотри доку campaigns.add).
 
-    Example: rb-yandex-direct campaigns add-json --from-json campaigns.json
+    Example: yd campaigns add-json --from-json campaigns.json
     """
     items = json.loads(Path(from_json).read_text())
     if not isinstance(items, list) or not items:
@@ -1940,7 +1940,7 @@ def campaigns_add(ctx, from_json, yes) -> None:
 def campaigns_delete(ctx, ids, yes) -> None:
     """Удалить кампании безвозвратно (должны быть archived).
 
-    Example: rb-yandex-direct campaigns delete 12345
+    Example: yd campaigns delete 12345
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(ids)} кампаний (необратимо, требуют archived)", yes)
     data = asyncio.run(_get_client(ctx).delete_campaigns(list(ids)))
@@ -1961,7 +1961,7 @@ def feeds() -> None:
 def feeds_list(ctx, output) -> None:
     """Товарные фиды.
 
-    Example: rb-yandex-direct feeds list
+    Example: yd feeds list
     """
     client = _get_client(ctx)
     data = asyncio.run(client.list_feeds())
@@ -1985,7 +1985,7 @@ def feeds_list(ctx, output) -> None:
 def feeds_add(ctx, from_json, yes) -> None:
     """Создать фиды из JSON-файла (структура — как в feeds.add).
 
-    Example: rb-yandex-direct feeds add-json --from-json feeds.json
+    Example: yd feeds add-json --from-json feeds.json
     """
     items = json.loads(Path(from_json).read_text())
     if not isinstance(items, list) or not items:
@@ -2002,7 +2002,7 @@ def feeds_add(ctx, from_json, yes) -> None:
 def feeds_delete(ctx, ids, yes) -> None:
     """Удалить фиды.
 
-    Example: rb-yandex-direct feeds delete 7001
+    Example: yd feeds delete 7001
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(ids)} фидов", yes)
     data = asyncio.run(_get_client(ctx).delete_feeds(list(ids)))
@@ -2016,7 +2016,7 @@ def feeds_delete(ctx, ids, yes) -> None:
 def feeds_update(ctx, from_json, yes) -> None:
     """Обновить фиды из JSON-файла.
 
-    Example: rb-yandex-direct feeds update-json --from-json feeds.json
+    Example: yd feeds update-json --from-json feeds.json
     """
     items = json.loads(Path(from_json).read_text())
     if not isinstance(items, list) or not items:
@@ -2032,7 +2032,7 @@ def feeds_update(ctx, from_json, yes) -> None:
 def businesses_list(ctx, output) -> None:
     """Список бизнес-данных (Яндекс.Бизнес).
 
-    Example: rb-yandex-direct businesses
+    Example: yd businesses
     """
     client = _get_client(ctx)
     data = asyncio.run(client.list_businesses())
@@ -2048,7 +2048,7 @@ def businesses_list(ctx, output) -> None:
 def leads_list(ctx, campaign_ids, date_from, date_to, output) -> None:
     """Лиды с lead-форм и Турбо-страниц.
 
-    Example: rb-yandex-direct leads --campaign 12345 --date-from 2026-09-01 --date-to 2026-09-27
+    Example: yd leads --campaign 12345 --date-from 2026-09-01 --date-to 2026-09-27
     """
     client = _get_client(ctx)
     data = asyncio.run(
@@ -2081,7 +2081,7 @@ def dynamic_targets() -> None:
 def dynamic_targets_list(ctx, adgroup_ids, campaign_ids, output) -> None:
     """Условия таргетинга динамических объявлений.
 
-    Example: rb-yandex-direct dynamic-targets list --campaign 12345
+    Example: yd dynamic-targets list --campaign 12345
     """
     client = _get_client(ctx)
     data = asyncio.run(
@@ -2102,7 +2102,7 @@ def dynamic_targets_list(ctx, adgroup_ids, campaign_ids, output) -> None:
 def dynamic_targets_suspend(ctx, ids, yes) -> None:
     """Остановить условия таргетинга динамических объявлений.
 
-    Example: rb-yandex-direct dynamic-targets suspend 8001
+    Example: yd dynamic-targets suspend 8001
     """
     _confirm(f"Остановить {len(ids)} dynamic-targets", yes)
     data = asyncio.run(_get_client(ctx).suspend_dynamic_text_ad_targets(list(ids)))
@@ -2116,7 +2116,7 @@ def dynamic_targets_suspend(ctx, ids, yes) -> None:
 def dynamic_targets_resume(ctx, ids, yes) -> None:
     """Возобновить условия таргетинга динамических объявлений.
 
-    Example: rb-yandex-direct dynamic-targets resume 8001
+    Example: yd dynamic-targets resume 8001
     """
     _confirm(f"Включить {len(ids)} dynamic-targets", yes)
     data = asyncio.run(_get_client(ctx).resume_dynamic_text_ad_targets(list(ids)))
@@ -2130,7 +2130,7 @@ def dynamic_targets_resume(ctx, ids, yes) -> None:
 def dynamic_targets_delete(ctx, ids, yes) -> None:
     """Удалить условия таргетинга динамических объявлений.
 
-    Example: rb-yandex-direct dynamic-targets delete 8001
+    Example: yd dynamic-targets delete 8001
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(ids)} dynamic-targets", yes)
     data = asyncio.run(_get_client(ctx).delete_dynamic_text_ad_targets(list(ids)))
@@ -2149,7 +2149,7 @@ def dynamic_targets_delete(ctx, ids, yes) -> None:
 def dynamic_targets_add(ctx, from_json, yes) -> None:
     """Создать условия таргетинга динамических объявлений из JSON-файла (dynamictextadtargets.add).
 
-    Example: rb-yandex-direct dynamic-targets add-json --from-json targets.json
+    Example: yd dynamic-targets add-json --from-json targets.json
     """
     items = json.loads(Path(from_json).read_text())
     if not isinstance(items, list) or not items:
@@ -2169,7 +2169,7 @@ def dynamic_targets_add(ctx, from_json, yes) -> None:
 def dynamic_targets_set_bid(ctx, target_id, bid, context_bid, priority, yes) -> None:
     """Установить ставки на условии таргетинга DynamicTextAd.
 
-    Example: rb-yandex-direct dynamic-targets set-bid --id 8001 --bid 10
+    Example: yd dynamic-targets set-bid --id 8001 --bid 10
     """
     if bid is None and context_bid is None and priority is None:
         raise click.ClickException("укажи хотя бы --bid / --context-bid / --priority")
@@ -2200,7 +2200,7 @@ def smart_targets() -> None:
 def smart_targets_list(ctx, adgroup_ids, campaign_ids, output) -> None:
     """Условия таргетинга смарт-баннеров.
 
-    Example: rb-yandex-direct smart-targets list --campaign 12345
+    Example: yd smart-targets list --campaign 12345
     """
     client = _get_client(ctx)
     data = asyncio.run(
@@ -2221,7 +2221,7 @@ def smart_targets_list(ctx, adgroup_ids, campaign_ids, output) -> None:
 def smart_targets_suspend(ctx, ids, yes) -> None:
     """Остановить условия таргетинга смарт-баннеров.
 
-    Example: rb-yandex-direct smart-targets suspend 9001
+    Example: yd smart-targets suspend 9001
     """
     _confirm(f"Остановить {len(ids)} smart-targets", yes)
     data = asyncio.run(_get_client(ctx).suspend_smart_ad_targets(list(ids)))
@@ -2235,7 +2235,7 @@ def smart_targets_suspend(ctx, ids, yes) -> None:
 def smart_targets_resume(ctx, ids, yes) -> None:
     """Возобновить условия таргетинга смарт-баннеров.
 
-    Example: rb-yandex-direct smart-targets resume 9001
+    Example: yd smart-targets resume 9001
     """
     _confirm(f"Включить {len(ids)} smart-targets", yes)
     data = asyncio.run(_get_client(ctx).resume_smart_ad_targets(list(ids)))
@@ -2249,7 +2249,7 @@ def smart_targets_resume(ctx, ids, yes) -> None:
 def smart_targets_delete(ctx, ids, yes) -> None:
     """Удалить условия таргетинга смарт-баннеров.
 
-    Example: rb-yandex-direct smart-targets delete 9001
+    Example: yd smart-targets delete 9001
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(ids)} smart-targets", yes)
     data = asyncio.run(_get_client(ctx).delete_smart_ad_targets(list(ids)))
@@ -2268,7 +2268,7 @@ def smart_targets_delete(ctx, ids, yes) -> None:
 def smart_targets_add(ctx, from_json, yes) -> None:
     """Создать условия таргетинга смарт-баннеров из JSON-файла (smartadtargets.add).
 
-    Example: rb-yandex-direct smart-targets add-json --from-json targets.json
+    Example: yd smart-targets add-json --from-json targets.json
     """
     items = json.loads(Path(from_json).read_text())
     if not isinstance(items, list) or not items:
@@ -2287,7 +2287,7 @@ def smart_targets_add(ctx, from_json, yes) -> None:
 def smart_targets_set_bid(ctx, target_id, bid, priority, yes) -> None:
     """Установить ставку на условии таргетинга Smart-баннера.
 
-    Example: rb-yandex-direct smart-targets set-bid --id 9001 --bid 10
+    Example: yd smart-targets set-bid --id 9001 --bid 10
     """
     if bid is None and priority is None:
         raise click.ClickException("укажи хотя бы --bid или --priority")
@@ -2315,7 +2315,7 @@ def sitelinks_cli() -> None:
 def sitelinks_list(ctx, output) -> None:
     """Наборы быстрых ссылок.
 
-    Example: rb-yandex-direct sitelinks list
+    Example: yd sitelinks list
     """
     client = _get_client(ctx)
     data = asyncio.run(client.list_sitelinks())
@@ -2345,7 +2345,7 @@ def sitelinks_list(ctx, output) -> None:
 def sitelinks_add(ctx, from_json, yes) -> None:
     """Создать набор быстрых ссылок из JSON-файла.
 
-    Example: rb-yandex-direct sitelinks add --from-json sitelinks.json
+    Example: yd sitelinks add --from-json sitelinks.json
     """
     links = json.loads(Path(from_json).read_text())
     if not isinstance(links, list) or not (1 <= len(links) <= 8):
@@ -2362,7 +2362,7 @@ def sitelinks_add(ctx, from_json, yes) -> None:
 def sitelinks_delete(ctx, ids, yes) -> None:
     """Удалить наборы быстрых ссылок.
 
-    Example: rb-yandex-direct sitelinks delete 1101
+    Example: yd sitelinks delete 1101
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(ids)} наборов быстрых ссылок", yes)
     data = asyncio.run(_get_client(ctx).delete_sitelinks(list(ids)))
@@ -2384,7 +2384,7 @@ def vcards_cli() -> None:
 def vcards_list(ctx, campaign_ids, output) -> None:
     """Визитки (контактная информация).
 
-    Example: rb-yandex-direct vcards list --campaign 12345
+    Example: yd vcards list --campaign 12345
     """
     client = _get_client(ctx)
     data = asyncio.run(client.list_vcards(campaign_ids=list(campaign_ids) or None))
@@ -2408,7 +2408,7 @@ def vcards_list(ctx, campaign_ids, output) -> None:
 def vcards_add(ctx, from_json, yes) -> None:
     """Создать визитки из JSON-файла.
 
-    Example: rb-yandex-direct vcards add --from-json vcards.json
+    Example: yd vcards add --from-json vcards.json
     """
     items = json.loads(Path(from_json).read_text())
     if not isinstance(items, list) or not items:
@@ -2425,7 +2425,7 @@ def vcards_add(ctx, from_json, yes) -> None:
 def vcards_delete(ctx, ids, yes) -> None:
     """Удалить визитки.
 
-    Example: rb-yandex-direct vcards delete 1201
+    Example: yd vcards delete 1201
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(ids)} визиток", yes)
     data = asyncio.run(_get_client(ctx).delete_vcards(list(ids)))
@@ -2460,7 +2460,7 @@ def extensions_cli() -> None:
 def extensions_list(ctx, states, statuses, output) -> None:
     """Уточнения объявлений (callouts).
 
-    Example: rb-yandex-direct extensions list --status REJECTED
+    Example: yd extensions list --status REJECTED
     """
     client = _get_client(ctx)
     data = asyncio.run(
@@ -2479,7 +2479,7 @@ def extensions_list(ctx, states, statuses, output) -> None:
 def extensions_add(ctx, texts, yes) -> None:
     """Создать уточнения (callouts). Каждое ≤ 25 символов.
 
-    Example: rb-yandex-direct extensions add 'Доставка за день' 'Гарантия 2 года'
+    Example: yd extensions add 'Доставка за день' 'Гарантия 2 года'
     """
     items = [{"Callout": {"CalloutText": t}} for t in texts]
     _confirm(f"Создать {len(items)} уточнений", yes)
@@ -2494,7 +2494,7 @@ def extensions_add(ctx, texts, yes) -> None:
 def extensions_moderate(ctx, ids, yes) -> None:
     """Отправить уточнения на модерацию.
 
-    Example: rb-yandex-direct extensions moderate 1301
+    Example: yd extensions moderate 1301
     """
     _confirm(f"Отправить {len(ids)} уточнений на модерацию", yes)
     data = asyncio.run(_get_client(ctx).moderate_ad_extensions(list(ids)))
@@ -2508,7 +2508,7 @@ def extensions_moderate(ctx, ids, yes) -> None:
 def extensions_delete(ctx, ids, yes) -> None:
     """Удалить уточнения.
 
-    Example: rb-yandex-direct extensions delete 1301
+    Example: yd extensions delete 1301
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(ids)} уточнений", yes)
     data = asyncio.run(_get_client(ctx).delete_ad_extensions(list(ids)))
@@ -2530,7 +2530,7 @@ def images_cli() -> None:
 def images_list(ctx, associated, output) -> None:
     """Изображения, загруженные в кабинет.
 
-    Example: rb-yandex-direct images list --output images.json
+    Example: yd images list --output images.json
     """
     client = _get_client(ctx)
     data = asyncio.run(client.list_ad_images(associated=associated))
@@ -2556,7 +2556,7 @@ def images_list(ctx, associated, output) -> None:
 def images_add(ctx, paths, image_type, yes) -> None:
     """Загрузить изображения из файлов (до 100, рекомендуется ≤3).
 
-    Example: rb-yandex-direct images add banner.png
+    Example: yd images add banner.png
     """
     import base64
 
@@ -2583,7 +2583,7 @@ def images_add(ctx, paths, image_type, yes) -> None:
 def images_delete(ctx, hashes, yes) -> None:
     """Удалить изображения по хэшам.
 
-    Example: rb-yandex-direct images delete abc123hash
+    Example: yd images delete abc123hash
     """
     _confirm(f"[red]УДАЛИТЬ[/] {len(hashes)} изображений", yes)
     data = asyncio.run(_get_client(ctx).delete_ad_images(list(hashes)))
@@ -2617,7 +2617,7 @@ def creatives_cli() -> None:
 def creatives_list(ctx, types, output) -> None:
     """Креативы (HTML5, видео, смарт-баннеры).
 
-    Example: rb-yandex-direct creatives list --type VIDEO_EXTENSION_CREATIVE
+    Example: yd creatives list --type VIDEO_EXTENSION_CREATIVE
     """
     client = _get_client(ctx)
     data = asyncio.run(client.list_creatives(types=list(types) or None))
@@ -2633,7 +2633,7 @@ def creatives_list(ctx, types, output) -> None:
 def creatives_add_video_ext(ctx, video_ids, yes) -> None:
     """Создать VideoExtensionCreative из VideoId (получи через AdVideos до 10 за вызов).
 
-    Example: rb-yandex-direct creatives add-video-extension 5f1a2b3c
+    Example: yd creatives add-video-extension 5f1a2b3c
     """
     items = [{"VideoExtensionCreative": {"VideoId": v}} for v in video_ids]
     _confirm(f"Создать {len(items)} VideoExtensionCreative", yes)
@@ -2652,7 +2652,7 @@ def turbo_cli() -> None:
 def turbo_list(ctx, output) -> None:
     """Турбо-страницы клиента.
 
-    Example: rb-yandex-direct turbo list
+    Example: yd turbo list
     """
     client = _get_client(ctx)
     data = asyncio.run(client.list_turbopages())
@@ -2693,7 +2693,7 @@ def dict_() -> None:
 def dict_get(ctx, names, output) -> None:
     """Получить один или несколько справочников.
 
-    Example: rb-yandex-direct dict get Currencies GeoRegions --output dict.json
+    Example: yd dict get Currencies GeoRegions --output dict.json
     """
     data = asyncio.run(_get_client(ctx).get_dictionaries(list(names)))
     if output:
@@ -2737,7 +2737,7 @@ def _reports_client(ctx: click.Context) -> ReportsClient:
 def report_campaigns(ctx, date_from, date_to, output) -> None:
     """CAMPAIGN_PERFORMANCE_REPORT: эффективность кампаний.
 
-    Example: rb-yandex-direct report campaigns --date-from 2026-09-01 --date-to 2026-09-27
+    Example: yd report campaigns --date-from 2026-09-01 --date-to 2026-09-27
     """
     rc = _reports_client(ctx)
     _run_report(ctx, rc.campaign_performance(date_from, date_to), output)
@@ -2751,7 +2751,7 @@ def report_campaigns(ctx, date_from, date_to, output) -> None:
 def report_ads(ctx, date_from, date_to, output) -> None:
     """AD_PERFORMANCE_REPORT: эффективность объявлений.
 
-    Example: rb-yandex-direct report ads --date-from 2026-09-01 --date-to 2026-09-27 -o ads.json
+    Example: yd report ads --date-from 2026-09-01 --date-to 2026-09-27 -o ads.json
     """
     rc = _reports_client(ctx)
     _run_report(ctx, rc.ad_performance(date_from, date_to), output)
@@ -2766,7 +2766,7 @@ def report_ads(ctx, date_from, date_to, output) -> None:
 def report_queries(ctx, date_from, date_to, campaign_ids, output) -> None:
     """SEARCH_QUERY_PERFORMANCE_REPORT: реальные поисковые запросы пользователей.
 
-    Example: rb-yandex-direct report queries --date-from 2026-09-01 --date-to 2026-09-27 --campaign 12345
+    Example: yd report queries --date-from 2026-09-01 --date-to 2026-09-27 --campaign 12345
     """
     rc = _reports_client(ctx)
     _run_report(ctx, rc.search_query_performance(date_from, date_to, list(campaign_ids) or None), output)
@@ -2780,7 +2780,7 @@ def report_queries(ctx, date_from, date_to, campaign_ids, output) -> None:
 def report_account(ctx, date_from, date_to, output) -> None:
     """ACCOUNT_PERFORMANCE_REPORT: итог по аккаунту.
 
-    Example: rb-yandex-direct report account --date-from 2026-09-01 --date-to 2026-09-27
+    Example: yd report account --date-from 2026-09-01 --date-to 2026-09-27
     """
     rc = _reports_client(ctx)
     _run_report(ctx, rc.account_performance(date_from, date_to), output)
@@ -2796,7 +2796,7 @@ def report_account(ctx, date_from, date_to, output) -> None:
 def report_custom(ctx, report_type, date_from, date_to, fields, output) -> None:
     """Произвольный отчёт с указанием полей.
 
-    Example: rb-yandex-direct report custom --type CUSTOM_REPORT --date-from 2026-09-01 --date-to 2026-09-27 --fields Date,Clicks,Cost
+    Example: yd report custom --type CUSTOM_REPORT --date-from 2026-09-01 --date-to 2026-09-27 --fields Date,Clicks,Cost
     """
     rc = _reports_client(ctx)
     _run_report(
@@ -2825,20 +2825,6 @@ def _render_or_save(data: list[dict], output: str | None, *, title: str, columns
     for row in data[:100]:
         t.add_row(*[str(row.get(col, ""))[:60] for col in columns])
     console.print(t)
-
-
-# ---------- mcp ----------
-
-
-@cli.command()
-def mcp() -> None:
-    """Запустить MCP-сервер (stdio).
-
-    Example: rb-yandex-direct mcp
-    """
-    from rb_yandex_direct.mcp_server import serve
-
-    serve()
 
 
 def main() -> None:

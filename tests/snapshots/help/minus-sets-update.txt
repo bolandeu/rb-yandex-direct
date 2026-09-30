@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct minus-sets update [OPTIONS] SET_ID
+Usage: yd minus-sets update [OPTIONS] SET_ID
 
   Обновить набор минус-слов (целиком заменяет фразы).
 
-  Example: rb-yandex-direct minus-sets update 6001 --from-file minus.txt
+  Example: yd minus-sets update 6001 --from-file minus.txt
 
 Options:
   --name TEXT       новое имя набора

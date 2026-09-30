@@ -1,4 +1,4 @@
-Usage: rb-yandex-direct auth status [OPTIONS]
+Usage: yd auth status [OPTIONS]
 
   Откуда берётся токен и работает ли он. Значений секретов не печатает.
 
@@ -8,7 +8,7 @@ Usage: rb-yandex-direct auth status [OPTIONS]
   quota (баллы API: остаток и суточный лимит), message; при коде 3 — ok: false и error
   CREDENTIALS_UNHEALTHY рядом с отчётом.
 
-  Example: rb-yandex-direct auth status --check --json
+  Example: yd auth status --check --json
 
 Options:
   --check  проверить токен запросом clients.get (не дольше 10 с)

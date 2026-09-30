@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct audiences resume [OPTIONS] IDS...
+Usage: yd audiences resume [OPTIONS] IDS...
 
   Возобновить привязки аудиторий.
 
-  Example: rb-yandex-direct audiences resume 5001
+  Example: yd audiences resume 5001
 
 Options:
   -y, --yes  без подтверждения

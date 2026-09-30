@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct smart-targets delete [OPTIONS] IDS...
+Usage: yd smart-targets delete [OPTIONS] IDS...
 
   Удалить условия таргетинга смарт-баннеров.
 
-  Example: rb-yandex-direct smart-targets delete 9001
+  Example: yd smart-targets delete 9001
 
 Options:
   -y, --yes  без подтверждения

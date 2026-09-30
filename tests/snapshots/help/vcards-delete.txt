@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct vcards delete [OPTIONS] IDS...
+Usage: yd vcards delete [OPTIONS] IDS...
 
   Удалить визитки.
 
-  Example: rb-yandex-direct vcards delete 1201
+  Example: yd vcards delete 1201
 
 Options:
   -y, --yes  без подтверждения

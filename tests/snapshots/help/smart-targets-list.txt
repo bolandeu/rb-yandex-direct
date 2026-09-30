@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct smart-targets list [OPTIONS]
+Usage: yd smart-targets list [OPTIONS]
 
   Условия таргетинга смарт-баннеров.
 
-  Example: rb-yandex-direct smart-targets list --campaign 12345
+  Example: yd smart-targets list --campaign 12345
 
 Options:
   --adgroup INTEGER   фильтр по группе объявлений (можно несколько раз)

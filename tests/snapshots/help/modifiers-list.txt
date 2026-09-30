@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct modifiers list [OPTIONS]
+Usage: yd modifiers list [OPTIONS]
 
   Корректировки ставок кампаний и групп.
 
-  Example: rb-yandex-direct modifiers list --campaign 12345
+  Example: yd modifiers list --campaign 12345
 
 Options:
   --campaign INTEGER              фильтр по кампании (можно несколько раз)

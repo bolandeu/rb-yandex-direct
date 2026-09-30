@@ -22,7 +22,7 @@ PROD_BASE = "https://api.direct.yandex.com/json/v5"
 SANDBOX_BASE = "https://api-sandbox.direct.yandex.com/json/v5"
 
 
-# Разумные дефолты полей для быстрой отладки в CLI/MCP.
+# Разумные дефолты полей для быстрой отладки в CLI.
 DEFAULT_CAMPAIGN_FIELDS = [
     "Id",
     "Name",

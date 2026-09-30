@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct minus-sets delete [OPTIONS] IDS...
+Usage: yd minus-sets delete [OPTIONS] IDS...
 
   Удалить наборы минус-слов.
 
-  Example: rb-yandex-direct minus-sets delete 6001
+  Example: yd minus-sets delete 6001
 
 Options:
   -y, --yes  без подтверждения

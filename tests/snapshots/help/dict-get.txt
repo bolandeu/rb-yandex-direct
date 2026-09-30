@@ -1,10 +1,10 @@
-Usage: rb-yandex-direct dict get [OPTIONS] {Currencies|TimeZones|GeoRegions|AdCategories|OperationSy
-                                 stemVersions|ProductivityIndicators|SupplyChainStages|AutoBusinesse
-                                 s|Constants|LegalPersonDocumentTypes|SubjectSchema}...
+Usage: yd dict get [OPTIONS] {Currencies|TimeZones|GeoRegions|AdCategories|OperationSystemVersions|P
+                   roductivityIndicators|SupplyChainStages|AutoBusinesses|Constants|LegalPersonDocum
+                   entTypes|SubjectSchema}...
 
   Получить один или несколько справочников.
 
-  Example: rb-yandex-direct dict get Currencies GeoRegions --output dict.json
+  Example: yd dict get Currencies GeoRegions --output dict.json
 
 Options:
   --output PATH  сохранить JSON в файл

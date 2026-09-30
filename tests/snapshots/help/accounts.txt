@@ -1,4 +1,4 @@
-Usage: rb-yandex-direct accounts [OPTIONS]
+Usage: yd accounts [OPTIONS]
 
   Кабинеты, к которым есть доступ (представитель/агентство).
 
@@ -8,7 +8,7 @@ Usage: rb-yandex-direct accounts [OPTIONS]
   валюту/баллы/статус. Токен — из auth login (keychain) или переменных окружения, как у остальных
   команд.
 
-  Example: rb-yandex-direct accounts --output accounts.json
+  Example: yd accounts --output accounts.json
 
 Options:
   --output PATH   сохранить JSON в файл

@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct modifiers set [OPTIONS]
+Usage: yd modifiers set [OPTIONS]
 
   Изменить значение существующей корректировки.
 
-  Example: rb-yandex-direct modifiers set --id 3001 --value 120
+  Example: yd modifiers set --id 3001 --value 120
 
 Options:
   --id INTEGER     ID корректировки  [required]

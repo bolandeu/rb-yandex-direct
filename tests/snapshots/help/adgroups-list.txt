@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct adgroups list [OPTIONS]
+Usage: yd adgroups list [OPTIONS]
 
   Список групп объявлений (фильтр по кампаниям и типам).
 
-  Example: rb-yandex-direct adgroups list --campaign 12345
+  Example: yd adgroups list --campaign 12345
 
 Options:
   --campaign INTEGER  фильтр по кампании (можно несколько раз)

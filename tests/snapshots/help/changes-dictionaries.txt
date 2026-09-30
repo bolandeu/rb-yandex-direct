@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct changes dictionaries [OPTIONS] TIMESTAMP
+Usage: yd changes dictionaries [OPTIONS] TIMESTAMP
 
   Актуальность справочников.
 
-  Example: rb-yandex-direct changes dictionaries 2026-09-01T00:00:00Z
+  Example: yd changes dictionaries 2026-09-01T00:00:00Z
 
 Options:
   --help  Show this message and exit.

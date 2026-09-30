@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct adgroups add [OPTIONS]
+Usage: yd adgroups add [OPTIONS]
 
   Создать текстовую группу объявлений.
 
-  Example: rb-yandex-direct adgroups add --campaign 12345 --name 'Диваны' --region 213
+  Example: yd adgroups add --campaign 12345 --name 'Диваны' --region 213
 
 Options:
   --campaign INTEGER       ID кампании  [required]

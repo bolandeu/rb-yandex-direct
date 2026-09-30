@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct smart-targets resume [OPTIONS] IDS...
+Usage: yd smart-targets resume [OPTIONS] IDS...
 
   Возобновить условия таргетинга смарт-баннеров.
 
-  Example: rb-yandex-direct smart-targets resume 9001
+  Example: yd smart-targets resume 9001
 
 Options:
   -y, --yes  без подтверждения

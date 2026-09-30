@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct keywords list [OPTIONS]
+Usage: yd keywords list [OPTIONS]
 
   Список ключевых фраз (фильтр по группам, кампаниям, состоянию).
 
-  Example: rb-yandex-direct keywords list --adgroup 555
+  Example: yd keywords list --adgroup 555
 
 Options:
   --adgroup INTEGER               фильтр по группе объявлений (можно несколько раз)

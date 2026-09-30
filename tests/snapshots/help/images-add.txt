@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct images add [OPTIONS] PATHS...
+Usage: yd images add [OPTIONS] PATHS...
 
   Загрузить изображения из файлов (до 100, рекомендуется ≤3).
 
-  Example: rb-yandex-direct images add banner.png
+  Example: yd images add banner.png
 
 Options:
   --type [REGULAR|WIDE|FIXED_IMAGE|AUTO]

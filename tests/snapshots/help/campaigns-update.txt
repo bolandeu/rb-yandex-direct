@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct campaigns update [OPTIONS] CAMPAIGN_ID
+Usage: yd campaigns update [OPTIONS] CAMPAIGN_ID
 
   Обновить параметры кампании (имя, даты, бюджет).
 
-  Example: rb-yandex-direct campaigns update 12345 --name 'Весна 2026' --daily-budget 2000
+  Example: yd campaigns update 12345 --name 'Весна 2026' --daily-budget 2000
 
 Options:
   --name TEXT                     новое имя кампании

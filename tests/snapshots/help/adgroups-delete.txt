@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct adgroups delete [OPTIONS] IDS...
+Usage: yd adgroups delete [OPTIONS] IDS...
 
   Удалить группы объявлений безвозвратно.
 
-  Example: rb-yandex-direct adgroups delete 555
+  Example: yd adgroups delete 555
 
 Options:
   -y, --yes  без подтверждения

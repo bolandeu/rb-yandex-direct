@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct report account [OPTIONS]
+Usage: yd report account [OPTIONS]
 
   ACCOUNT_PERFORMANCE_REPORT: итог по аккаунту.
 
-  Example: rb-yandex-direct report account --date-from 2026-09-01 --date-to 2026-09-27
+  Example: yd report account --date-from 2026-09-01 --date-to 2026-09-27
 
 Options:
   --date-from TEXT   начало периода, YYYY-MM-DD  [required]

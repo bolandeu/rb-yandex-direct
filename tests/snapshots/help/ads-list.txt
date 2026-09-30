@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct ads list [OPTIONS]
+Usage: yd ads list [OPTIONS]
 
   Список объявлений (фильтр по кампаниям, группам, состоянию, статусу).
 
-  Example: rb-yandex-direct ads list --campaign 12345 --status REJECTED
+  Example: yd ads list --campaign 12345 --status REJECTED
 
 Options:
   --campaign INTEGER              фильтр по кампании (можно несколько раз)

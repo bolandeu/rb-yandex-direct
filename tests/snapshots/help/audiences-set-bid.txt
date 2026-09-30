@@ -1,10 +1,10 @@
-Usage: rb-yandex-direct audiences set-bid [OPTIONS]
+Usage: yd audiences set-bid [OPTIONS]
 
   Установить ставку/приоритет на привязках аудиторий.
 
   Ровно один из --id / --adgroup / --campaign.
 
-  Example: rb-yandex-direct audiences set-bid --id 5001 --context-bid 8
+  Example: yd audiences set-bid --id 5001 --context-bid 8
 
 Options:
   --id INTEGER                  ID конкретной привязки (или --adgroup/--campaign)

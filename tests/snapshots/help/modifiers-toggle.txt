@@ -1,9 +1,8 @@
-Usage: rb-yandex-direct modifiers toggle [OPTIONS]
+Usage: yd modifiers toggle [OPTIONS]
 
   Включить/выключить корректировки группы/кампании по типу.
 
-  Example: rb-yandex-direct modifiers toggle --campaign 12345 --type DEMOGRAPHICS_ADJUSTMENT
-  --enabled NO
+  Example: yd modifiers toggle --campaign 12345 --type DEMOGRAPHICS_ADJUSTMENT --enabled NO
 
 Options:
   --campaign INTEGER              ID кампании

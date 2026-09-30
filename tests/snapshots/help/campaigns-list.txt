@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct campaigns list [OPTIONS]
+Usage: yd campaigns list [OPTIONS]
 
   Список кампаний с фильтром по состоянию и типу.
 
-  Example: rb-yandex-direct campaigns list --state ON
+  Example: yd campaigns list --state ON
 
 Options:
   --state [ON|OFF|SUSPENDED|ENDED|CONVERTED|ARCHIVED]

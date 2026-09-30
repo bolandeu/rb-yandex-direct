@@ -1,8 +1,0 @@
-Usage: rb-yandex-direct mcp [OPTIONS]
-
-  Запустить MCP-сервер (stdio).
-
-  Example: rb-yandex-direct mcp
-
-Options:
-  --help  Show this message and exit.

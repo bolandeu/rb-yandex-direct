@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct feeds delete [OPTIONS] IDS...
+Usage: yd feeds delete [OPTIONS] IDS...
 
   Удалить фиды.
 
-  Example: rb-yandex-direct feeds delete 7001
+  Example: yd feeds delete 7001
 
 Options:
   -y, --yes  без подтверждения

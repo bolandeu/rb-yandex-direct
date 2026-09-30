@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct auth logout [OPTIONS]
+Usage: yd auth logout [OPTIONS]
 
   Удалить токен и данные приложения из keychain (переменные окружения не трогает).
 
-  Example: rb-yandex-direct auth logout
+  Example: yd auth logout
 
 Options:
   --help  Show this message and exit.

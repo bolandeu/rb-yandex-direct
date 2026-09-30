@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct extensions moderate [OPTIONS] IDS...
+Usage: yd extensions moderate [OPTIONS] IDS...
 
   Отправить уточнения на модерацию.
 
-  Example: rb-yandex-direct extensions moderate 1301
+  Example: yd extensions moderate 1301
 
 Options:
   -y, --yes  без подтверждения

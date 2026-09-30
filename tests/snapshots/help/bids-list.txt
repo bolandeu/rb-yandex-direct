@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct bids list [OPTIONS]
+Usage: yd bids list [OPTIONS]
 
   Ставки по ключевым фразам (нужен хотя бы один фильтр).
 
-  Example: rb-yandex-direct bids list --campaign 12345
+  Example: yd bids list --campaign 12345
 
 Options:
   --keyword INTEGER   фильтр по ключевой фразе (можно несколько раз)

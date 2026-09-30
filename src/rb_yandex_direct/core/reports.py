@@ -85,7 +85,7 @@ class ReportsClient:
         date_from: str | None = None,
         date_to: str | None = None,
         date_range_type: str = "CUSTOM_DATE",
-        report_name: str = "rb-yandex-direct",
+        report_name: str = "yd",
         filters: list[dict] | None = None,
         processing_mode: str = "auto",
         include_vat: str = "NO",

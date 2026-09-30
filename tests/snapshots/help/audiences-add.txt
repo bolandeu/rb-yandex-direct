@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct audiences add [OPTIONS]
+Usage: yd audiences add [OPTIONS]
 
   Привязать аудиторию к группе объявлений.
 
-  Example: rb-yandex-direct audiences add --adgroup 555 --retargeting 4001
+  Example: yd audiences add --adgroup 555 --retargeting 4001
 
 Options:
   --adgroup INTEGER             ID группы объявлений  [required]

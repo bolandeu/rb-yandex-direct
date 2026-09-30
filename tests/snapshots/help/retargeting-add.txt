@@ -1,10 +1,10 @@
-Usage: rb-yandex-direct retargeting add [OPTIONS]
+Usage: yd retargeting add [OPTIONS]
 
   Создать список ретаргетинга из одного набора целей.
 
   Для сложных правил (несколько блоков Operator) используй Python API.
 
-  Example: rb-yandex-direct retargeting add --name 'Корзина' --goal 123456 --days 30
+  Example: yd retargeting add --name 'Корзина' --goal 123456 --days 30
 
 Options:
   --name TEXT                    имя списка (до 250 симв.)  [required]

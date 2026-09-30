@@ -1,4 +1,4 @@
-Usage: rb-yandex-direct [OPTIONS] [COMMAND] [ARGS]...
+Usage: yd [OPTIONS] [COMMAND] [ARGS]...
 
   Яндекс.Директ API v5 — CLI.
 
@@ -29,7 +29,6 @@ Commands:
   images           Изображения для объявлений (adimages).
   keywords         Ключевые фразы.
   leads            Лиды с lead-форм и Турбо-страниц.
-  mcp              Запустить MCP-сервер (stdio).
   minus-sets       Общие наборы минус-слов.
   modifiers        Корректировки ставок (устройства, регионы, демо, ретаргетинг).
   report           Отчёты v5 (TSV, polling).

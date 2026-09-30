@@ -6,7 +6,7 @@ it's the documentation agents and humans read, so it's tested like an API
 
 - contract tests: every command (walked from the Click registry, so a new
   command is covered automatically) has a docstring with an
-  `Example: rb-yandex-direct <command> ...` line, every option has non-empty
+  `Example: yd <command> ...` line, every option has non-empty
   help, every group has a description;
 - snapshots: `<command> --help` is stored in tests/snapshots/help/<command>.txt
   (syrupy). A changed help text fails until the snapshot is refreshed with
@@ -27,7 +27,7 @@ from syrupy.extensions.single_file import SingleFileSnapshotExtension, WriteMode
 
 from rb_yandex_direct.cli import cli
 
-CLI = "rb-yandex-direct"
+CLI = "yd"
 SNAPSHOT_DIR = Path(__file__).parent / "snapshots" / "help"
 # Fixed width and no colour so the rendering doesn't depend on the terminal running the tests.
 HELP_ENV = {"COLUMNS": "100", "NO_COLOR": "1", "TERM": "dumb"}

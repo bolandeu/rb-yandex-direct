@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct keywords suspend [OPTIONS] IDS...
+Usage: yd keywords suspend [OPTIONS] IDS...
 
   Остановить показы по ключевым фразам.
 
-  Example: rb-yandex-direct keywords suspend 901 902
+  Example: yd keywords suspend 901 902
 
 Options:
   -y, --yes  без подтверждения

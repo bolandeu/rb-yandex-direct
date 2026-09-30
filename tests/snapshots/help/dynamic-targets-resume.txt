@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct dynamic-targets resume [OPTIONS] IDS...
+Usage: yd dynamic-targets resume [OPTIONS] IDS...
 
   Возобновить условия таргетинга динамических объявлений.
 
-  Example: rb-yandex-direct dynamic-targets resume 8001
+  Example: yd dynamic-targets resume 8001
 
 Options:
   -y, --yes  без подтверждения

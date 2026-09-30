@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct creatives add-video-extension [OPTIONS] VIDEO_IDS...
+Usage: yd creatives add-video-extension [OPTIONS] VIDEO_IDS...
 
   Создать VideoExtensionCreative из VideoId (получи через AdVideos до 10 за вызов).
 
-  Example: rb-yandex-direct creatives add-video-extension 5f1a2b3c
+  Example: yd creatives add-video-extension 5f1a2b3c
 
 Options:
   -y, --yes  без подтверждения

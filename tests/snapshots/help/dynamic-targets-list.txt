@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct dynamic-targets list [OPTIONS]
+Usage: yd dynamic-targets list [OPTIONS]
 
   Условия таргетинга динамических объявлений.
 
-  Example: rb-yandex-direct dynamic-targets list --campaign 12345
+  Example: yd dynamic-targets list --campaign 12345
 
 Options:
   --adgroup INTEGER   фильтр по группе объявлений (можно несколько раз)

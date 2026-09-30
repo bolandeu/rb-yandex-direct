@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct sitelinks add [OPTIONS]
+Usage: yd sitelinks add [OPTIONS]
 
   Создать набор быстрых ссылок из JSON-файла.
 
-  Example: rb-yandex-direct sitelinks add --from-json sitelinks.json
+  Example: yd sitelinks add --from-json sitelinks.json
 
 Options:
   --from-json PATH  JSON-файл с массивом [{Title, Href, Description?}, ...] (1-8 шт.)  [required]

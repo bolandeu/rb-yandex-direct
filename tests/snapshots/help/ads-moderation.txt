@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct ads moderation [OPTIONS]
+Usage: yd ads moderation [OPTIONS]
 
   Объявления, ждущие модерации или отклонённые.
 
-  Example: rb-yandex-direct ads moderation --campaign 12345
+  Example: yd ads moderation --campaign 12345
 
 Options:
   --campaign INTEGER  фильтр по кампании (можно несколько раз)

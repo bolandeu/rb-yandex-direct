@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct extensions add [OPTIONS] TEXTS...
+Usage: yd extensions add [OPTIONS] TEXTS...
 
   Создать уточнения (callouts). Каждое ≤ 25 символов.
 
-  Example: rb-yandex-direct extensions add 'Доставка за день' 'Гарантия 2 года'
+  Example: yd extensions add 'Доставка за день' 'Гарантия 2 года'
 
 Options:
   -y, --yes  без подтверждения

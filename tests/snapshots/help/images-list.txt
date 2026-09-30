@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct images list [OPTIONS]
+Usage: yd images list [OPTIONS]
 
   Изображения, загруженные в кабинет.
 
-  Example: rb-yandex-direct images list --output images.json
+  Example: yd images list --output images.json
 
 Options:
   --associated [YES|NO]  YES — привязанные к объявлениям, NO — свободные

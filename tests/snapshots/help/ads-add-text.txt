@@ -1,9 +1,9 @@
-Usage: rb-yandex-direct ads add-text [OPTIONS]
+Usage: yd ads add-text [OPTIONS]
 
   Создать одно текстовое объявление (TextAd).
 
-  Example: rb-yandex-direct ads add-text --adgroup 555 --title 'Диваны от 9990 ₽' --text 'Доставка
-  за день' --href https://example.com
+  Example: yd ads add-text --adgroup 555 --title 'Диваны от 9990 ₽' --text 'Доставка за день' --href
+  https://example.com
 
 Options:
   --adgroup INTEGER        ID группы объявлений  [required]

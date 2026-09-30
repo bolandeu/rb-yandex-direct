@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct audiences list [OPTIONS]
+Usage: yd audiences list [OPTIONS]
 
   Привязки аудиторий к группам объявлений.
 
-  Example: rb-yandex-direct audiences list --campaign 12345
+  Example: yd audiences list --campaign 12345
 
 Options:
   --adgroup INTEGER               фильтр по группе объявлений (можно несколько раз)

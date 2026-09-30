@@ -1,6 +1,6 @@
 # rb-yandex-direct
 
-Клиент Яндекс.Директ API v5 — Python-библиотека, CLI `rb-yandex-direct` и MCP-сервер.
+Клиент Яндекс.Директ API v5 — Python-библиотека и CLI `yd`.
 
 ---
 
@@ -8,7 +8,7 @@
 
 ```bash
 uv tool install "git+https://github.com/bolandeu/yandex-direct.git@v0.2.0"
-rb-yandex-direct --version
+yd --version
 ```
 
 Репозиторий приватный: HTTPS работает после `gh auth login` (или `gh auth setup-git`),
@@ -44,12 +44,12 @@ keychain ОС, автообновление по refresh_token. У Директ�
 (не общий токен ym/ywm: тому приложению нужна своя заявка на API Директа). Файлы `.env` не читаются.
 
 ```bash
-rb-yandex-direct auth login --client-id <id> --client-secret <secret>   # браузер → localhost
-rb-yandex-direct auth login --oob       # код со страницы подтверждения вручную (ssh)
-rb-yandex-direct auth login --device    # подтверждение на другом устройстве
-rb-yandex-direct auth login --token y0_...   # готовый токен (без автообновления)
-rb-yandex-direct auth status --check    # источник, срок, остаток баллов; exit 3 — проблема
-rb-yandex-direct auth refresh | logout
+yd auth login --client-id <id> --client-secret <secret>   # браузер → localhost
+yd auth login --oob       # код со страницы подтверждения вручную (ssh)
+yd auth login --device    # подтверждение на другом устройстве
+yd auth login --token y0_...   # готовый токен (без автообновления)
+yd auth status --check    # источник, срок, остаток баллов; exit 3 — проблема
+yd auth refresh | logout
 ```
 
 | Переменная окружения | Зачем |
@@ -68,23 +68,12 @@ rb-yandex-direct auth refresh | logout
 
 ## Команды
 
-Голый `rb-yandex-direct` печатает список команд, `rb-yandex-direct <команда> --help` — описание
+Голый `yd` печатает список команд, `yd <команда> --help` — описание
 и пример. Справка — это docstring'и команд в `src/rb_yandex_direct/cli.py`: поменял поведение
 команды — поменяй её docstring в том же коммите (хуки `.claude/settings.json`, `.githooks/pre-commit`),
 потом `uv run pytest --snapshot-update` и просмотри diff `tests/snapshots/help/`.
 
 Write-команды спрашивают подтверждение; `-y/--yes` — без вопроса.
-
----
-
-## MCP (Claude Desktop / Claude Code)
-
-```bash
-claude mcp add rb-yandex-direct -- rb-yandex-direct mcp
-```
-
-~100 инструментов; write-инструменты без `confirm=true` возвращают только описание операции.
-Токен — тот же, что у CLI (keychain/env). Логи: `~/.local/state/logs/mcp-rb-yandex-direct.log`.
 
 ---
 
@@ -101,7 +90,6 @@ claude mcp add rb-yandex-direct -- rb-yandex-direct mcp
 ```
 src/rb_yandex_direct/
 ├── cli.py                  # Click CLI
-├── mcp_server.py           # FastMCP
 └── core/
     ├── auth.py             # токен через rb-yandex-oauth, auth status (§8)
     ├── oauth.py            # потоки входа: localhost callback, OOB, device flow

@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct campaigns suspend [OPTIONS] IDS...
+Usage: yd campaigns suspend [OPTIONS] IDS...
 
   Приостановить кампании.
 
-  Example: rb-yandex-direct campaigns suspend 12345 67890
+  Example: yd campaigns suspend 12345 67890
 
 Options:
   -y, --yes  без подтверждения

@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct feeds update-json [OPTIONS]
+Usage: yd feeds update-json [OPTIONS]
 
   Обновить фиды из JSON-файла.
 
-  Example: rb-yandex-direct feeds update-json --from-json feeds.json
+  Example: yd feeds update-json --from-json feeds.json
 
 Options:
   --from-json PATH  JSON-массив объектов фидов с полем Id  [required]

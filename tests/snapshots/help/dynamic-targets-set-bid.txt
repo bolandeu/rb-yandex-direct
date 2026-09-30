@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct dynamic-targets set-bid [OPTIONS]
+Usage: yd dynamic-targets set-bid [OPTIONS]
 
   Установить ставки на условии таргетинга DynamicTextAd.
 
-  Example: rb-yandex-direct dynamic-targets set-bid --id 8001 --bid 10
+  Example: yd dynamic-targets set-bid --id 8001 --bid 10
 
 Options:
   --id INTEGER                  ID условия таргетинга  [required]

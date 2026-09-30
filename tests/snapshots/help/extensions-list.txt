@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct extensions list [OPTIONS]
+Usage: yd extensions list [OPTIONS]
 
   Уточнения объявлений (callouts).
 
-  Example: rb-yandex-direct extensions list --status REJECTED
+  Example: yd extensions list --status REJECTED
 
 Options:
   --state [ON|OFF|SUSPENDED|UNKNOWN]

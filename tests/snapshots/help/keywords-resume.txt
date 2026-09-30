@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct keywords resume [OPTIONS] IDS...
+Usage: yd keywords resume [OPTIONS] IDS...
 
   Возобновить показы по ключевым фразам.
 
-  Example: rb-yandex-direct keywords resume 901
+  Example: yd keywords resume 901
 
 Options:
   -y, --yes  без подтверждения

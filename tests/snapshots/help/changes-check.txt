@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct changes check [OPTIONS] TIMESTAMP
+Usage: yd changes check [OPTIONS] TIMESTAMP
 
   Что изменилось с указанного timestamp (ISO 8601, UTC).
 
-  Example: rb-yandex-direct changes check 2026-09-01T00:00:00Z --campaign 12345
+  Example: yd changes check 2026-09-01T00:00:00Z --campaign 12345
 
 Options:
   --campaign INTEGER  фильтр по кампании (можно несколько раз)

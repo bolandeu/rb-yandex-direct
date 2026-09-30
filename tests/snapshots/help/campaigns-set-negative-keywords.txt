@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct campaigns set-negative-keywords [OPTIONS] CAMPAIGN_ID
+Usage: yd campaigns set-negative-keywords [OPTIONS] CAMPAIGN_ID
 
   Заменить минус-слова на уровне кампании (полный список заменяет текущий).
 
-  Example: rb-yandex-direct campaigns set-negative-keywords 12345 --words 'бесплатно,скачать'
+  Example: yd campaigns set-negative-keywords 12345 --words 'бесплатно,скачать'
 
 Options:
   --type [TextCampaign|DynamicTextCampaign|UnifiedCampaign|SmartCampaign|MobileAppCampaign|McBannerCampaign|CpmBannerCampaign|CpmVideoCampaign|CpmPriceCampaign|ContentPromotionCampaign]

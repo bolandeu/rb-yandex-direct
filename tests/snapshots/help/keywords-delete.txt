@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct keywords delete [OPTIONS] IDS...
+Usage: yd keywords delete [OPTIONS] IDS...
 
   Удалить ключи безвозвратно.
 
-  Example: rb-yandex-direct keywords delete 901
+  Example: yd keywords delete 901
 
 Options:
   -y, --yes  без подтверждения

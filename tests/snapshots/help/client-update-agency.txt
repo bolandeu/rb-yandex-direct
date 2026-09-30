@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct client update-agency [OPTIONS]
+Usage: yd client update-agency [OPTIONS]
 
   Обновить агентские настройки (agencyclients.update).
 
-  Example: rb-yandex-direct client update-agency --from-json client.json
+  Example: yd client update-agency --from-json client.json
 
 Options:
   --from-json PATH  JSON-файл с параметрами agencyclients.update  [required]

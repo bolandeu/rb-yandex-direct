@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct ads moderate [OPTIONS] IDS...
+Usage: yd ads moderate [OPTIONS] IDS...
 
   Отправить объявления на модерацию (из DRAFT в MODERATION).
 
-  Example: rb-yandex-direct ads moderate 777 778
+  Example: yd ads moderate 777 778
 
 Options:
   -y, --yes  без подтверждения

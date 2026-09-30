@@ -25,7 +25,7 @@ TOKENS = {"access_token": "acc", "refresh_token": "ref", "expires_in": 31_536_00
 
 
 def _run(*args: str, input: str | None = None):
-    return CliRunner().invoke(cli, list(args), obj={}, prog_name="rb-yandex-direct", input=input)
+    return CliRunner().invoke(cli, list(args), obj={}, prog_name="yd", input=input)
 
 
 def _store(fake_keyring: dict, **fields: str) -> None:
@@ -54,7 +54,7 @@ def test_status_missing_is_exit_3_with_full_report() -> None:
     assert set(report) == REPORT_KEYS | {"error"}
     assert report["ok"] is False
     assert report["error"]["code"] == "CREDENTIALS_UNHEALTHY"
-    assert report["tool"] == "rb-yandex-direct"
+    assert report["tool"] == "yd"
     (entry,) = report["credentials"]
     assert set(entry) == ENTRY_KEYS
     assert entry["provider"] == "direct"
@@ -183,7 +183,7 @@ def test_logout_deletes_the_slot(fake_keyring: dict) -> None:
 def test_api_command_without_token_asks_to_log_in() -> None:
     result = _run("campaigns", "list")
     assert result.exit_code == 3
-    assert "rb-yandex-direct auth login" in result.output
+    assert "yd auth login" in result.output
 
 
 @respx.mock

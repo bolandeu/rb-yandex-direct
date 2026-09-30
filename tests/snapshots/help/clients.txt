@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct clients [OPTIONS]
+Usage: yd clients [OPTIONS]
 
   Список клиентов агентства (или себя для обычного аккаунта).
 
-  Example: rb-yandex-direct clients
+  Example: yd clients
 
 Options:
   --output PATH  сохранить JSON в файл

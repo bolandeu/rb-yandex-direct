@@ -32,8 +32,8 @@ FILES = {
     "vcards.json": [{"CampaignId": 12345, "Country": "Россия", "City": "Москва", "CompanyName": "Ромашка"}],
 }
 REPORT_TSV = "Date\tClicks\tCost\n2026-09-01\t10\t1000000\nTotal rows: 1\n"
-# mcp starts a stdio server; auth commands (browser, keychain) are covered in test_auth.py.
-SKIP = {("mcp",), ("auth", "login"), ("auth", "refresh"), ("auth", "logout"), ("auth", "status")}
+# auth commands (browser, keychain) are covered in test_auth.py.
+SKIP = {("auth", "login"), ("auth", "refresh"), ("auth", "logout"), ("auth", "status")}
 
 
 def _example(path: tuple[str, ...]) -> list[str]:

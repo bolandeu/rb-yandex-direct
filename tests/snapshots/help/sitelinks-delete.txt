@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct sitelinks delete [OPTIONS] IDS...
+Usage: yd sitelinks delete [OPTIONS] IDS...
 
   Удалить наборы быстрых ссылок.
 
-  Example: rb-yandex-direct sitelinks delete 1101
+  Example: yd sitelinks delete 1101
 
 Options:
   -y, --yes  без подтверждения

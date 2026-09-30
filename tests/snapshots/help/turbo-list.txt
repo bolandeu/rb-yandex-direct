@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct turbo list [OPTIONS]
+Usage: yd turbo list [OPTIONS]
 
   Турбо-страницы клиента.
 
-  Example: rb-yandex-direct turbo list
+  Example: yd turbo list
 
 Options:
   --output PATH  сохранить JSON в файл

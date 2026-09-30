@@ -128,33 +128,6 @@ def test_cli_bids_set_converts_rubles_to_micros(monkeypatch) -> None:
     assert body["params"]["KeywordBids"][0]["SearchBid"] == 30_000_000
 
 
-# --- MCP dry-run: без confirm не вызываем API ---
-
-
-@pytest.mark.asyncio
-@respx.mock
-async def test_mcp_dry_run_skips_api(monkeypatch) -> None:
-    from rb_yandex_direct import mcp_server
-
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    result = await mcp_server.suspend_campaigns(campaign_ids=[1, 2])
-    assert result["requires_confirm"] is True
-    assert result["action"] == "campaigns.suspend"
-    assert respx.calls.call_count == 0
-
-
-@pytest.mark.asyncio
-@respx.mock
-async def test_mcp_confirm_calls_api(monkeypatch) -> None:
-    from rb_yandex_direct import mcp_server
-
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    _route("campaigns", {"SuspendResults": [{"Id": 1}]})
-    result = await mcp_server.suspend_campaigns(campaign_ids=[1], confirm=True)
-    assert "SuspendResults" in result
-    assert respx.calls.call_count == 1
-
-
 # --- Sprint 5A: keywords.add / keywords.update / campaigns.update / bidmodifiers ---
 
 
@@ -336,32 +309,6 @@ def test_cli_modifiers_toggle(monkeypatch) -> None:
     assert body["params"]["BidModifierToggleItems"][0]["Enabled"] == "NO"
 
 
-# --- MCP dry-run для новых инструментов ---
-
-
-@pytest.mark.asyncio
-async def test_mcp_add_keywords_dry_run(monkeypatch) -> None:
-    from rb_yandex_direct import mcp_server
-
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    result = await mcp_server.add_keywords(
-        keywords=[{"AdGroupId": 1, "Keyword": "тест"}],
-    )
-    assert result["requires_confirm"] is True
-    assert result["action"] == "keywords.add"
-
-
-@pytest.mark.asyncio
-@respx.mock
-async def test_mcp_set_campaign_daily_budget_confirm(monkeypatch) -> None:
-    from rb_yandex_direct import mcp_server
-
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    _route("campaigns", {"UpdateResults": [{"Id": 77}]})
-    result = await mcp_server.set_campaign_daily_budget(77, 100.0, confirm=True)
-    assert "UpdateResults" in result
-
-
 # --- Sprint 5C: retargetinglists + audiencetargets CRUD ---
 
 
@@ -518,32 +465,6 @@ def test_cli_audiences_add_requires_exactly_one_target(monkeypatch) -> None:
         ["audiences", "add", "--adgroup", "10", "--retargeting", "1", "--interest", "2", "-y"],
     )
     assert result.exit_code != 0
-
-
-# --- MCP dry-run ---
-
-
-@pytest.mark.asyncio
-async def test_mcp_add_retargeting_lists_dry_run(monkeypatch) -> None:
-    from rb_yandex_direct import mcp_server
-
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    result = await mcp_server.add_retargeting_lists(
-        lists=[{"Name": "тест", "Rules": []}],
-    )
-    assert result["requires_confirm"] is True
-    assert result["action"] == "retargetinglists.add"
-
-
-@pytest.mark.asyncio
-@respx.mock
-async def test_mcp_delete_audience_targets_confirm(monkeypatch) -> None:
-    from rb_yandex_direct import mcp_server
-
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    _route("audiencetargets", {"DeleteResults": [{"Id": 1}]})
-    result = await mcp_server.delete_audience_targets(target_ids=[1], confirm=True)
-    assert "DeleteResults" in result
 
 
 # --- P2: dictionaries, sitelinks, vcards, adextensions, adimages, creatives, turbopages ---
@@ -827,60 +748,6 @@ def test_cli_extensions_add(monkeypatch) -> None:
     body = json.loads(route.calls.last.request.content)
     texts = [e["Callout"]["CalloutText"] for e in body["params"]["AdExtensions"]]
     assert texts == ["Доставка бесплатно", "Гарантия 2 года"]
-
-
-# --- MCP dry-run ---
-
-
-@pytest.mark.asyncio
-async def test_mcp_add_ads_dry_run(monkeypatch) -> None:
-    from rb_yandex_direct import mcp_server
-
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    result = await mcp_server.add_ads(
-        ads=[
-            {
-                "AdGroupId": 1,
-                "TextAd": {"Title": "a", "Text": "b", "Href": "c"},
-            }
-        ]
-    )
-    assert result["requires_confirm"] is True
-    assert result["action"] == "ads.add"
-
-
-@pytest.mark.asyncio
-async def test_mcp_add_campaigns_dry_run(monkeypatch) -> None:
-    from rb_yandex_direct import mcp_server
-
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    result = await mcp_server.add_campaigns(
-        campaigns=[
-            {
-                "Name": "c",
-                "StartDate": "2026-01-01",
-                "TextCampaign": {"BiddingStrategy": {}},
-            }
-        ]
-    )
-    assert result["requires_confirm"] is True
-
-
-@pytest.mark.asyncio
-@respx.mock
-async def test_mcp_add_text_ad_confirm(monkeypatch) -> None:
-    from rb_yandex_direct import mcp_server
-
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    _route("ads", {"AddResults": [{"Id": 1}]})
-    result = await mcp_server.add_text_ad(
-        adgroup_id=10,
-        title="t",
-        text="x",
-        href="h",
-        confirm=True,
-    )
-    assert "AddResults" in result
 
 
 # --- Минус-слова на уровне группы/кампании + audiencetargets.setBids ---

@@ -1,8 +1,8 @@
-Usage: rb-yandex-direct vcards list [OPTIONS]
+Usage: yd vcards list [OPTIONS]
 
   Визитки (контактная информация).
 
-  Example: rb-yandex-direct vcards list --campaign 12345
+  Example: yd vcards list --campaign 12345
 
 Options:
   --campaign INTEGER  фильтр по кампании (можно несколько раз)
