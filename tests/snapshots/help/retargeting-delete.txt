@@ -1,9 +1,0 @@
-Usage: yd retargeting delete [OPTIONS] IDS...
-
-  Удалить списки ретаргетинга.
-
-  Example: yd retargeting delete 4001
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

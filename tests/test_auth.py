@@ -10,13 +10,14 @@ import urllib.request
 import httpx
 import pytest
 import respx
-from click.testing import CliRunner
+from typer.testing import CliRunner
 
-from rb_yandex_direct.cli import cli
-from rb_yandex_direct.core import auth as direct_auth
-from rb_yandex_direct.core.client import PROD_BASE
+from rb_yandex_direct.cli import app
+from rb_yandex_direct.commands import auth as auth_cmd
 from rb_yandex_direct.core.errors import DirectAPIError
-from rb_yandex_direct.core.oauth import DEVICE_CODE_URL, TOKEN_URL
+from rb_yandex_direct.providers import direct as direct_provider
+from rb_yandex_direct.providers.direct import PROD_BASE
+from rb_yandex_direct.providers.oauth import DEVICE_CODE_URL, TOKEN_URL
 
 SLOT = ("yandex-oauth:direct", "direct")
 REPORT_KEYS = {"ok", "tool", "version", "checked_at", "credentials"}
@@ -25,7 +26,7 @@ TOKENS = {"access_token": "acc", "refresh_token": "ref", "expires_in": 31_536_00
 
 
 def _run(*args: str, input: str | None = None):
-    return CliRunner().invoke(cli, list(args), obj={}, prog_name="yd", input=input)
+    return CliRunner().invoke(app, list(args), prog_name="yd", input=input)
 
 
 def _store(fake_keyring: dict, **fields: str) -> None:
@@ -143,7 +144,7 @@ def test_login_browser_flow_catches_callback(fake_keyring: dict, monkeypatch: py
         redirect = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)["redirect_uri"][0]
         threading.Thread(target=urllib.request.urlopen, args=(f"{redirect}?code=777",), daemon=True).start()
 
-    monkeypatch.setattr("rb_yandex_direct.core.oauth.webbrowser.open", browser)
+    monkeypatch.setattr("rb_yandex_direct.providers.oauth.webbrowser.open", browser)
     with respx.mock(assert_all_called=False) as router:
         router.route(host="localhost").pass_through()
         route = router.post(TOKEN_URL).mock(return_value=httpx.Response(200, json=TOKENS))
@@ -196,19 +197,25 @@ def test_whoami_maps_api_errors(code: int, exit_code: int, monkeypatch: pytest.M
 
 def test_app_credentials_precedence(fake_keyring: dict, monkeypatch: pytest.MonkeyPatch) -> None:
     _store(fake_keyring, client_id="stored", client_secret="stored-sec")
-    assert direct_auth.app_credentials() == ("stored", "stored-sec")
+    assert auth_cmd.app_credentials() == ("stored", "stored-sec")
     monkeypatch.setenv("YANDEX_DIRECT_CLIENT_ID", "legacy")
-    assert direct_auth.app_credentials()[0] == "legacy"
+    assert auth_cmd.app_credentials()[0] == "legacy"
     monkeypatch.setenv("YANDEX_OAUTH_DIRECT_CLIENT_ID", "new")
-    assert direct_auth.app_credentials()[0] == "new"
-    assert direct_auth.app_credentials("arg")[0] == "arg"
+    assert auth_cmd.app_credentials()[0] == "new"
+    assert auth_cmd.app_credentials("arg")[0] == "arg"
 
 
 def test_units_quota_ignores_malformed_header() -> None:
-    assert direct_auth._units_quota(None) is None
-    assert direct_auth._units_quota("1/2") is None
+    assert direct_provider.units_quota(None) is None
+    assert direct_provider.units_quota("1/2") is None
 
 
 def test_provider_error_is_exit_5() -> None:
-    error = direct_auth.as_cli_error(DirectAPIError(8000, "Некорректный запрос"))
+    error = DirectAPIError(8000, "Некорректный запрос")
     assert (error.code, error.exit_code) == ("PROVIDER_ERROR", 5)
+    assert error.to_dict()["api_code"] == 8000
+
+
+def test_credential_error_is_exit_3() -> None:
+    error = DirectAPIError(58, "Незавершённая регистрация")
+    assert (error.code, error.exit_code) == ("AUTH_REQUIRED", 3)

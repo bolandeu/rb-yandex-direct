@@ -1,9 +1,0 @@
-Usage: yd creatives add-video-extension [OPTIONS] VIDEO_IDS...
-
-  Создать VideoExtensionCreative из VideoId (получи через AdVideos до 10 за вызов).
-
-  Example: yd creatives add-video-extension 5f1a2b3c
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

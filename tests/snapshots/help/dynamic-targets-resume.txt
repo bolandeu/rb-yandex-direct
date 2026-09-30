@@ -1,9 +1,0 @@
-Usage: yd dynamic-targets resume [OPTIONS] IDS...
-
-  Возобновить условия таргетинга динамических объявлений.
-
-  Example: yd dynamic-targets resume 8001
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

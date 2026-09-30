@@ -1,9 +1,0 @@
-Usage: yd dynamic-targets suspend [OPTIONS] IDS...
-
-  Остановить условия таргетинга динамических объявлений.
-
-  Example: yd dynamic-targets suspend 8001
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

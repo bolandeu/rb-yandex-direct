@@ -1,15 +1,31 @@
-Usage: yd campaigns update [OPTIONS] CAMPAIGN_ID
 
-  Обновить параметры кампании (имя, даты, бюджет).
+ Usage: yd campaigns update [OPTIONS] {campaign_id}
 
-  Example: yd campaigns update 12345 --name 'Весна 2026' --daily-budget 2000
+ Изменить общие параметры кампании: название, даты, дневной бюджет.
 
-Options:
-  --name TEXT                     новое имя кампании
-  --start-date TEXT               YYYY-MM-DD
-  --end-date TEXT                 YYYY-MM-DD (пустая строка чтобы снять)
-  --daily-budget FLOAT            дневной бюджет в рублях
-  --budget-mode [STANDARD|DISTRIBUTED]
-                                  режим дневного бюджета
-  -y, --yes                       без подтверждения
-  --help                          Show this message and exit.
+ Стратегию и настройки типа меняет `campaigns update-json`.
+
+ Example: yd campaigns update 12345 --name 'Весна 2026' --daily-budget 2000 --dry-run
+
+╭─ Аргументы ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *    campaign_id      <int>  Id кампании. [обязательный]                                         │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --name                   <str>                   Новое название.                                 │
+│ --start-date             <str>                   Дата начала, YYYY-MM-DD.                        │
+│ --end-date               <str>                   Дата окончания, YYYY-MM-DD; пустая строка —     │
+│                                                  снять.                                          │
+│ --daily-budget           <float>                 Дневной бюджет, ₽.                              │
+│ --budget-mode            <STANDARD|DISTRIBUTED>  Режим дневного бюджета: STANDARD — равномерно,  │
+│                                                  DISTRIBUTED — быстро.                           │
+│                                                  [по умолчанию: STANDARD]                        │
+│ --confirm                                        Подтвердить изменение в кабинете без вопроса    │
+│                                                  (обязательно вместе с --non-interactive).       │
+│ --dry-run                                        Показать, что будет сделано, ничего не меняя.   │
+│ --non-interactive                                Никогда не спрашивать; при нехватке данных —    │
+│                                                  ошибка.                                         │
+│ --json                                           Машиночитаемый вывод: JSON в stdout.            │
+│ --quiet                                          Не печатать ничего, кроме данных.               │
+│ --help                                           Show this message and exit.                     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

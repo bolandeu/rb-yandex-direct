@@ -1,9 +1,0 @@
-Usage: yd ads resume [OPTIONS] IDS...
-
-  Возобновить показы остановленных объявлений.
-
-  Example: yd ads resume 777
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

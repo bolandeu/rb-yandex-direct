@@ -1,9 +1,0 @@
-Usage: yd ads archive [OPTIONS] IDS...
-
-  Архивировать объявления.
-
-  Example: yd ads archive 777
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

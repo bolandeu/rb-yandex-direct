@@ -20,8 +20,8 @@ import os
 from pathlib import Path
 
 from rb_yandex_direct.core.auth import resolve_token
-from rb_yandex_direct.core.client import DirectClient
-from rb_yandex_direct.core.reports import ReportsClient
+from rb_yandex_direct.providers.direct import DirectClient
+from rb_yandex_direct.providers.reports import ReportsClient
 
 
 def _dump(path: Path, data) -> None:

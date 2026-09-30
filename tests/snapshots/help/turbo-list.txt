@@ -1,9 +1,0 @@
-Usage: yd turbo list [OPTIONS]
-
-  Турбо-страницы клиента.
-
-  Example: yd turbo list
-
-Options:
-  --output PATH  сохранить JSON в файл
-  --help         Show this message and exit.

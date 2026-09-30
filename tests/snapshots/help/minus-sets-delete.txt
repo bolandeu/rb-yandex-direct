@@ -1,9 +1,0 @@
-Usage: yd minus-sets delete [OPTIONS] IDS...
-
-  Удалить наборы минус-слов.
-
-  Example: yd minus-sets delete 6001
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

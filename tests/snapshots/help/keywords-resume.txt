@@ -1,9 +1,0 @@
-Usage: yd keywords resume [OPTIONS] IDS...
-
-  Возобновить показы по ключевым фразам.
-
-  Example: yd keywords resume 901
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

@@ -1,11 +1,20 @@
-Usage: yd campaigns add-json [OPTIONS]
 
-  Создать кампании из JSON-файла (сложная структура — смотри доку campaigns.add).
+ Usage: yd campaigns add-json [OPTIONS]
 
-  Example: yd campaigns add-json --from-json campaigns.json
+ Создать кампании из JSON: список CampaignAddItem или {"Campaigns": [...]}.
 
-Options:
-  --from-json PATH  JSON-массив объектов кампаний с TextCampaign/SmartCampaign/... блоками
-                    [required]
-  -y, --yes         без подтверждения
-  --help            Show this message and exit.
+ Example: yd campaigns add-json --from-json campaigns.json --dry-run
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --from-json              <str>  JSON-файл с параметрами метода API (как в документации        │
+│                                    Директа); `-` — stdin.                                        │
+│                                    [обязательный]                                                │
+│    --confirm                       Подтвердить изменение в кабинете без вопроса (обязательно     │
+│                                    вместе с --non-interactive).                                  │
+│    --dry-run                       Показать, что будет сделано, ничего не меняя.                 │
+│    --non-interactive               Никогда не спрашивать; при нехватке данных — ошибка.          │
+│    --json                          Машиночитаемый вывод: JSON в stdout.                          │
+│    --quiet                         Не печатать ничего, кроме данных.                             │
+│    --help                          Show this message and exit.                                   │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

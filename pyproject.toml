@@ -1,18 +1,20 @@
 [project]
 name = "rb-yandex-direct"
-# Версия — из git-тега vX.Y.Z (uv-dynamic-versioning); `version =` не добавлять.
+# Version comes from the git tag vX.Y.Z (uv-dynamic-versioning) — never add `version =`.
 dynamic = ["version"]
-description = "Яндекс.Директ API v5: библиотека и CLI yd"
+description = "Яндекс.Директ API v5 (+ v4 Live и веб-интерфейс): библиотека rb_yandex_direct и CLI yd"
 readme = "README.md"
 authors = [{ name = "Roman Bolandau" }]
 requires-python = ">=3.11"
 dependencies = [
+    "typer>=0.12",
+    "pydantic>=2.6",
+    "rich>=13.7",
+    "platformdirs>=4.2",
+    "tomli-w>=1.0",
     "httpx>=0.27",
-    "pydantic>=2.0",
-    "loguru>=0.7",
-    "click>=8.0",
-    "rich>=13.0",
-    "tenacity>=8.0",
+    "packaging>=24.0",
+    "keyring>=25.0",
     "rb-yandex-oauth>=0.3,<0.4",  # на 0.x минорная версия ломающая
 ]
 
@@ -41,11 +43,15 @@ style = "pep440"
 fallback-version = "0.0.0"
 
 [tool.uv]
-# Пересобрать editable-установку, когда двигается коммит или тег, — чтобы `--version` следовал тегу.
+# Rebuild the editable install when a commit or tag moves, so `--version` follows the tag.
 cache-keys = [{ file = "pyproject.toml" }, { git = { commit = true, tags = true } }]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/rb_yandex_direct"]
+
+[tool.hatch.build.targets.wheel.force-include]
+# The installed CLI reads [[tool.rb.external]] from here (core/deps.py).
+"pyproject.toml" = "rb_yandex_direct/_pyproject.toml"
 
 [dependency-groups]
 dev = [
@@ -59,13 +65,8 @@ dev = [
     "ty>=0.0.80",
 ]
 
-# Команды — Click, все в одном файле (не в commands/*.py шаблона): по нему работают
-# хуки справки (scripts/check_command_docstrings.py, стандарт §7).
-[tool.cli-generator]
-commands = "src/rb_yandex_direct/cli.py"
-
-# CHANGELOG из фрагментов: каждое изменение — файл changelog.d/+<slug>.<type>.md
-# (`uv run towncrier create +<slug>.<type>.md -c "..."`); scripts/release.py собирает их.
+# Changelog from fragments: each change adds changelog.d/+<slug>.<type>.md
+# (`uv run towncrier create +<slug>.<type>.md -c "..."`); scripts/release.py assembles them.
 [tool.towncrier]
 filename = "CHANGELOG.md"
 directory = "changelog.d"
@@ -103,20 +104,50 @@ directory = "security"
 name = "Security"
 showcontent = true
 
+# External (non-Python) dependencies — every CLI this tool runs (require_cli,
+# shutil.which, subprocess with a literal program, npx). The gate checks this
+# list against the code both ways; doctor and require_cli read it at runtime;
+# the tools/ root builds docs/external-deps.md from it (standard §12).
+# [[tool.rb.external]]
+# name = "ffmpeg"
+# required = true               # false: the tool works without it (doctor stays healthy)
+# min_version = "6.0"           # optional
+# check = "ffmpeg -version"     # prints the version; default "<name> --version"
+# why = "transcodes the downloaded videos"
+# detect = false                # run via an injected runner / absolute path the gate can't see
+# dist = "rb-serp"              # for one of our CLIs: its distribution (default rb-<name>)
+# url = "https://github.com/bolandeu/serp"  # its repo: DEPENDENCY_TOO_OLD then prints a pinned install
+
+[tool.cli-generator]
+# Where scripts/check_command_docstrings.py (git pre-commit + Claude Code hooks)
+# looks for commands: a glob or a list of globs, relative to the repo root.
+commands = ["src/rb_yandex_direct/commands/*.py"]
+# scripts/release.py: extras to install before ruff/ty/pytest in the gate, and
+# the release commit message (e.g. for Conventional Commits hooks).
+# gate_extras = ["browser"]
+# release_commit = "chore(release): v{version}"
+
 [tool.pytest.ini_options]
 addopts = "--cov --cov-report=term-missing:skip-covered"
-# Снапшоты справки лежат в tests/snapshots/help/<command>.txt (стандарт §7), а не в
-# `__snapshots__/<test file>/` syrupy — он предупреждает, что «can not relate» файл к тесту.
+# tests/test_help.py keeps help snapshots at tests/snapshots/help/<command>.txt
+# (standard §7), not in syrupy's own `__snapshots__/<test file>/` layout, so
+# syrupy warns it "can not relate" each file to its test. It can — by name.
 filterwarnings = ["ignore:(?s).*Can not relate snapshot:UserWarning"]
 
 [tool.coverage.run]
 source = ["src"]
 
 [tool.coverage.report]
-# Порог держим там, где он есть, чтобы новые команды не приезжали без тестов.
-# Поднимать можно, опускать — нет.
+# The template ships at ~94%; keep the bar where it is instead of letting
+# new commands land untested. Raise it, never lower it.
 fail_under = 90
 show_missing = true
+
+[tool.ty.terminal]
+# Only errors fail the gate; recent ty (>= 0.0.84) otherwise exits 1 on warnings too.
+# Legacy code that can't be fixed yet: downgrade specific rules instead of
+# ignoring them, e.g. [tool.ty.rules] possibly-unbound-attribute = "warn".
+error-on-warning = false
 
 [tool.ruff]
 line-length = 120
@@ -129,17 +160,14 @@ ignore = ["RUF001", "RUF002", "RUF003"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "S105", "S106", "S107"]  # assert и фиктивные токены — суть тестов
-"scripts/*" = ["S603", "S607"]                # subprocess с фиксированным argv (git, uv), без shell
+"scripts/*" = ["S603", "S607"]      # subprocess with fixed argv lists (git, uv), no shell
 
 [tool.ruff.lint.flake8-bugbear]
-# Стиль Typer `param: T = typer.Option(...)` — вызов в значении по умолчанию намеренно.
-extend-immutable-calls = []
+# Typer's `param: T = typer.Option(...)` style is a call in a default on purpose.
+extend-immutable-calls = ["typer.Option", "typer.Argument"]
 
-[tool.ty.terminal]
-error-on-warning = false
-
-# Legacy-код (dict из JSON API без моделей, см. CLAUDE.md «raw-dict подход»): эти правила
-# пока предупреждения, а не ошибки. Новый код держим чистым; правило возвращать в error,
+# Legacy-код (dict из JSON API без моделей, «raw-dict подход»): эти правила пока
+# предупреждения, а не ошибки. Новый код держим чистым; правило возвращать в error,
 # когда предупреждений по нему не останется.
 [tool.ty.rules]
 invalid-argument-type = "warn"

@@ -1,9 +1,0 @@
-Usage: yd sitelinks delete [OPTIONS] IDS...
-
-  Удалить наборы быстрых ссылок.
-
-  Example: yd sitelinks delete 1101
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

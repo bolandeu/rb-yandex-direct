@@ -1,9 +1,0 @@
-Usage: yd smart-targets resume [OPTIONS] IDS...
-
-  Возобновить условия таргетинга смарт-баннеров.
-
-  Example: yd smart-targets resume 9001
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

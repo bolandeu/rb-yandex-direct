@@ -1,9 +1,0 @@
-Usage: yd audiences delete [OPTIONS] IDS...
-
-  Удалить привязки аудиторий.
-
-  Example: yd audiences delete 5001
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

@@ -1,9 +1,0 @@
-Usage: yd ads unarchive [OPTIONS] IDS...
-
-  Вернуть объявления из архива.
-
-  Example: yd ads unarchive 777
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

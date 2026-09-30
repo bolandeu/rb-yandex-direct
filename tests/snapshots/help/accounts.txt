@@ -1,16 +1,19 @@
-Usage: yd accounts [OPTIONS]
 
-  Кабинеты, к которым есть доступ (представитель/агентство).
+ Usage: yd accounts [OPTIONS]
 
-  Сначала пробует получить список через API (если ты агентство — оно вернёт список подопечных). Если
-  не агентство — API вернёт только твой логин, поэтому дополняется списком из
-  YANDEX_DIRECT_MANAGED_LOGINS и для каждого делается clients.get чтобы показать
-  валюту/баллы/статус. Токен — из auth login (keychain) или переменных окружения, как у остальных
-  команд.
+ Кабинеты, доступные токену: клиенты агентства и кабинеты, где вы представитель.
 
-  Example: yd accounts --output accounts.json
+ Список представительств API не отдаёт — он в YANDEX_DIRECT_MANAGED_LOGINS
+ (через запятую). Для каждого логина — clients.get под его Client-Login;
+ нет доступа — запись с полем `_error`, а не сбой команды.
+ --json: {"ok": true, "count": N, "accounts": [{Login, Currency, AccountQuality, _error?}]}.
 
-Options:
-  --output PATH   сохранить JSON в файл
-  --managed-only  только логины из YANDEX_DIRECT_MANAGED_LOGINS (не зовёт API под агентским)
-  --help          Show this message and exit.
+ Example: yd accounts --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --managed-only          Только логины из YANDEX_DIRECT_MANAGED_LOGINS, без agencyclients.get.    │
+│ --json                  Машиночитаемый вывод: JSON в stdout.                                     │
+│ --quiet                 Не печатать ничего, кроме данных.                                        │
+│ --help                  Show this message and exit.                                              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

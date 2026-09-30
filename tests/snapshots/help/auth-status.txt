@@ -1,16 +1,20 @@
-Usage: yd auth status [OPTIONS]
 
-  Откуда берётся токен и работает ли он. Значений секретов не печатает.
+ Usage: yd auth status [OPTIONS]
 
-  Без --check — только наличие и срок (unchecked / missing / expired), без сети. Код выхода 0 — всё
-  в порядке, 3 — токена нет, он истёк или Директ его не принимает. --json: {ok, tool, version,
-  checked_at, credentials[]} — provider, required, fields, source, source_ref, status, expires_at,
-  quota (баллы API: остаток и суточный лимит), message; при коде 3 — ok: false и error
-  CREDENTIALS_UNHEALTHY рядом с отчётом.
+ Откуда берётся токен и работает ли он. Значений секретов не печатает.
 
-  Example: yd auth status --check --json
+ Без --check — только наличие и срок (unchecked / missing / expired), без сети.
+ Код выхода 0 — всё в порядке, 3 — токена нет, он истёк или Директ его не принимает.
+ --json: {ok, tool, version, checked_at, credentials[]} — provider, required, fields,
+ source, source_ref, status, expires_at, quota (баллы API: остаток и суточный лимит),
+ message; при коде 3 — ok: false и error CREDENTIALS_UNHEALTHY рядом с отчётом.
 
-Options:
-  --check  проверить токен запросом clients.get (не дольше 10 с)
-  --json   отчёт JSON по контракту §8 стандарта tools
-  --help   Show this message and exit.
+ Example: yd auth status --check --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --check          Проверить токен запросом clients.get (не дольше 10 с).                          │
+│ --json           Машиночитаемый вывод: JSON в stdout.                                            │
+│ --quiet          Не печатать ничего, кроме данных.                                               │
+│ --help           Show this message and exit.                                                     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

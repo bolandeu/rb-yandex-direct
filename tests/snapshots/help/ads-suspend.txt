@@ -1,9 +1,0 @@
-Usage: yd ads suspend [OPTIONS] IDS...
-
-  Остановить показы объявлений.
-
-  Example: yd ads suspend 777
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

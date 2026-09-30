@@ -1,9 +1,0 @@
-Usage: yd vcards delete [OPTIONS] IDS...
-
-  Удалить визитки.
-
-  Example: yd vcards delete 1201
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

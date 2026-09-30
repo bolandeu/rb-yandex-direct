@@ -1,9 +1,0 @@
-Usage: yd modifiers delete [OPTIONS] IDS...
-
-  Удалить корректировки ставок.
-
-  Example: yd modifiers delete 3001
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

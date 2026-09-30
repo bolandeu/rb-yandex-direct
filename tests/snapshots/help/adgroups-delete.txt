@@ -1,9 +1,0 @@
-Usage: yd adgroups delete [OPTIONS] IDS...
-
-  Удалить группы объявлений безвозвратно.
-
-  Example: yd adgroups delete 555
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

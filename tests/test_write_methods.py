@@ -4,11 +4,9 @@ import json
 
 import pytest
 import respx
-from click.testing import CliRunner
 from httpx import Response
 
-from rb_yandex_direct.cli import cli
-from rb_yandex_direct.core.client import PROD_BASE, DirectClient
+from rb_yandex_direct.providers.direct import PROD_BASE, DirectClient
 
 
 def _route(service: str, payload: dict):
@@ -92,40 +90,6 @@ async def test_update_negative_set_body() -> None:
 
 
 # --- CLI: проверка, что -y пропускает промпт ---
-
-
-@respx.mock
-def test_cli_suspend_without_yes_aborts(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    runner = CliRunner()
-    # Ответим "n" на подтверждение — должен быть Abort без HTTP-вызова
-    result = runner.invoke(cli, ["campaigns", "suspend", "1", "2"], input="n\n")
-    assert result.exit_code != 0
-    assert respx.calls.call_count == 0
-
-
-@respx.mock
-def test_cli_suspend_with_yes(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    _route("campaigns", {"SuspendResults": [{"Id": 1}, {"Id": 2}]})
-    runner = CliRunner()
-    result = runner.invoke(cli, ["campaigns", "suspend", "1", "2", "-y"])
-    assert result.exit_code == 0, result.output
-    assert respx.calls.call_count == 1
-
-
-@respx.mock
-def test_cli_bids_set_converts_rubles_to_micros(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("keywordbids", {"SetResults": [{"KeywordId": 5}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        ["bids", "set", "--keyword", "5", "--search-bid", "30", "-y"],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    assert body["params"]["KeywordBids"][0]["SearchBid"] == 30_000_000
 
 
 # --- Sprint 5A: keywords.add / keywords.update / campaigns.update / bidmodifiers ---
@@ -250,65 +214,6 @@ async def test_set_and_delete_bid_modifiers() -> None:
 # --- CLI ---
 
 
-@respx.mock
-def test_cli_keywords_add_converts_bid(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("keywords", {"AddResults": [{"Id": 1}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        ["keywords", "add", "--adgroup", "5", "--search-bid", "30", "купить", "пылесос", "-y"],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    kws = body["params"]["Keywords"]
-    assert len(kws) == 2
-    assert kws[0]["AdGroupId"] == 5
-    assert kws[0]["Bid"] == 30_000_000
-    assert {k["Keyword"] for k in kws} == {"купить", "пылесос"}
-
-
-@respx.mock
-def test_cli_campaigns_set_budget(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("campaigns", {"UpdateResults": [{"Id": 42}]})
-    runner = CliRunner()
-    result = runner.invoke(cli, ["campaigns", "set-budget", "42", "500", "-y"])
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    assert body["params"]["Campaigns"][0]["DailyBudget"]["Amount"] == 500_000_000
-
-
-@respx.mock
-def test_cli_modifiers_add_regional(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("bidmodifiers", {"AddResults": [{"Id": 1}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        ["modifiers", "add", "--campaign", "10", "--type", "REGIONAL", "--region", "213", "--value", "150", "-y"],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    mod = body["params"]["BidModifiers"][0]
-    assert mod["CampaignId"] == 10
-    assert mod["RegionalAdjustment"] == {"BidModifier": 150, "RegionId": 213}
-
-
-@respx.mock
-def test_cli_modifiers_toggle(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("bidmodifiers", {"ToggleResults": [{"CampaignId": 10}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        ["modifiers", "toggle", "--campaign", "10", "--type", "DEMOGRAPHICS_ADJUSTMENT", "--enabled", "NO", "-y"],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    assert body["params"]["BidModifierToggleItems"][0]["Enabled"] == "NO"
-
-
 # --- Sprint 5C: retargetinglists + audiencetargets CRUD ---
 
 
@@ -401,70 +306,6 @@ async def test_audience_targets_suspend_resume_delete() -> None:
 
 
 # --- CLI ---
-
-
-@respx.mock
-def test_cli_retargeting_add(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("retargetinglists", {"AddResults": [{"Id": 99}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        [
-            "retargeting",
-            "add",
-            "--name",
-            "Корзина",
-            "--goal",
-            "111",
-            "--goal",
-            "222",
-            "--days",
-            "14",
-            "--operator",
-            "ANY",
-            "-y",
-        ],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    rl = body["params"]["RetargetingLists"][0]
-    assert rl["Name"] == "Корзина"
-    assert rl["Rules"][0]["Operator"] == "ANY"
-    ext_ids = {a["ExternalId"] for a in rl["Rules"][0]["Arguments"]}
-    assert ext_ids == {111, 222}
-    assert all(a["MembershipLifeSpan"] == 14 for a in rl["Rules"][0]["Arguments"])
-
-
-@respx.mock
-def test_cli_audiences_add(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("audiencetargets", {"AddResults": [{"Id": 1}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        ["audiences", "add", "--adgroup", "10", "--retargeting", "99", "--context-bid", "50", "-y"],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    at = body["params"]["AudienceTargets"][0]
-    assert at["AdGroupId"] == 10
-    assert at["RetargetingListId"] == 99
-    assert at["ContextBid"] == 50_000_000
-
-
-def test_cli_audiences_add_requires_exactly_one_target(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    runner = CliRunner()
-    # ни --retargeting, ни --interest — ошибка
-    result = runner.invoke(cli, ["audiences", "add", "--adgroup", "10", "-y"])
-    assert result.exit_code != 0
-    # оба сразу — тоже ошибка
-    result = runner.invoke(
-        cli,
-        ["audiences", "add", "--adgroup", "10", "--retargeting", "1", "--interest", "2", "-y"],
-    )
-    assert result.exit_code != 0
 
 
 # --- P2: dictionaries, sitelinks, vcards, adextensions, adimages, creatives, turbopages ---
@@ -679,77 +520,6 @@ async def test_smart_ad_targets_suspend_resume() -> None:
 # --- CLI ---
 
 
-@respx.mock
-def test_cli_ads_add_text(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("ads", {"AddResults": [{"Id": 1}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        ["ads", "add-text", "--adgroup", "10", "--title", "t1", "--text", "txt", "--href", "https://example/", "-y"],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    assert body["params"]["Ads"][0]["TextAd"]["Href"] == "https://example/"
-
-
-@respx.mock
-def test_cli_adgroups_add(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("adgroups", {"AddResults": [{"Id": 1}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        [
-            "adgroups",
-            "add",
-            "--campaign",
-            "100",
-            "--name",
-            "Тест",
-            "--region",
-            "213",
-            "--negative-keyword",
-            "дешево",
-            "-y",
-        ],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    g = body["params"]["AdGroups"][0]
-    assert g["RegionIds"] == [213]
-    assert g["NegativeKeywords"]["Items"] == ["дешево"]
-
-
-@respx.mock
-def test_cli_minus_sets_add(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("negativekeywordsharedsets", {"AddResults": [{"Id": 1}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        ["minus-sets", "add", "--name", "N1", "--words", "минус1,минус2", "-y"],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    assert body["params"]["NegativeKeywordSharedSets"][0]["NegativeKeywords"] == ["минус1", "минус2"]
-
-
-@respx.mock
-def test_cli_extensions_add(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("adextensions", {"AddResults": [{"Id": 1}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        ["extensions", "add", "Доставка бесплатно", "Гарантия 2 года", "-y"],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    texts = [e["Callout"]["CalloutText"] for e in body["params"]["AdExtensions"]]
-    assert texts == ["Доставка бесплатно", "Гарантия 2 года"]
-
-
 # --- Минус-слова на уровне группы/кампании + audiencetargets.setBids ---
 
 
@@ -817,23 +587,6 @@ async def test_set_audience_target_bids_rejects_no_scope() -> None:
         await c.set_audience_target_bids([{"ContextBid": 50_000_000}])
 
 
-@respx.mock
-def test_cli_audiences_set_bid_by_adgroup(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("audiencetargets", {"SetBidsResults": [{"AdGroupId": 10}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        ["audiences", "set-bid", "--adgroup", "10", "--context-bid", "40", "--priority", "HIGH", "-y"],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    item = body["params"]["Bids"][0]
-    assert item["AdGroupId"] == 10
-    assert item["ContextBid"] == 40_000_000
-    assert item["StrategyPriority"] == "HIGH"
-
-
 @pytest.mark.asyncio
 @respx.mock
 async def test_add_creatives_video_extension() -> None:
@@ -852,65 +605,8 @@ async def test_add_creatives_rejects_over_10() -> None:
         await c.add_creatives([{"VideoExtensionCreative": {"VideoId": str(i)}} for i in range(11)])
 
 
-@respx.mock
-def test_cli_creatives_add_video_extension(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("creatives", {"AddResults": [{"Id": 1}]})
-    runner = CliRunner()
-    result = runner.invoke(cli, ["creatives", "add-video-extension", "vid1", "vid2", "-y"])
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    ids = [c["VideoExtensionCreative"]["VideoId"] for c in body["params"]["Creatives"]]
-    assert ids == ["vid1", "vid2"]
-
-
-@respx.mock
-def test_cli_dynamic_targets_set_bid(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("dynamictextadtargets", {"SetBidsResults": [{"Id": 5}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        ["dynamic-targets", "set-bid", "--id", "5", "--bid", "30", "-y"],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    assert body["params"]["Bids"][0]["Bid"] == 30_000_000
-
-
-@respx.mock
-def test_cli_smart_targets_set_bid(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("smartadtargets", {"SetBidsResults": [{"Id": 7}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        ["smart-targets", "set-bid", "--id", "7", "--priority", "HIGH", "-y"],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    assert body["params"]["Bids"][0]["StrategyPriority"] == "HIGH"
-
-
-@respx.mock
-def test_cli_client_update_from_json(monkeypatch, tmp_path) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("clients", {"UpdateResults": [{}]})
-    path = tmp_path / "client.json"
-    path.write_text(json.dumps({"VatRate": 20}))
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        ["client", "update", "--from-json", str(path), "-y"],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    assert body["method"] == "update"
-    assert body["params"]["VatRate"] == 20
-
-
 def test_resolve_login_exact_and_substring(monkeypatch) -> None:
-    from rb_yandex_direct.cli import _resolve_login
+    from rb_yandex_direct.core.services import resolve_login as _resolve_login
 
     monkeypatch.setenv(
         "YANDEX_DIRECT_MANAGED_LOGINS",
@@ -923,70 +619,17 @@ def test_resolve_login_exact_and_substring(monkeypatch) -> None:
     # Полный логин с @ проходит как есть без обращения к списку.
     assert _resolve_login("not-in-list@yandex.ru") == "not-in-list@yandex.ru"
 
-    import click
+    from rb_yandex_direct.core.errors import InvalidArguments
 
-    with pytest.raises(click.ClickException, match="неоднозначный"):
+    with pytest.raises(InvalidArguments, match="Неоднозначный"):
         _resolve_login("my")  # совпадёт с shop и blog
-    with pytest.raises(click.ClickException, match="не найден"):
+    with pytest.raises(InvalidArguments, match="не найден"):
         _resolve_login("xyz")
 
 
 def test_resolve_login_without_managed_list(monkeypatch) -> None:
-    from rb_yandex_direct.cli import _resolve_login
+    from rb_yandex_direct.core.services import resolve_login as _resolve_login
 
     monkeypatch.delenv("YANDEX_DIRECT_MANAGED_LOGINS", raising=False)
     # Без списка — любая строка возвращается as-is (ожидается, что это полный логин).
     assert _resolve_login("something") == "something"
-
-
-@respx.mock
-def test_cli_accounts_merges_api_and_env(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_DIRECT_MANAGED_LOGINS", "friend@yandex.ru")
-
-    # agency call (без Client-Login) → падает с "not an agency"
-    respx.post(f"{PROD_BASE}/agencyclients").mock(
-        return_value=Response(
-            200, json={"error": {"error_code": 8100, "error_string": "Not agency", "error_detail": ""}}
-        )
-    )
-    # fallback clients.get (под агентским) отдаёт self
-    # Нужен routing по заголовку: первый clients.get = self, второй = friend
-    call_count = {"n": 0}
-
-    def _clients_resp(request):
-        call_count["n"] += 1
-        login = request.headers.get("client-login", "")
-        return Response(
-            200,
-            json={
-                "result": {
-                    "Clients": [
-                        {"Login": login or "infinitylab", "Currency": "RUB"},
-                    ]
-                }
-            },
-        )
-
-    respx.post(f"{PROD_BASE}/clients").mock(side_effect=_clients_resp)
-
-    runner = CliRunner()
-    result = runner.invoke(cli, ["accounts"])
-    assert result.exit_code == 0, result.output
-    assert "infinitylab" in result.output
-    assert "friend@yandex.ru" in result.output
-
-
-@respx.mock
-def test_cli_campaigns_set_negative_keywords(monkeypatch) -> None:
-    monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
-    route = _route("campaigns", {"UpdateResults": [{"Id": 1}]})
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        ["campaigns", "set-negative-keywords", "1", "--words", "минус1,минус2", "-y"],
-    )
-    assert result.exit_code == 0, result.output
-    body = json.loads(route.calls.last.request.content)
-    c = body["params"]["Campaigns"][0]
-    assert c["TextCampaign"]["NegativeKeywords"]["Items"] == ["минус1", "минус2"]

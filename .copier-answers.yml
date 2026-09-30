@@ -1,0 +1,15 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v1.2.10
+_src_path: gh:bolandeu/cli-generator
+author_name: Roman Bolandau
+cli_name: yd
+description: 'Яндекс.Директ API v5 (+ v4 Live и веб-интерфейс): библиотека rb_yandex_direct
+    и CLI yd'
+dist_name: rb-yandex-direct
+dist_name_legacy: ''
+include_auth: true
+include_ci: false
+include_http_provider: false
+package_name: rb_yandex_direct
+project_name: yandex-direct
+repository_url: https://github.com/bolandeu/yandex-direct

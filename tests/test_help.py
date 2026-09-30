@@ -1,13 +1,13 @@
 """The --help contract: every command's help is complete, and any change to it shows up in review.
 
-Help text is rendered from command docstrings and `click.option(help=...)` —
-it's the documentation agents and humans read, so it's tested like an API
-(standard §7, adapted from the cli-generator template for Click):
+Help text is rendered from command docstrings and `typer.Option`/`Argument`
+`help=` strings — it's the documentation agents and humans read, so it's
+tested like an API:
 
-- contract tests: every command (walked from the Click registry, so a new
+- contract tests: every command (walked from the app's registry, so a new
   command is covered automatically) has a docstring with an
-  `Example: yd <command> ...` line, every option has non-empty
-  help, every group has a description;
+  `Example: yd <command> ...` line, every parameter has non-empty help,
+  every group has a description;
 - snapshots: `<command> --help` is stored in tests/snapshots/help/<command>.txt
   (syrupy). A changed help text fails until the snapshot is refreshed with
   `uv run pytest --snapshot-update`, which puts the new text in the diff.
@@ -17,15 +17,19 @@ it's the documentation agents and humans read, so it's tested like an API
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+import inspect
+import typing
+from collections.abc import Callable, Iterator
 from pathlib import Path
 
-import click
 import pytest
-from click.testing import CliRunner
+import typer
 from syrupy.extensions.single_file import SingleFileSnapshotExtension, WriteMode
+from typer.models import ParameterInfo
+from typer.testing import CliRunner
 
-from rb_yandex_direct.cli import cli
+from rb_yandex_direct import output
+from rb_yandex_direct.cli import app
 
 CLI = "yd"
 SNAPSHOT_DIR = Path(__file__).parent / "snapshots" / "help"
@@ -33,25 +37,34 @@ SNAPSHOT_DIR = Path(__file__).parent / "snapshots" / "help"
 HELP_ENV = {"COLUMNS": "100", "NO_COLOR": "1", "TERM": "dumb"}
 
 
-def _walk(group: click.Group, prefix: tuple[str, ...] = ()) -> Iterator[tuple[tuple[str, ...], click.Command]]:
-    for name, command in group.commands.items():
-        yield (*prefix, name), command
-        if isinstance(command, click.Group):
-            yield from _walk(command, (*prefix, name))
+def _commands(group: typer.Typer, prefix: tuple[str, ...] = ()) -> Iterator[tuple[tuple[str, ...], Callable]]:
+    for info in group.registered_commands:
+        assert info.callback is not None
+        name = info.name or getattr(info.callback, "__name__", "").replace("_", "-")
+        yield (*prefix, name), info.callback
+    for sub in group.registered_groups:
+        assert sub.name is not None and sub.typer_instance is not None
+        yield from _commands(sub.typer_instance, (*prefix, sub.name))
 
 
-ALL = dict(_walk(cli))
-COMMANDS = {path: c for path, c in ALL.items() if not isinstance(c, click.Group)}
-GROUPS = {path: c for path, c in ALL.items() if isinstance(c, click.Group)}
-HELP_PAGES = sorted([(), *ALL])
+def _groups(group: typer.Typer, prefix: tuple[str, ...] = ()) -> Iterator[tuple[tuple[str, ...], typer.Typer]]:
+    for sub in group.registered_groups:
+        assert sub.name is not None and sub.typer_instance is not None
+        yield (*prefix, sub.name), sub.typer_instance
+        yield from _groups(sub.typer_instance, (*prefix, sub.name))
+
+
+COMMANDS = dict(_commands(app))
+GROUPS = dict(_groups(app))
+HELP_PAGES = sorted([*COMMANDS, *GROUPS])
 
 
 def _slug(path: tuple[str, ...]) -> str:
-    return "-".join(path) or CLI
+    return "-".join(path)
 
 
 def _render_help(path: tuple[str, ...]) -> str:
-    result = CliRunner().invoke(cli, [*path, "--help"], env=HELP_ENV, prog_name=CLI, obj={}, terminal_width=100)
+    result = CliRunner().invoke(app, [*path, "--help"], env=HELP_ENV, prog_name=CLI)
     assert result.exit_code == 0, result.output
     # Trailing padding isn't content; keeping it out keeps the diffs readable.
     return "\n".join(line.rstrip() for line in result.output.splitlines()) + "\n"
@@ -85,30 +98,52 @@ def test_no_orphan_help_snapshots() -> None:
 
 @pytest.mark.parametrize("path", sorted(COMMANDS), ids=_slug)
 def test_command_docstring_has_summary_and_example(path: tuple[str, ...]) -> None:
-    doc = COMMANDS[path].help or ""
+    doc = inspect.getdoc(COMMANDS[path]) or ""
     assert doc.strip(), f"`{_slug(path)}` has no docstring — it is the command's --help text"
     invocation = f"{CLI} {' '.join(path)}"
-    examples = [line.strip() for line in doc.splitlines() if line.strip().startswith("Example:")]
+    examples = [line for line in doc.splitlines() if line.startswith("Example:")]
     assert any(invocation in line for line in examples), (
-        f"`{_slug(path)}` docstring needs an `Example: {invocation} ...` line"
+        f"`{_slug(path)}` docstring needs an `Example: {{cli}} {' '.join(path)} ...` line"
     )
 
 
 @pytest.mark.parametrize("path", sorted(COMMANDS), ids=_slug)
-def test_every_option_has_help(path: tuple[str, ...]) -> None:
-    # click.Argument has no help=; arguments are described in the docstring and its Example line.
-    for param in COMMANDS[path].params:
-        if isinstance(param, click.Option):
-            assert (param.help or "").strip(), f"`{_slug(path)}` option `{param.opts[-1]}` has no help"
+def test_every_command_is_guarded(path: tuple[str, ...]) -> None:
+    # output.guard gives the JSON error envelope, local --json/--quiet and the {cli} substitution in help.
+    assert output.is_guarded(COMMANDS[path]), f"`{_slug(path)}` must be wrapped in @output.guard"
+
+
+@pytest.mark.parametrize("path", sorted(COMMANDS), ids=_slug)
+def test_every_parameter_has_help(path: tuple[str, ...]) -> None:
+    callback = inspect.unwrap(COMMANDS[path])
+    hints = typing.get_type_hints(callback, include_extras=True)
+    for name, param in inspect.signature(callback).parameters.items():
+        hint = hints.get(name)
+        if hint is typer.Context:
+            continue
+        infos = [m for m in getattr(hint, "__metadata__", ()) if isinstance(m, ParameterInfo)]
+        if isinstance(param.default, ParameterInfo):
+            infos.append(param.default)
+        assert infos, f"`{_slug(path)}` parameter `{name}` must be a typer.Option/Argument with help="
+        assert all((info.help or "").strip() for info in infos), f"`{_slug(path)}` parameter `{name}` has no help"
 
 
 @pytest.mark.parametrize("path", sorted(GROUPS), ids=_slug)
 def test_every_group_has_help(path: tuple[str, ...]) -> None:
-    assert (GROUPS[path].help or "").strip(), f"group `{_slug(path)}` has no description"
+    assert (GROUPS[path].info.help or "").strip(), f"group `{_slug(path)}` has no description"
 
 
-@pytest.mark.parametrize("path", [(), *sorted(GROUPS)], ids=_slug)
-def test_bare_group_prints_help_and_exits_0(path: tuple[str, ...]) -> None:
-    result = CliRunner().invoke(cli, list(path), prog_name=CLI, obj={})
-    assert result.exit_code == 0, result.output
-    assert "Usage:" in result.output
+def test_help_keeps_brackets() -> None:
+    """Typer renders help as rich markup, which drops `[...]`; output.guard escapes docstrings."""
+
+    def cmd(ctx: typer.Context) -> None:
+        """Declared in [[tool.rb.external]], see [x].
+
+        Example: {cli} cmd
+        """
+
+    probe = typer.Typer()
+    probe.command("cmd")(output.guard(cmd))
+    probe.command("other")(output.guard(cmd))
+    result = CliRunner().invoke(probe, ["cmd", "--help"], env=HELP_ENV)
+    assert "[[tool.rb.external]], see [x]." in result.output

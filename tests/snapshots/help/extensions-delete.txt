@@ -1,9 +1,0 @@
-Usage: yd extensions delete [OPTIONS] IDS...
-
-  Удалить уточнения.
-
-  Example: yd extensions delete 1301
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

@@ -6,8 +6,8 @@ import pytest
 import respx
 from httpx import Response
 
-from rb_yandex_direct.core.client import PROD_BASE, DirectClient
-from rb_yandex_direct.core.reports import ReportsClient
+from rb_yandex_direct.providers.direct import PROD_BASE, DirectClient
+from rb_yandex_direct.providers.reports import ReportsClient
 
 
 def _route_service(service: str, payload: dict):

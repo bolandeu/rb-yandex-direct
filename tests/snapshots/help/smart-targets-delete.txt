@@ -1,9 +1,0 @@
-Usage: yd smart-targets delete [OPTIONS] IDS...
-
-  Удалить условия таргетинга смарт-баннеров.
-
-  Example: yd smart-targets delete 9001
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

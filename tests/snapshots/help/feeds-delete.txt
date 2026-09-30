@@ -1,9 +1,0 @@
-Usage: yd feeds delete [OPTIONS] IDS...
-
-  Удалить фиды.
-
-  Example: yd feeds delete 7001
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

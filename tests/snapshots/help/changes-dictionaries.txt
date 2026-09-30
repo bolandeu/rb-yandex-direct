@@ -1,8 +1,0 @@
-Usage: yd changes dictionaries [OPTIONS] TIMESTAMP
-
-  Актуальность справочников.
-
-  Example: yd changes dictionaries 2026-09-01T00:00:00Z
-
-Options:
-  --help  Show this message and exit.

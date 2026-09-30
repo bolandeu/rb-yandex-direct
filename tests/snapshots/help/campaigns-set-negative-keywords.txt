@@ -1,13 +1,22 @@
-Usage: yd campaigns set-negative-keywords [OPTIONS] CAMPAIGN_ID
 
-  Заменить минус-слова на уровне кампании (полный список заменяет текущий).
+ Usage: yd campaigns set-negative-keywords [OPTIONS] {campaign_id}
 
-  Example: yd campaigns set-negative-keywords 12345 --words 'бесплатно,скачать'
+ Заменить минус-фразы кампании: переданный список целиком заменяет текущий.
 
-Options:
-  --type [TextCampaign|DynamicTextCampaign|UnifiedCampaign|SmartCampaign|MobileAppCampaign|McBannerCampaign|CpmBannerCampaign|CpmVideoCampaign|CpmPriceCampaign|ContentPromotionCampaign]
-                                  тип кампании
-  --words TEXT                    минус-фразы через запятую
-  --from-file PATH                файл с фразами построчно
-  -y, --yes                       без подтверждения
-  --help                          Show this message and exit.
+ Example: yd campaigns set-negative-keywords 12345 -w бесплатно -w скачать --dry-run
+
+╭─ Аргументы ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *    campaign_id      <int>  Id кампании. [обязательный]                                         │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --word             -w      <str>  Минус-фраза (повторяемая).                                     │
+│ --from-file                <str>  Файл с минус-фразами, по одной в строке.                       │
+│ --confirm                         Подтвердить изменение в кабинете без вопроса (обязательно      │
+│                                   вместе с --non-interactive).                                   │
+│ --dry-run                         Показать, что будет сделано, ничего не меняя.                  │
+│ --non-interactive                 Никогда не спрашивать; при нехватке данных — ошибка.           │
+│ --json                            Машиночитаемый вывод: JSON в stdout.                           │
+│ --quiet                           Не печатать ничего, кроме данных.                              │
+│ --help                            Show this message and exit.                                    │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

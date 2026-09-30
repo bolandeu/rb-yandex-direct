@@ -1,13 +1,26 @@
-Usage: yd campaigns list [OPTIONS]
 
-  Список кампаний с фильтром по состоянию и типу.
+ Usage: yd campaigns list [OPTIONS]
 
-  Example: yd campaigns list --state ON
+ Список кампаний с фильтрами по Id, состоянию и типу.
 
-Options:
-  --state [ON|OFF|SUSPENDED|ENDED|CONVERTED|ARCHIVED]
-                                  фильтр по состоянию
-  --type TEXT                     TEXT_CAMPAIGN, MCBANNER_CAMPAIGN, CPM_BANNER_CAMPAIGN,
-                                  SMART_CAMPAIGN, и т.д.
-  --output PATH                   сохранить JSON в файл
-  --help                          Show this message and exit.
+ --json: {"ok": true, "count": N, "campaigns": [{Id, Name, Type, State, Status, DailyBudget, …}]};
+ суммы — в микроединицах валюты, как в API.
+
+ Example: yd campaigns list --state ON
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id           <int>                                    Только эти кампании (повторяемая).       │
+│ --state        <ON|OFF|SUSPENDED|ENDED|CONVERTED|ARCHI  Фильтр по состоянию (повторяемая).       │
+│                VED>                                                                              │
+│ --type         <str>                                    Фильтр по типу: TEXT_CAMPAIGN,           │
+│                                                         UNIFIED_CAMPAIGN, SMART_CAMPAIGN…        │
+│                                                         (повторяемая).                           │
+│ --field        <str>                                    Поле FieldNames вместо набора по         │
+│                                                         умолчанию (Id, Name, State, Status,      │
+│                                                         Type, StartDate, EndDate, DailyBudget,   │
+│                                                         Currency, ClientInfo); повторяемая.      │
+│ --json                                                  Машиночитаемый вывод: JSON в stdout.     │
+│ --quiet                                                 Не печатать ничего, кроме данных.        │
+│ --help                                                  Show this message and exit.              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

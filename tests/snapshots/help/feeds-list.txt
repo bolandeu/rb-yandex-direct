@@ -1,9 +1,0 @@
-Usage: yd feeds list [OPTIONS]
-
-  Товарные фиды.
-
-  Example: yd feeds list
-
-Options:
-  --output PATH  сохранить JSON в файл
-  --help         Show this message and exit.

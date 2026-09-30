@@ -1,9 +1,0 @@
-Usage: yd extensions moderate [OPTIONS] IDS...
-
-  Отправить уточнения на модерацию.
-
-  Example: yd extensions moderate 1301
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

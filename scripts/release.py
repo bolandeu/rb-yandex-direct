@@ -12,6 +12,8 @@ step's name and output, then `release: code failed` (exit 1) or, when only
 the vulnerability audit failed, `release: audit failed` (exit 3):
 
     uv lock --check · ruff check · ruff format --check · ty check · pytest ·
+    external dependencies (every program src/ runs is declared in
+    [[tool.rb.external]] and vice versa) ·
     changelog fragment (at least one in changelog.d/ when anything user-visible
     changed since the last tag — not uv.lock, .github/, scripts/, tests/,
     .githooks/, .claude/, AGENTS.md, CLAUDE.md) · build the wheel and install
@@ -40,6 +42,7 @@ copy it verbatim instead of editing it.
 
 from __future__ import annotations
 
+import ast
 import os
 import re
 import shutil
@@ -172,6 +175,67 @@ def _changed_since(tag: str) -> list[str]:
     tracked = run("git", "diff", "--name-only", tag, capture=True).splitlines()
     untracked = run("git", "ls-files", "--others", "--exclude-standard", capture=True).splitlines()
     return sorted(set(tracked + untracked))
+
+
+_PROCESS_CALLS = {"run", "Popen", "check_output", "check_call", "call"}
+
+
+def external_programs(source: str) -> set[str]:
+    """Programs a module runs or looks up by a literal name.
+
+    `require_cli("x", ...)`, `shutil.which("x")`, and `subprocess.run(["x", ...])`
+    (also Popen/check_output/check_call/call). A name built at runtime isn't
+    seen — call `require_cli` with the literal name first, then run its path.
+    """
+    found: set[str] = set()
+    for node in ast.walk(ast.parse(source)):
+        if not isinstance(node, ast.Call) or not node.args:
+            continue
+        func = node.func.attr if isinstance(node.func, ast.Attribute) else getattr(node.func, "id", "")
+        first = node.args[0]
+        if func in ("require_cli", "which") and isinstance(first, ast.Constant) and isinstance(first.value, str):
+            found.add(first.value)
+        elif func in _PROCESS_CALLS and isinstance(first, ast.List | ast.Tuple) and first.elts:
+            head = first.elts[0]
+            if isinstance(head, ast.Constant) and isinstance(head.value, str):
+                found.add(head.value)
+    return found
+
+
+def check_external_deps() -> str:
+    """Every external program used in src/ is declared in [[tool.rb.external]], and every declared one is used."""
+    entries = _tool("rb").get("external", [])
+    problems = [
+        f"entry #{i + 1} needs `name` and `why`" for i, e in enumerate(entries) if not (e.get("name") and e.get("why"))
+    ]
+    declared = {entry.get("name") for entry in entries}
+    used: dict[str, list[str]] = {}
+    for path in sorted((ROOT / "src").rglob("*.py")):
+        for name in external_programs(path.read_text()):
+            used.setdefault(name, []).append(str(path.relative_to(ROOT)))
+    problems += [
+        f"`{name}` is run in {', '.join(files)} but not declared"
+        for name, files in used.items()
+        if name not in declared
+    ]
+    # detect = false: run in a way this scan can't see (an injected runner, an
+    # absolute path) — declared on trust, but still with a `why`.
+    hidden = {entry.get("name") for entry in entries if entry.get("detect", True) is False}
+    unseen = sorted(declared - used.keys() - hidden)
+    problems += [
+        f"`{name}` is declared but nothing in src/ runs it (set detect = false if it's run in a way the gate "
+        "can't see, e.g. an injected runner or an absolute path)"
+        for name in unseen
+    ]
+    if problems:
+        raise StepFailed(
+            "pyproject.toml [[tool.rb.external]] doesn't match the code (standard §12):\n  - "
+            + "\n  - ".join(problems)
+            + '\nDeclare: [[tool.rb.external]] name = "x", required = true, min_version = "1.0", check = "x --version", why = "..."'
+        )
+    if not declared:
+        return "none used, none declared"
+    return f"{len(declared)} declared, all used" + (f" ({len(hidden)} with detect = false)" if hidden else "")
 
 
 def _tooling_only_pyproject(path: str, tag: str) -> bool:
@@ -310,6 +374,7 @@ def check_installed_wheel(version: str | None) -> str:
 def run_gate(version: str | None) -> None:
     steps: list[tuple[str, Callable[[], str]]] = [
         *((name, lambda argv=argv: run_command(argv)) for name, argv in COMMANDS),
+        ("external dependencies", check_external_deps),
         ("changelog fragment", check_fragment),
         ("build + install wheel", lambda: check_installed_wheel(version)),
         (AUDIT_STEP, check_vulnerabilities),
@@ -345,6 +410,30 @@ def check_branch() -> None:
     _, behind = counts.split()
     if int(behind):
         fail(f"main is {behind} commit(s) behind its upstream — pull first")
+
+
+def repository_url() -> str | None:
+    """`[project.urls] Repository` (copier's repository_url), else `origin` as an https URL."""
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text()).get("project", {})
+    url = project.get("urls", {}).get("Repository")
+    if not url:
+        origin = subprocess.run(
+            ["git", "remote", "get-url", "origin"], cwd=ROOT, text=True, capture_output=True, check=False
+        )
+        url = origin.stdout.strip() if origin.returncode == 0 else None
+    return normalize_repo_url(url) if url else None
+
+
+def normalize_repo_url(url: str) -> str:
+    """git@github.com:o/r.git / https://github.com/o/r.git -> https://github.com/o/r."""
+    return re.sub(r"^git@([^:]+):", r"https://\1/", url).removesuffix(".git")
+
+
+def install_command(tag: str) -> str:
+    """The pinned install line to hand out after a release: "<dist> @ git+<url>.git@<tag>"."""
+    dist = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["name"]
+    url = repository_url() or "https://github.com/<owner>/<repo>"
+    return f'uv tool install "{dist} @ git+{url}.git@{tag}"'
 
 
 def next_version(part: str) -> str:
@@ -384,7 +473,7 @@ def main() -> None:
     run("git", "commit", "-m", release_commit_message(version))
     run("git", "tag", "-a", tag, "-m", tag)
     print(f"Released {tag} locally. Push it (needs your confirmation): git push --follow-tags")
-    print(f'Then pin it anywhere with: uv tool install "git+<repo-url>@{tag}"')
+    print(f"Then install it anywhere with: {install_command(tag)}")
 
 
 if __name__ == "__main__":

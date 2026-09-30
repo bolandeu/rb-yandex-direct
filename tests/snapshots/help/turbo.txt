@@ -1,9 +1,0 @@
-Usage: yd turbo [OPTIONS] [COMMAND] [ARGS]...
-
-  Турбо-страницы.
-
-Options:
-  --help  Show this message and exit.
-
-Commands:
-  list  Турбо-страницы клиента.

@@ -1,9 +1,0 @@
-Usage: yd minus-sets list [OPTIONS]
-
-  Наборы общих минус-слов.
-
-  Example: yd minus-sets list
-
-Options:
-  --output PATH  сохранить JSON в файл
-  --help         Show this message and exit.

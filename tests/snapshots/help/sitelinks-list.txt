@@ -1,9 +1,0 @@
-Usage: yd sitelinks list [OPTIONS]
-
-  Наборы быстрых ссылок.
-
-  Example: yd sitelinks list
-
-Options:
-  --output PATH  сохранить JSON в файл
-  --help         Show this message and exit.

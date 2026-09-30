@@ -1,9 +1,0 @@
-Usage: yd ads moderate [OPTIONS] IDS...
-
-  Отправить объявления на модерацию (из DRAFT в MODERATION).
-
-  Example: yd ads moderate 777 778
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

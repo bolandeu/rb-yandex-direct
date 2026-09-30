@@ -1,10 +1,24 @@
-Usage: yd campaigns set-budget [OPTIONS] CAMPAIGN_ID AMOUNT_RUB
 
-  Задать дневной бюджет кампании в рублях.
+ Usage: yd campaigns set-budget [OPTIONS] {campaign_id} {amount}
 
-  Example: yd campaigns set-budget 12345 1500
+ Задать дневной бюджет кампании в рублях.
 
-Options:
-  --mode [STANDARD|DISTRIBUTED]  STANDARD — равномерно, DISTRIBUTED — ускоренно
-  -y, --yes                      без подтверждения
-  --help                         Show this message and exit.
+ Example: yd campaigns set-budget 12345 1500 --confirm
+
+╭─ Аргументы ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *    campaign_id      <int>    Id кампании. [обязательный]                                       │
+│ *    amount           <float>  Дневной бюджет, ₽. [обязательный]                                 │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --mode                   <STANDARD|DISTRIBUTED>  STANDARD — равномерно, DISTRIBUTED — быстро.    │
+│                                                  [по умолчанию: STANDARD]                        │
+│ --confirm                                        Подтвердить изменение в кабинете без вопроса    │
+│                                                  (обязательно вместе с --non-interactive).       │
+│ --dry-run                                        Показать, что будет сделано, ничего не меняя.   │
+│ --non-interactive                                Никогда не спрашивать; при нехватке данных —    │
+│                                                  ошибка.                                         │
+│ --json                                           Машиночитаемый вывод: JSON в stdout.            │
+│ --quiet                                          Не печатать ничего, кроме данных.               │
+│ --help                                           Show this message and exit.                     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

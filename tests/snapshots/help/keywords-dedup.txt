@@ -1,9 +1,0 @@
-Usage: yd keywords dedup [OPTIONS] IDS...
-
-  Найти дубли среди переданных ключей и приостановить копии.
-
-  Example: yd keywords dedup 901 902 903
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

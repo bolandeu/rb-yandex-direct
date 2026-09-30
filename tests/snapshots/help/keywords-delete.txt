@@ -1,9 +1,0 @@
-Usage: yd keywords delete [OPTIONS] IDS...
-
-  Удалить ключи безвозвратно.
-
-  Example: yd keywords delete 901
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

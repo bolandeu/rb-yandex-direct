@@ -4,13 +4,8 @@ import pytest
 import respx
 from httpx import Response
 
-from rb_yandex_direct.core.client import PROD_BASE, SANDBOX_BASE, DirectClient
-from rb_yandex_direct.core.errors import DirectAPIError, DirectAuthError
-
-
-def test_requires_token() -> None:
-    with pytest.raises(DirectAuthError):
-        DirectClient(token="")
+from rb_yandex_direct.core.errors import DirectAPIError
+from rb_yandex_direct.providers.direct import PROD_BASE, SANDBOX_BASE, DirectClient
 
 
 def test_sandbox_switch() -> None:

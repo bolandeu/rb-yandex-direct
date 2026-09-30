@@ -6,7 +6,7 @@ import pytest
 import respx
 from httpx import Response
 
-from rb_yandex_direct.core.client import PROD_BASE, DirectClient
+from rb_yandex_direct.providers.direct import PROD_BASE, DirectClient
 
 
 def _route(service: str, payload: dict):

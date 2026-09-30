@@ -1,9 +1,0 @@
-Usage: yd images delete [OPTIONS] HASHES...
-
-  Удалить изображения по хэшам.
-
-  Example: yd images delete abc123hash
-
-Options:
-  -y, --yes  без подтверждения
-  --help     Show this message and exit.

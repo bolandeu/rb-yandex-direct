@@ -1,21 +1,30 @@
-Usage: yd auth login [OPTIONS]
 
-  Получить OAuth-токен Директа и сохранить в keychain вместе с refresh_token.
+ Usage: yd auth login [OPTIONS]
 
-  По умолчанию открывает браузер и ловит код на localhost; --oob — код вручную, --device —
-  подтверждение на другом устройстве, --token — готовый токен. Приложение: --client-id/--client-
-  secret, иначе YANDEX_OAUTH_DIRECT_CLIENT_ID/SECRET (прежние YANDEX_DIRECT_CLIENT_ID/SECRET тоже
-  читаются), иначе — с прошлого входа. Создать приложение: https://oauth.yandex.ru/?dialog=create-
-  client-entry, права direct:api и passport:business; для prod нужна подтверждённая заявка на доступ
-  к API (direct.yandex.ru → Настройки API → Мои заявки), иначе API отвечает кодом 58.
+ Получить OAuth-токен Директа и сохранить в keychain вместе с refresh_token.
 
-  Example: yd auth login --client-id abc123 --client-secret s3cr3t
+ По умолчанию открывает браузер и ловит код на localhost; --oob — код вручную,
+ --device — подтверждение на другом устройстве, --token — готовый токен.
+ Приложение: --client-id/--client-secret, иначе YANDEX_OAUTH_DIRECT_CLIENT_ID/SECRET
+ (прежние YANDEX_DIRECT_CLIENT_ID/SECRET тоже читаются), иначе — с прошлого входа.
+ С --non-interactive работает только --token. Создать приложение:
+ https://oauth.yandex.ru/?dialog=create-client-entry, права direct:api и passport:business;
+ для prod нужна подтверждённая заявка на доступ к API (direct.yandex.ru → Настройки API →
+ Мои заявки), иначе API отвечает кодом 58.
 
-Options:
-  --token TEXT          готовый OAuth-токен или адрес …verification_code#access_token=… (без
-                        автообновления)
-  --oob                 ввести код со страницы подтверждения вручную (ssh, без браузера)
-  --device              device flow: код подтверждается на другом устройстве
-  --client-id TEXT      ID OAuth-приложения (или YANDEX_OAUTH_DIRECT_CLIENT_ID)
-  --client-secret TEXT  секрет OAuth-приложения (или YANDEX_OAUTH_DIRECT_CLIENT_SECRET)
-  --help                Show this message and exit.
+ Example: yd auth login --client-id abc123 --client-secret s3cr3t
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --token                  <str>  Готовый OAuth-токен или адрес …verification_code#access_token=…  │
+│                                 (без автообновления).                                            │
+│ --oob                           Ввести код со страницы подтверждения вручную (ssh, без           │
+│                                 браузера).                                                       │
+│ --device                        Device flow: код подтверждается на другом устройстве.            │
+│ --client-id              <str>  ID OAuth-приложения (или YANDEX_OAUTH_DIRECT_CLIENT_ID).         │
+│ --client-secret          <str>  Секрет OAuth-приложения (или YANDEX_OAUTH_DIRECT_CLIENT_SECRET). │
+│ --non-interactive               Никогда не спрашивать; при нехватке данных — ошибка.             │
+│ --json                          Машиночитаемый вывод: JSON в stdout.                             │
+│ --quiet                         Не печатать ничего, кроме данных.                                │
+│ --help                          Show this message and exit.                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
