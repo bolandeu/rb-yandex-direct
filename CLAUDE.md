@@ -35,6 +35,18 @@ uv run scripts/release.py --check      # весь гейт перед кажды
   `Use-Operator-Units`; `Units`/`RequestId` — в лог (`--verbose`). `DirectProvider.health_check` —
   один `clients.get` для `auth status --check`. `providers/reports.py` — TSV-отчёты с polling.
   `providers/oauth.py` — потоки входа (localhost callback, OOB, device flow).
+- `providers/live.py` + `core/live.py` — API v4 Live (`POST /live/v4/json/`, `{"method", "param", "token"}`):
+  Wordstat, прогноз, события, цели, теги, финансы. Финансовые методы — finance_token
+  (sha256 мастер-токена, номера операции, метода и логина) и растущий номер операции в
+  `user_data_dir("yd")/finance.json`; мастер-токен — слот keychain `yandex-oauth:direct_finance`
+  или `YANDEX_OAUTH_DIRECT_FINANCE_MASTER_TOKEN`/`…_FINANCE_LOGIN`; финансовые вызовы не повторяются.
+- `providers/browser/` — веб-интерфейс без API (Мастер кампаний, история изменений): тонкая обёртка
+  над браузерным слоем direct-cli (MIT, Playwright + куки Chrome) из optional extra `[browser]`;
+  без extra — DEPENDENCY_TOO_OLD. Состояние — `user_data_dir("yd")/browser`. Тесты подменяют
+  библиотеку (`tests/fake_browser.py`) и идут без extra.
+- Сборка сложных тел запросов — `core/campaign_payloads.py`, `core/strategy.py`, `core/ads.py`,
+  `core/report_payloads.py`, `core/client_payloads.py`: правила сверены с WSDL, лишние и недостающие
+  поля отсекаются до запроса.
 - `commands/auth.py` — свой `login` (приложение Директа — `YANDEX_OAUTH_DIRECT_CLIENT_ID`, не общий
   `YANDEX_CLIENT_ID` ym/ywm), хранение и обновление токена — rb-yandex-oauth; `auth status` — §8.
 
@@ -54,7 +66,7 @@ uv run scripts/release.py --check      # весь гейт перед кажды
 **Raw-dict подход:** ответы API — dict как есть (JSON-ключи API), без pydantic-моделей; валидация — на входе.
 Для сложных структур CLI принимает `--from-json` (`add-json`/`update-json`), частые случаи — типизированными опциями в рублях.
 
-**Индекс документации API:** `docs/api_links.json` — сервисы × методы с URL на `yandex.com/dev/direct/doc/en/*`. Генерируется из sitemap + ручного дополнения: `uv run scripts/build_api_index.py`. Использовать так: смотри ключ `services.<service>.methods.<method>` → WebFetch по URL, если нужна сверка формата запроса.
+**Индекс документации API:** `docs/api_links.json` — сервисы v5 × методы (Strategies и DynamicFeedAdTargets в нём нет — сверяйте по WSDL) с URL на `yandex.com/dev/direct/doc/en/*`. Генерируется из sitemap + ручного дополнения: `uv run scripts/build_api_index.py`. Использовать так: смотри ключ `services.<service>.methods.<method>` → WebFetch по URL, если нужна сверка формата запроса.
 
 **Мульти-аккаунт через «представителя»:**
 
