@@ -1,0 +1,63 @@
+
+ Usage: yd strategies add [OPTIONS]
+
+ Создать пакетную стратегию; кампании подключаются к ней через PackageBiddingStrategy.
+
+ Обязательные параметры зависят от типа (AVERAGE_CPA — --average-cpa и --goal-id и т.д.);
+ недостающий или лишний — INVALID_ARGUMENTS до запроса. Бюджеты и цены — в рублях.
+ Бюджет на период и ExplorationBudget — через `strategies add-json`.
+
+ Example: yd strategies add --name Клики --type WB_MAXIMUM_CLICKS --weekly-budget 15000 --dry-run
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --name                     <str>                             Название стратегии.              │
+│                                                                 [обязательный]                   │
+│ *  --type                     <WB_MAXIMUM_CLICKS|WB_MAXIMUM_CO  Тип стратегии:                   │
+│                               NVERSION_RATE|AVERAGE_CPC|AVERAG  WB_MAXIMUM_CLICKS, AVERAGE_CPA…  │
+│                               E_CPA|MAX_PROFIT|PAY_FOR_CONVERS  [обязательный]                   │
+│                               ION|AVERAGE_CPA_PER_CAMPAIGN|PAY                                   │
+│                               _FOR_CONVERSION_PER_CAMPAIGN|PAY                                   │
+│                               _FOR_CONVERSION_PER_FILTER|AVERA                                   │
+│                               GE_CPA_PER_FILTER|AVERAGE_CPC_PE                                   │
+│                               R_CAMPAIGN|AVERAGE_CPC_PER_FILTE                                   │
+│                               R|AVERAGE_CRR|PAY_FOR_CONVERSION                                   │
+│                               _CRR|AVERAGE_CPA_MULTIPLE_GOALS|                                   │
+│                               PAY_FOR_CONVERSION_MULTIPLE_GOAL                                   │
+│                               S>                                                                 │
+│    --weekly-budget            <float>                           Недельный бюджет стратегии       │
+│                                                                 (WeeklySpendLimit), ₽.           │
+│    --bid-ceiling              <float>                           Максимальная ставка              │
+│                                                                 (BidCeiling), ₽.                 │
+│    --average-cpc              <float>                           Средняя цена клика               │
+│                                                                 (AverageCpc/FilterAverageCpc),   │
+│                                                                 ₽.                               │
+│    --average-cpa              <float>                           Средняя цена конверсии           │
+│                                                                 (AverageCpa/FilterAverageCpa),   │
+│                                                                 ₽.                               │
+│    --cpa                      <float>                           Цена конверсии при оплате за     │
+│                                                                 конверсии (Cpa), ₽.              │
+│    --goal-id                  <int>                             Id цели Метрики для              │
+│                                                                 конверсионных стратегий          │
+│                                                                 (GoalId).                        │
+│    --crr                      <int>                             Доля рекламных расходов, %       │
+│                                                                 (Crr).                           │
+│    --counter-id               <int>                             Счётчик Метрики (повторяемая).   │
+│    --priority-goal            <str>                             Ключевая цель ЦЕЛЬ=ЦЕННОСТЬ_₽    │
+│                                                                 (повторяемая; для                │
+│                                                                 *_MULTIPLE_GOALS).               │
+│    --attribution-model        <str>                             Модель атрибуции: LC, LSC, FC,   │
+│                                                                 LYDC, LSCCD, FCCD, LYDCCD, AUTO. │
+│    --confirm                                                    Подтвердить изменение в кабинете │
+│                                                                 без вопроса (обязательно вместе  │
+│                                                                 с --non-interactive).            │
+│    --dry-run                                                    Показать, что будет сделано,     │
+│                                                                 ничего не меняя.                 │
+│    --non-interactive                                            Никогда не спрашивать; при       │
+│                                                                 нехватке данных — ошибка.        │
+│    --json                                                       Машиночитаемый вывод: JSON в     │
+│                                                                 stdout.                          │
+│    --quiet                                                      Не печатать ничего, кроме        │
+│                                                                 данных.                          │
+│    --help                                                       Show this message and exit.      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

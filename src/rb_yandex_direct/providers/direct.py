@@ -120,6 +120,70 @@ RETRY_API_CODES = frozenset({52, 506, 1000, 1001})
 RETRY_HTTP = frozenset({429, 502, 503, 504})
 
 
+DEFAULT_FEED_FIELDS = [
+    "Id",
+    "Name",
+    "BusinessType",
+    "SourceType",
+    "Status",
+    "NumberOfItems",
+    "UpdatedAt",
+    "CampaignIds",
+]
+
+# Справочники dictionaries.get (DictionaryNameEnum из WSDL).
+DICTIONARY_NAMES = [
+    "Currencies",
+    "MetroStations",
+    "GeoRegions",
+    "GeoRegionNames",
+    "TimeZones",
+    "Constants",
+    "AdCategories",
+    "OperationSystemVersions",
+    "ProductivityAssertions",
+    "SupplySidePlatforms",
+    "Interests",
+    "AudienceCriteriaTypes",
+    "AudienceDemographicProfiles",
+    "AudienceInterests",
+    "FilterSchemas",
+]
+
+# campaigns.get: все общие поля и поля блоков типов (CampaignFieldEnum и *CampaignFieldEnum из WSDL).
+CAMPAIGN_FIELDS_ALL = [
+    "BlockedIps", "ExcludedSites", "Currency", "DailyBudget", "Notification", "EndDate", "Funds", "ClientInfo",
+    "Id", "Name", "NegativeKeywords", "RepresentedBy", "StartDate", "Statistics", "State", "Status",
+    "StatusPayment", "StatusClarification", "SourceId", "TimeTargeting", "TimeZone", "Type",
+]  # fmt: skip
+_PACKAGE_FIELDS = ["PackageBiddingStrategy", "CanBeUsedAsPackageBiddingStrategySource"]
+CAMPAIGN_TYPE_FIELDS_ALL = {
+    "TextCampaignFieldNames": [
+        "CounterIds", "RelevantKeywords", "Settings", "BiddingStrategy", "PriorityGoals", "TrackingParams",
+        "AttributionModel", *_PACKAGE_FIELDS, "NegativeKeywordSharedSetIds",
+    ],
+    "TextCampaignSearchStrategyPlacementTypesFieldNames": ["SearchResults", "ProductGallery", "DynamicPlaces"],
+    "UnifiedCampaignFieldNames": [
+        "CounterIds", "Settings", "BiddingStrategy", "PriorityGoals", "TrackingParams", "AttributionModel",
+        *_PACKAGE_FIELDS, "NegativeKeywordSharedSetIds",
+    ],
+    "UnifiedCampaignSearchStrategyPlacementTypesFieldNames": [
+        "SearchResults", "ProductGallery", "DynamicPlaces", "Maps", "SearchOrganizationList",
+    ],
+    "MobileAppCampaignFieldNames": ["Settings", "BiddingStrategy", *_PACKAGE_FIELDS, "NegativeKeywordSharedSetIds"],
+    "DynamicTextCampaignFieldNames": [
+        "PlacementTypes", "CounterIds", "Settings", "BiddingStrategy", "PriorityGoals", "TrackingParams",
+        "AttributionModel", *_PACKAGE_FIELDS, "NegativeKeywordSharedSetIds",
+    ],
+    "DynamicTextCampaignSearchStrategyPlacementTypesFieldNames": ["SearchResults", "ProductGallery", "DynamicPlaces"],
+    "CpmBannerCampaignFieldNames": ["CounterIds", "FrequencyCap", "VideoTarget", "Settings", "BiddingStrategy"],
+    "SmartCampaignFieldNames": [
+        "CounterId", "Settings", "BiddingStrategy", "PriorityGoals", "TrackingParams", "AttributionModel",
+        *_PACKAGE_FIELDS,
+    ],
+}  # fmt: skip
+
+
 class DirectClient:
     """Клиент Яндекс.Директ API v5.
 
@@ -274,17 +338,6 @@ class DirectClient:
                 return result.get("Clients", [])
             raise
 
-    async def get_clients_units(self, logins: list[str] | None = None) -> list[dict]:
-        """Остаток баллов API по клиентам (заменяет устаревшее get_balance)."""
-        params: dict[str, Any] = {}
-        if logins:
-            params["SelectionCriteria"] = {"Logins": logins}
-        result = await self.call("clients", "getClientsUnits", params)
-        return result.get("ClientsUnits", [])
-
-    # Псевдоним для совместимости со старым кодом
-    get_balance = get_clients_units
-
     # --- Кампании ---
 
     async def list_campaigns(
@@ -304,14 +357,14 @@ class DirectClient:
         )
 
     async def get_campaign(self, campaign_id: int, field_names: list[str] | None = None) -> dict | None:
-        result = await self.call(
-            "campaigns",
-            "get",
-            {
-                "SelectionCriteria": {"Ids": [campaign_id]},
-                "FieldNames": field_names or DEFAULT_CAMPAIGN_FIELDS,
-            },
-        )
+        """Кампания по Id; без field_names — все общие поля и поля блоков всех типов."""
+        params: dict[str, Any] = {"SelectionCriteria": {"Ids": [campaign_id]}}
+        if field_names:
+            params["FieldNames"] = field_names
+        else:
+            params["FieldNames"] = CAMPAIGN_FIELDS_ALL
+            params.update(CAMPAIGN_TYPE_FIELDS_ALL)
+        result = await self.call("campaigns", "get", params)
         items = result.get("Campaigns", [])
         return items[0] if items else None
 
@@ -533,36 +586,18 @@ class DirectClient:
 
     # --- Изменения ---
 
-    async def check_dictionaries(self, timestamp: str) -> dict:
-        """Проверить timestamp актуальности справочников."""
-        return await self.call(
-            "changes",
-            "checkDictionaries",
-            {
-                "FieldNames": ["Timestamp"],
-                "Timestamp": timestamp,
-            },
-        )
+    async def check_dictionaries(self, timestamp: str | None = None) -> dict:
+        """`changes.checkDictionaries`: менялись ли справочники регионов и часовых поясов с timestamp.
 
-    async def check_campaign_changes(
-        self,
-        timestamp: str,
-        campaign_ids: list[int] | None = None,
-        adgroup_ids: list[int] | None = None,
-        ad_ids: list[int] | None = None,
-    ) -> dict:
-        """`changes.checkCampaigns` — что изменилось с момента timestamp."""
-        params: dict[str, Any] = {
-            "FieldNames": ["CampaignIds", "ModifiedCampaignIds", "Timestamp"],
-            "Timestamp": timestamp,
-        }
-        if campaign_ids:
-            params["CampaignIds"] = campaign_ids
-        if adgroup_ids:
-            params["AdGroupIds"] = adgroup_ids
-        if ad_ids:
-            params["AdIds"] = ad_ids
-        return await self.call("changes", "checkCampaigns", params)
+        Без timestamp — только текущий Timestamp сервера (точка отсчёта для следующих проверок).
+        """
+        return await self.call("changes", "checkDictionaries", {"Timestamp": timestamp} if timestamp else {})
+
+    async def check_campaign_changes(self, timestamp: str) -> dict:
+        """`changes.checkCampaigns`: какие кампании менялись с timestamp (SELF, CHILDREN, STAT)."""
+        return await self.call("changes", "checkCampaigns", {"Timestamp": timestamp})
+
+    CHECK_FIELDS = ("CampaignIds", "AdGroupIds", "AdIds", "CampaignsStat")
 
     async def check_changes(
         self,
@@ -572,23 +607,14 @@ class DirectClient:
         ad_ids: list[int] | None = None,
         field_names: list[str] | None = None,
     ) -> dict:
-        """`changes.check` — массовая проверка для инкрементального синка."""
-        params: dict[str, Any] = {
-            "FieldNames": field_names
-            or [
-                "CampaignIds",
-                "AdGroupIds",
-                "AdIds",
-                "Timestamp",
-                "ModifiedCampaignIds",
-                "ModifiedAdGroupIds",
-                "ModifiedAdIds",
-                "NotFoundCampaignIds",
-                "NotFoundAdGroupIds",
-                "NotFoundAdIds",
-            ],
-            "Timestamp": timestamp,
-        }
+        """`changes.check`: изменённые объекты внутри кампаний/групп/объявлений с timestamp.
+
+        Ровно один из campaign_ids / adgroup_ids / ad_ids (так требует API).
+        """
+        given = [ids for ids in (campaign_ids, adgroup_ids, ad_ids) if ids]
+        if len(given) != 1:
+            raise ValueError("changes.check требует ровно один фильтр: campaign_ids, adgroup_ids или ad_ids")
+        params: dict[str, Any] = {"Timestamp": timestamp, "FieldNames": field_names or list(self.CHECK_FIELDS)}
         if campaign_ids:
             params["CampaignIds"] = campaign_ids
         if adgroup_ids:
@@ -660,34 +686,13 @@ class DirectClient:
             raise ValueError("campaigns пустой")
         return await self.call("campaigns", "update", {"Campaigns": campaigns})
 
-    async def set_campaign_negative_keywords(
-        self,
-        campaign_id: int,
-        negative_keywords: list[str],
-        campaign_type: str = "TextCampaign",
-    ) -> dict:
-        """Заменить список минус-слов на уровне кампании.
+    async def set_campaign_negative_keywords(self, campaign_id: int, negative_keywords: list[str]) -> dict:
+        """Заменить минус-фразы кампании: полный список заменяет текущий.
 
-        Минус-слова в v5 лежат **внутри type-specific блока**:
-            `{"Id": ..., "TextCampaign": {"NegativeKeywords": {"Items": [...]}}}`.
-        campaign_type — ключ блока: `TextCampaign`, `DynamicTextCampaign`,
-        `UnifiedCampaign`, `SmartCampaign`, `MobileAppCampaign`,
-        `McBannerCampaign`, `CpmBannerCampaign`, `CpmVideoCampaign`,
-        `CpmPriceCampaign`, `ContentPromotionCampaign`.
-        Передаёт полный список — заменяет существующий.
+        В v5 они лежат на верхнем уровне CampaignUpdateItem (`NegativeKeywords.Items`),
+        а не в блоке типа кампании.
         """
-        if campaign_type not in self._CAMPAIGN_TYPE_KEYS:
-            raise ValueError(
-                f"неизвестный campaign_type={campaign_type!r}, ожидается один из: {sorted(self._CAMPAIGN_TYPE_KEYS)}"
-            )
-        return await self.update_campaigns(
-            [
-                {
-                    "Id": campaign_id,
-                    campaign_type: {"NegativeKeywords": {"Items": negative_keywords}},
-                }
-            ]
-        )
+        return await self.update_campaigns([{"Id": campaign_id, "NegativeKeywords": {"Items": negative_keywords}}])
 
     async def set_adgroup_negative_keywords(
         self,
@@ -1181,12 +1186,8 @@ class DirectClient:
             "DynamicTextCampaign",
             "MobileAppCampaign",
             "CpmBannerCampaign",
-            "CpmVideoCampaign",
             "SmartCampaign",
             "UnifiedCampaign",
-            "CpmPriceCampaign",
-            "ContentPromotionCampaign",
-            "McBannerCampaign",
         ]
     )
 
@@ -1197,8 +1198,7 @@ class DirectClient:
             {Name, StartDate, EndDate?, DailyBudget?: {Amount, Mode},
              <TypeBlock>: {BiddingStrategy, ...}}
         TypeBlock — один из: TextCampaign, DynamicTextCampaign, MobileAppCampaign,
-        CpmBannerCampaign, CpmVideoCampaign, SmartCampaign, UnifiedCampaign,
-        CpmPriceCampaign, ContentPromotionCampaign, McBannerCampaign.
+        CpmBannerCampaign, SmartCampaign, UnifiedCampaign (CampaignAddItem в WSDL).
 
         Структура BiddingStrategy объёмная — сверяйся со справочником
         `campaigns.add` в доке Яндекса. Цены (Amount, BidCeiling, AverageCpc,
@@ -1249,17 +1249,9 @@ class DirectClient:
             "Feeds",
             {
                 "SelectionCriteria": criteria,
-                "FieldNames": field_names
-                or [
-                    "Id",
-                    "Name",
-                    "BusinessType",
-                    "SourceType",
-                    "FilterQuantity",
-                    "UpdatedTime",
-                    "FilenameSource",
-                    "UrlSource",
-                ],
+                "FieldNames": field_names or DEFAULT_FEED_FIELDS,
+                "UrlFeedFieldNames": ["Url", "Login", "RemoveUtmTags"],
+                "FileFeedFieldNames": ["Filename"],
             },
             page_limit=1000,
         )
@@ -1720,10 +1712,7 @@ class DirectClient:
     # --- Справочники ---
 
     async def get_dictionaries(self, dictionary_names: list[str]) -> dict:
-        """Получить справочники: Currencies, TimeZones, GeoRegions,
-        AdCategories, OperationSystemVersions, ProductivityIndicators,
-        SupplyChainStages, AutoBusinesses.
-        """
+        """`dictionaries.get`: справочники по именам (DICTIONARY_NAMES) → {Имя: [записи]}."""
         return await self.call(
             "dictionaries",
             "get",
@@ -1731,6 +1720,37 @@ class DirectClient:
                 "DictionaryNames": dictionary_names,
             },
         )
+
+    async def get_geo_regions(
+        self,
+        name: str | None = None,
+        region_ids: list[int] | None = None,
+        exact_names: list[str] | None = None,
+    ) -> list[dict]:
+        """`dictionaries.getGeoRegions`: регионы по части названия, Id или точным названиям."""
+        criteria: dict[str, Any] = {}
+        if name:
+            criteria["Name"] = name
+        if region_ids:
+            criteria["RegionIds"] = region_ids
+        if exact_names:
+            criteria["ExactNames"] = exact_names
+        result = await self.call(
+            "dictionaries",
+            "getGeoRegions",
+            {"SelectionCriteria": criteria, "FieldNames": ["GeoRegionId", "GeoRegionName", "ParentGeoRegionNames"]},
+        )
+        return result.get("GeoRegions", [])
+
+    # --- Пакетные стратегии (Strategies) и агентство ---
+
+    async def list_strategies(self, params: dict[str, Any]) -> list[dict]:
+        """`strategies.get` с пагинацией; params — SelectionCriteria и *FieldNames."""
+        return await self._paginated_get("strategies", "Strategies", params)
+
+    async def list_agency_clients(self, params: dict[str, Any]) -> list[dict]:
+        """`agencyclients.get` с пагинацией (только для агентских токенов)."""
+        return await self._paginated_get("agencyclients", "Clients", params)
 
 
 def _bids_criteria(

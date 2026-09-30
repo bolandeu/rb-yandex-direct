@@ -1,19 +1,20 @@
-"""ReportsClient — асинхронные TSV-отчёты.
+"""ReportsClient — асинхронные TSV-отчёты (сервис Reports).
 
-Алгоритм по оф. доке (подтверждён примерами в context7):
-- POST JSON на /json/v5/reports
+Алгоритм по оф. доке:
+- POST JSON {"params": ReportDefinition} на /json/v5/reports
 - 200 — отчёт готов, тело = TSV
 - 201 / 202 — отчёт в очереди или формируется; читать заголовок retryIn и
   повторить через указанное число секунд
-- 400 — ошибка параметров или переполнение очереди
-- 500 — внутренняя ошибка
+- 400 — ошибка параметров или переполнение очереди; 5xx — сбой сервиса
 
-processingMode: ONLINE | OFFLINE | AUTO (default AUTO).
+Отчёт с тем же ReportName, но другими параметрами API отвергает, поэтому имя
+по умолчанию — хэш параметров: одинаковый запрос попадает в тот же отчёт в очереди.
 """
 
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
 from dataclasses import dataclass
@@ -27,13 +28,34 @@ from .direct import PROD_BASE, SANDBOX_BASE
 log = logging.getLogger(__name__)
 
 
+# Столбцы с текстом пользователя: «2024» в поисковом запросе — строка, а не число.
+_TEXT_COLUMN_MARKERS = ("Name", "Query", "Criterion", "Keyword", "Title", "Text", "Placement", "Url", "Label")
+
+
+def _value(column: str, raw: str) -> Any:
+    """Ячейка TSV → число, где это число; `--` (нет данных) → None; текстовые столбцы — строки."""
+    if raw == "--":
+        return None
+    if any(marker in column for marker in _TEXT_COLUMN_MARKERS):
+        return raw
+    try:
+        return int(raw)
+    except ValueError:
+        pass
+    try:
+        return float(raw)
+    except ValueError:
+        return raw
+
+
 @dataclass
 class Report:
     tsv: str
     request_id: str | None
     rows: int | None
 
-    def parse(self) -> list[dict[str, str]]:
+    def parse(self) -> list[dict[str, Any]]:
+        """Строки отчёта как dict по заголовку столбцов; заголовок отчёта и итог пропускаются."""
         lines = [ln for ln in self.tsv.splitlines() if ln and not ln.startswith('"')]
         if not lines:
             return []
@@ -45,8 +67,41 @@ class Report:
             parts = ln.split("\t")
             if len(parts) != len(header):
                 continue
-            out.append(dict(zip(header, parts, strict=True)))
+            out.append({k: _value(k, v) for k, v in zip(header, parts, strict=True)})
         return out
+
+
+def report_name(params: dict[str, Any], prefix: str = "yd") -> str:
+    """Имя отчёта из хэша параметров: одинаковые запросы — одно имя, разные — разные."""
+    digest = hashlib.sha1(json.dumps(params, sort_keys=True, ensure_ascii=False).encode(), usedforsecurity=False)
+    return f"{prefix}-{digest.hexdigest()[:16]}"
+
+
+# Пресеты популярных отчётов: тип и минимально достаточный для медиабайера набор полей.
+PRESETS: dict[str, tuple[str, list[str]]] = {
+    "campaigns": (
+        "CAMPAIGN_PERFORMANCE_REPORT",
+        [
+            "Date", "CampaignId", "CampaignName", "CampaignType", "Impressions", "Clicks", "Cost", "Ctr",
+            "AvgCpc", "Conversions", "CostPerConversion", "Bounces", "AvgImpressionPosition",
+        ],
+    ),
+    "ads": (
+        "AD_PERFORMANCE_REPORT",
+        ["Date", "CampaignId", "AdGroupId", "AdId", "Impressions", "Clicks", "Cost", "Ctr", "AvgCpc", "Conversions"],
+    ),
+    "queries": (
+        "SEARCH_QUERY_PERFORMANCE_REPORT",
+        [
+            "Date", "CampaignId", "AdGroupId", "CriterionId", "Criterion", "Query", "MatchType", "Impressions",
+            "Clicks", "Cost", "Ctr", "AvgCpc", "Conversions",
+        ],
+    ),
+    "account": (
+        "ACCOUNT_PERFORMANCE_REPORT",
+        ["Date", "Impressions", "Clicks", "Cost", "Ctr", "AvgCpc", "Conversions", "CostPerConversion"],
+    ),
+}  # fmt: skip
 
 
 class ReportsClient:
@@ -68,67 +123,44 @@ class ReportsClient:
         self.use_operator_units = use_operator_units
         self.language = language
 
-    def _headers(self, processing_mode: str = "auto", skip_report_summary: bool = False) -> dict[str, str]:
+    def headers(
+        self,
+        *,
+        processing_mode: str = "auto",
+        money_in_micros: bool = False,
+        skip_report_header: bool = True,
+        skip_column_header: bool = False,
+        skip_report_summary: bool = True,
+        language: str | None = None,
+    ) -> dict[str, str]:
+        """Заголовки запроса отчёта (без токена — его добавляет `fetch`)."""
         h = {
-            "Authorization": f"Bearer {self.token}",
-            "Accept-Language": self.language,
+            "Accept-Language": language or self.language,
             "processingMode": processing_mode,
-            "returnMoneyInMicros": "false",
-            "Content-Type": "application/json; charset=utf-8",
+            "returnMoneyInMicros": "true" if money_in_micros else "false",
+            "skipReportHeader": "true" if skip_report_header else "false",
+            "skipColumnHeader": "true" if skip_column_header else "false",
+            "skipReportSummary": "true" if skip_report_summary else "false",
         }
         if self.client_login:
             h["Client-Login"] = self.client_login
         if self.use_operator_units:
             h["Use-Operator-Units"] = "true"
-        if skip_report_summary:
-            h["skipReportSummary"] = "true"
         return h
 
-    async def run(
-        self,
-        report_type: str,
-        field_names: list[str],
-        date_from: str | None = None,
-        date_to: str | None = None,
-        date_range_type: str = "CUSTOM_DATE",
-        report_name: str = "yd",
-        filters: list[dict] | None = None,
-        processing_mode: str = "auto",
-        include_vat: str = "NO",
-        goals: list[str] | None = None,
-        max_wait_sec: int = 1200,
-    ) -> Report:
-        criteria: dict[str, Any] = {}
-        if date_range_type == "CUSTOM_DATE":
-            if not (date_from and date_to):
-                raise ValueError("CUSTOM_DATE требует date_from и date_to")
-            criteria["DateFrom"] = date_from
-            criteria["DateTo"] = date_to
-        if filters:
-            criteria["Filter"] = filters
-
-        body = {
-            "params": {
-                "SelectionCriteria": criteria,
-                "FieldNames": field_names,
-                "ReportName": report_name,
-                "ReportType": report_type,
-                "DateRangeType": date_range_type,
-                "Format": "TSV",
-                "IncludeVAT": include_vat,
-            }
-        }
-        if goals:
-            body["params"]["Goals"] = goals
-
-        payload = json.dumps(body, ensure_ascii=False).encode("utf-8")
+    async def fetch(self, params: dict[str, Any], headers: dict[str, str], *, max_wait_sec: int = 1200) -> Report:
+        """Отправить ReportDefinition и дождаться TSV (200), повторяя по retryIn на 201/202."""
+        payload = json.dumps({"params": params}, ensure_ascii=False).encode("utf-8")
         url = f"{self.base_url}/reports"
-        headers = self._headers(processing_mode)
-
+        all_headers = {
+            **headers,
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json; charset=utf-8",
+        }
         elapsed = 0
         async with httpx.AsyncClient(timeout=120, transport=self.transport) as client:
             while elapsed < max_wait_sec:
-                resp = await client.post(url, content=payload, headers=headers)
+                resp = await client.post(url, content=payload, headers=all_headers)
                 request_id = resp.headers.get("RequestId")
                 if resp.status_code == 200:
                     return Report(tsv=resp.text, request_id=request_id, rows=None)
@@ -138,88 +170,81 @@ class ReportsClient:
                     await asyncio.sleep(retry_in)
                     elapsed += retry_in
                     continue
-                if resp.status_code == 400:
-                    try:
-                        err = resp.json().get("error", {})
-                    except Exception:
-                        err = {}
-                    raise DirectAPIError(
-                        error_code=int(err.get("error_code", 400)),
-                        error_string=err.get("error_string", "Bad Request"),
-                        error_detail=err.get("error_detail", resp.text[:500]),
-                        request_id=request_id,
-                    )
+                try:
+                    err = resp.json().get("error", {})
+                except ValueError:
+                    err = {}
                 raise DirectAPIError(
-                    error_code=resp.status_code,
-                    error_string=f"HTTP {resp.status_code}",
-                    error_detail=resp.text[:500],
+                    error_code=int(err.get("error_code", resp.status_code)),
+                    error_string=err.get("error_string", f"HTTP {resp.status_code}"),
+                    error_detail=err.get("error_detail", resp.text[:500]),
                     request_id=request_id,
                 )
         raise DirectAPIError(
             error_code=408,
             error_string="Report timeout",
-            error_detail=f"Отчёт не готов за {max_wait_sec}s",
+            error_detail=f"Отчёт не готов за {max_wait_sec} с; повторите тот же запрос позже — он уже в очереди.",
             request_id=None,
         )
 
-    # ---- Пресеты популярных отчётов ----
-    # Поля — минимально достаточный набор для медиабайера. Можно расширять
-    # параметром extra_fields.
-
-    async def campaign_performance(
+    async def run(
         self,
+        report_type: str,
+        field_names: list[str],
+        date_from: str | None = None,
+        date_to: str | None = None,
+        date_range_type: str = "CUSTOM_DATE",
+        report_name: str | None = None,
+        filters: list[dict] | None = None,
+        processing_mode: str = "auto",
+        include_vat: str = "NO",
+        goals: list[str] | None = None,
+        max_wait_sec: int = 1200,
+    ) -> Report:
+        """Библиотечный вызов: собрать ReportDefinition из аргументов и получить отчёт."""
+        criteria: dict[str, Any] = {}
+        if date_range_type == "CUSTOM_DATE":
+            if not (date_from and date_to):
+                raise ValueError("CUSTOM_DATE требует date_from и date_to")
+            criteria["DateFrom"] = date_from
+            criteria["DateTo"] = date_to
+        if filters:
+            criteria["Filter"] = filters
+        params: dict[str, Any] = {
+            "SelectionCriteria": criteria,
+            "FieldNames": field_names,
+            "ReportType": report_type,
+            "DateRangeType": date_range_type,
+            "Format": "TSV",
+            "IncludeVAT": include_vat,
+        }
+        if goals:
+            params["Goals"] = goals
+        params["ReportName"] = report_name or _named(params)
+        return await self.fetch(params, self.headers(processing_mode=processing_mode), max_wait_sec=max_wait_sec)
+
+    async def preset(
+        self,
+        name: str,
         date_from: str,
         date_to: str,
+        campaign_ids: list[int] | None = None,
         extra_fields: list[str] | None = None,
     ) -> Report:
-        fields = [
-            "Date",
-            "CampaignId",
-            "CampaignName",
-            "CampaignType",
-            "Impressions",
-            "Clicks",
-            "Cost",
-            "Ctr",
-            "AvgCpc",
-            "Conversions",
-            "CostPerConversion",
-            "Bounces",
-            "AvgImpressionPosition",
-        ] + (extra_fields or [])
-        return await self.run(
-            report_type="CAMPAIGN_PERFORMANCE_REPORT",
-            field_names=fields,
-            date_from=date_from,
-            date_to=date_to,
-            report_name=f"cpr-{date_from}-{date_to}",
+        """Пресет из PRESETS за период, с фильтром по кампаниям."""
+        report_type, fields = PRESETS[name]
+        filters = (
+            [{"Field": "CampaignId", "Operator": "IN", "Values": [str(x) for x in campaign_ids]}]
+            if campaign_ids
+            else None
         )
+        return await self.run(report_type, fields + (extra_fields or []), date_from, date_to, filters=filters)
 
-    async def ad_performance(
-        self,
-        date_from: str,
-        date_to: str,
-        extra_fields: list[str] | None = None,
-    ) -> Report:
-        fields = [
-            "Date",
-            "CampaignId",
-            "AdGroupId",
-            "AdId",
-            "Impressions",
-            "Clicks",
-            "Cost",
-            "Ctr",
-            "AvgCpc",
-            "Conversions",
-        ] + (extra_fields or [])
-        return await self.run(
-            report_type="AD_PERFORMANCE_REPORT",
-            field_names=fields,
-            date_from=date_from,
-            date_to=date_to,
-            report_name=f"adpr-{date_from}-{date_to}",
-        )
+    async def campaign_performance(self, date_from: str, date_to: str, extra_fields: list[str] | None = None) -> Report:
+        return await self.preset("campaigns", date_from, date_to, extra_fields=extra_fields)
+
+    async def ad_performance(self, date_from: str, date_to: str, extra_fields: list[str] | None = None) -> Report:
+        return await self.preset("ads", date_from, date_to, extra_fields=extra_fields)
 
     async def search_query_performance(
         self,
@@ -228,59 +253,11 @@ class ReportsClient:
         campaign_ids: list[int] | None = None,
         extra_fields: list[str] | None = None,
     ) -> Report:
-        fields = [
-            "Date",
-            "CampaignId",
-            "AdGroupId",
-            "CriterionId",
-            "Criterion",
-            "Query",
-            "MatchType",
-            "Impressions",
-            "Clicks",
-            "Cost",
-            "Ctr",
-            "AvgCpc",
-            "Conversions",
-        ] + (extra_fields or [])
-        filters: list[dict] = []
-        if campaign_ids:
-            filters.append(
-                {
-                    "Field": "CampaignId",
-                    "Operator": "IN",
-                    "Values": [str(x) for x in campaign_ids],
-                }
-            )
-        return await self.run(
-            report_type="SEARCH_QUERY_PERFORMANCE_REPORT",
-            field_names=fields,
-            date_from=date_from,
-            date_to=date_to,
-            filters=filters or None,
-            report_name=f"sqpr-{date_from}-{date_to}",
-        )
+        return await self.preset("queries", date_from, date_to, campaign_ids, extra_fields)
 
-    async def account_performance(
-        self,
-        date_from: str,
-        date_to: str,
-        extra_fields: list[str] | None = None,
-    ) -> Report:
-        fields = [
-            "Date",
-            "Impressions",
-            "Clicks",
-            "Cost",
-            "Ctr",
-            "AvgCpc",
-            "Conversions",
-            "CostPerConversion",
-        ] + (extra_fields or [])
-        return await self.run(
-            report_type="ACCOUNT_PERFORMANCE_REPORT",
-            field_names=fields,
-            date_from=date_from,
-            date_to=date_to,
-            report_name=f"accpr-{date_from}-{date_to}",
-        )
+    async def account_performance(self, date_from: str, date_to: str, extra_fields: list[str] | None = None) -> Report:
+        return await self.preset("account", date_from, date_to, extra_fields=extra_fields)
+
+
+def _named(params: dict[str, Any]) -> str:
+    return report_name(params)

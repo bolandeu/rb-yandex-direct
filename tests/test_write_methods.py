@@ -522,20 +522,12 @@ async def test_set_adgroup_negative_keywords() -> None:
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_set_campaign_negative_keywords_text_campaign() -> None:
+async def test_set_campaign_negative_keywords_top_level() -> None:
     route = _route("campaigns", {"UpdateResults": [{"Id": 1}]})
     c = DirectClient(token="t")
     await c.set_campaign_negative_keywords(1, ["минус1"])
     body = json.loads(route.calls.last.request.content)
-    campaign = body["params"]["Campaigns"][0]
-    assert campaign["TextCampaign"]["NegativeKeywords"]["Items"] == ["минус1"]
-
-
-@pytest.mark.asyncio
-async def test_set_campaign_negative_keywords_validates_type() -> None:
-    c = DirectClient(token="t")
-    with pytest.raises(ValueError, match="campaign_type"):
-        await c.set_campaign_negative_keywords(1, ["x"], campaign_type="BogusType")
+    assert body["params"]["Campaigns"][0] == {"Id": 1, "NegativeKeywords": {"Items": ["минус1"]}}
 
 
 @pytest.mark.asyncio

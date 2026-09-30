@@ -1,7 +1,7 @@
 
  Usage: yd campaigns get [OPTIONS] {campaign_id}
 
- Одна кампания по Id: общие поля (набор как у `campaigns list`).
+ Кампания целиком: общие поля и блок её типа (стратегия, настройки, счётчики, цели, минус-фразы).
 
  --json: {"ok": true, "campaign": {...}}; нет такой кампании — INVALID_ARGUMENTS.
 

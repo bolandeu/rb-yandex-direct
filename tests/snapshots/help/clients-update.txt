@@ -1,0 +1,30 @@
+
+ Usage: yd clients update [OPTIONS]
+
+ Изменить настройки кабинета (clients.update): имя, контакты, уведомления, ИНН.
+
+ Передаются только заданные поля; данные ЕРИР и прочее — `clients update-json`.
+
+ Example: yd clients update --email ads@romashka.ru --subscription TRACK_POSITION_CHANGES=NO
+ --dry-run
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --client-info            <str>  Имя/описание кабинета.                                           │
+│ --phone                  <str>  Телефон.                                                         │
+│ --email                  <str>  Email для уведомлений.                                           │
+│ --lang                   <str>  Язык уведомлений: RU, UK, EN, TR.                                │
+│ --subscription           <str>  Подписка ИМЯ=YES|NO: RECEIVE_RECOMMENDATIONS,                    │
+│                                 TRACK_MANAGED_CAMPAIGNS, TRACK_POSITION_CHANGES.                 │
+│ --setting                <str>  Настройка ИМЯ=YES|NO: CORRECT_TYPOS_AUTOMATICALLY,               │
+│                                 DISPLAY_STORE_RATING.                                            │
+│ --tin-type               <str>  Тип ИНН: PHYSICAL, LEGAL, INDIVIDUAL, FOREIGN_*.                 │
+│ --tin                    <str>  ИНН.                                                             │
+│ --confirm                       Подтвердить изменение в кабинете без вопроса (обязательно вместе │
+│                                 с --non-interactive).                                            │
+│ --dry-run                       Показать, что будет сделано, ничего не меняя.                    │
+│ --non-interactive               Никогда не спрашивать; при нехватке данных — ошибка.             │
+│ --json                          Машиночитаемый вывод: JSON в stdout.                             │
+│ --quiet                         Не печатать ничего, кроме данных.                                │
+│ --help                          Show this message and exit.                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

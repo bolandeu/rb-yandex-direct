@@ -1,0 +1,17 @@
+
+ Usage: yd feeds list [OPTIONS]
+
+ Товарные фиды кабинета: источник, статус обработки, число товаров, кампании.
+
+ --json: {"ok": true, "count": N, "feeds": [{Id, Name, BusinessType, SourceType, Status,
+ NumberOfItems, UpdatedAt, CampaignIds, UrlFeed|FileFeed}]}.
+
+ Example: yd feeds list
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id           <int>  Только эти фиды (повторяемая).                                             │
+│ --json                Машиночитаемый вывод: JSON в stdout.                                       │
+│ --quiet               Не печатать ничего, кроме данных.                                          │
+│ --help                Show this message and exit.                                                │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

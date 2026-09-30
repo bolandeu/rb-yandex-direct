@@ -1,0 +1,81 @@
+
+ Usage: yd report custom [OPTIONS]
+
+ Произвольный отчёт: любой тип, поля, фильтры, сортировка, цели и модели атрибуции.
+
+ Какие поля допустимы в каком типе — в документации Reports (fields-list);
+ несовместимые поля API отвергает кодом 4000. --json: как у `report campaigns`.
+
+
+ Ещё примеры:
+   yd report custom --type CRITERIA_PERFORMANCE_REPORT --field Criterion --field Clicks --field
+ Cost --range LAST_7_DAYS --filter Clicks:GREATER_THAN:0 --order-by Cost:DESC --limit 50
+
+ Example: yd report custom --type CUSTOM_REPORT --date-from 2026-09-01 --date-to 2026-09-27 --field
+ Date --field Clicks --field Cost
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --type                                  <str>                      Тип отчёта (см. `report    │
+│                                                                       types`), например          │
+│                                                                       CUSTOM_REPORT.             │
+│                                                                       [обязательный]             │
+│ *  --field                                 <str>                      Поле отчёта (повторяемая): │
+│                                                                       Date, CampaignId, Clicks,  │
+│                                                                       Cost…                      │
+│                                                                       [обязательный]             │
+│    --date-from                             <str>                      Начало периода, YYYY-MM-DD │
+│                                                                       (вместе с --date-to).      │
+│    --date-to                               <str>                      Конец периода, YYYY-MM-DD. │
+│    --range                                 <CUSTOM_DATE|TODAY|YESTER  Готовый период вместо дат: │
+│                                            DAY|LAST_3_DAYS|LAST_5_DA  LAST_7_DAYS, LAST_30_DAYS, │
+│                                            YS|LAST_7_DAYS|LAST_14_DA  LAST_MONTH… (по умолчанию  │
+│                                            YS|LAST_30_DAYS|LAST_90_D  LAST_30_DAYS).             │
+│                                            AYS|LAST_365_DAYS|THIS_WE                             │
+│                                            EK_MON_TODAY|THIS_WEEK_SU                             │
+│                                            N_TODAY|LAST_WEEK|LAST_BU                             │
+│                                            SINESS_WEEK|LAST_WEEK_SUN                             │
+│                                            _SAT|THIS_MONTH|LAST_MONT                             │
+│                                            H|ALL_TIME|AUTO>                                      │
+│    --campaign                              <int>                      Только эти кампании        │
+│                                                                       (повторяемая).             │
+│    --adgroup                               <int>                      Только эти группы          │
+│                                                                       (повторяемая).             │
+│    --filter                                <str>                      Фильтр                     │
+│                                                                       Поле:ОПЕРАТОР:знач1,знач2, │
+│                                                                       например                   │
+│                                                                       Clicks:GREATER_THAN:10     │
+│                                                                       (повторяемая).             │
+│    --order-by                              <str>                      Сортировка Поле[:ASC|DESC] │
+│                                                                       (повторяемая).             │
+│    --goal                                  <int>                      Цель Метрики для конверсий │
+│                                                                       (повторяемая, до 10).      │
+│    --attribution-model                     <str>                      Модель атрибуции: LC, LSC, │
+│                                                                       FC, LYDC, LSCCD, FCCD,     │
+│                                                                       LYDCCD, AUTO               │
+│                                                                       (повторяемая).             │
+│    --vat                  --no-vat                                    Суммы с НДС или без.       │
+│                                                                       [по умолчанию: vat]        │
+│    --discount             --no-discount                               Суммы с учётом скидки или  │
+│                                                                       без.                       │
+│                                                                       [по умолчанию: discount]   │
+│    --limit                                 <int>                      Не больше N строк.         │
+│    --name                                  <str>                      Имя отчёта в очереди (по   │
+│                                                                       умолчанию — хэш            │
+│                                                                       параметров).               │
+│    --mode                                  <auto|online|offline>      Режим формирования: auto,  │
+│                                                                       online (сразу) или offline │
+│                                                                       (в очереди).               │
+│                                                                       [по умолчанию: auto]       │
+│    --micros                                                           Деньги в микроединицах,    │
+│                                                                       как в остальном API (по    │
+│                                                                       умолчанию — рубли).        │
+│    --dry-run                                                          Показать, что будет        │
+│                                                                       сделано, ничего не меняя.  │
+│    --json                                                             Машиночитаемый вывод: JSON │
+│                                                                       в stdout.                  │
+│    --quiet                                                            Не печатать ничего, кроме  │
+│                                                                       данных.                    │
+│    --help                                                             Show this message and      │
+│                                                                       exit.                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

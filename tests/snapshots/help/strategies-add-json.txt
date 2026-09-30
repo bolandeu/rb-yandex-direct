@@ -1,0 +1,22 @@
+
+ Usage: yd strategies add-json [OPTIONS]
+
+ Создать пакетные стратегии из JSON: список StrategyAddItem или {"Strategies": [...]}.
+
+ Для всего, чего нет в опциях `strategies add`: CustomPeriodBudget, ExplorationBudget.
+
+ Example: yd strategies add-json --from-json strategies.json --dry-run
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --from-json              <str>  JSON-файл с параметрами метода API (как в документации        │
+│                                    Директа); `-` — stdin.                                        │
+│                                    [обязательный]                                                │
+│    --confirm                       Подтвердить изменение в кабинете без вопроса (обязательно     │
+│                                    вместе с --non-interactive).                                  │
+│    --dry-run                       Показать, что будет сделано, ничего не меняя.                 │
+│    --non-interactive               Никогда не спрашивать; при нехватке данных — ошибка.          │
+│    --json                          Машиночитаемый вывод: JSON в stdout.                          │
+│    --quiet                         Не печатать ничего, кроме данных.                             │
+│    --help                          Show this message and exit.                                   │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

@@ -9,11 +9,14 @@ import typer
 
 from .. import output
 from ..core import services
+from ..core.campaign_payloads import CAMPAIGN_TYPES, CampaignSpec, campaign_add_item
 from ..core.errors import InvalidArguments
+from ..core.strategy import CAMPAIGN_BLOCKS, bidding_strategy
 from ..providers.direct import DEFAULT_CAMPAIGN_FIELDS
+from . import _strategy as st
 from ._common import FromJsonOption, IdsArgument, emit_list, emit_object, mutate, read_json, read_lines
 
-app = output.group("Кампании: список, изменение, статусы, бюджет, минус-фразы.")
+app = output.group("Кампании: список, создание, изменение, стратегия, статусы, бюджет, минус-фразы.")
 
 
 class State(StrEnum):
@@ -23,6 +26,27 @@ class State(StrEnum):
     ENDED = "ENDED"
     CONVERTED = "CONVERTED"
     ARCHIVED = "ARCHIVED"
+
+
+class Status(StrEnum):
+    ACCEPTED = "ACCEPTED"
+    DRAFT = "DRAFT"
+    MODERATION = "MODERATION"
+    REJECTED = "REJECTED"
+
+
+class PaymentStatus(StrEnum):
+    ALLOWED = "ALLOWED"
+    DISALLOWED = "DISALLOWED"
+
+
+class CampaignKind(StrEnum):
+    TEXT = "text"
+    UNIFIED = "unified"
+    DYNAMIC = "dynamic"
+    SMART = "smart"
+    MOBILE_APP = "mobile-app"
+    CPM_BANNER = "cpm-banner"
 
 
 class BudgetMode(StrEnum):
@@ -48,6 +72,10 @@ def list_campaigns(
     ctx: typer.Context,
     ids: list[int] = typer.Option(None, "--id", help="Только эти кампании (повторяемая)."),
     states: list[State] = typer.Option(None, "--state", help="Фильтр по состоянию (повторяемая)."),
+    statuses: list[Status] = typer.Option(None, "--status", help="Фильтр по статусу модерации (повторяемая)."),
+    payment: list[PaymentStatus] = typer.Option(
+        None, "--payment-status", help="Фильтр по возможности оплаты: ALLOWED, DISALLOWED (повторяемая)."
+    ),
     types: list[str] = typer.Option(
         None, "--type", help="Фильтр по типу: TEXT_CAMPAIGN, UNIFIED_CAMPAIGN, SMART_CAMPAIGN… (повторяемая)."
     ),
@@ -55,7 +83,7 @@ def list_campaigns(
     json_output: bool = output.JsonOption,
     quiet: bool = output.QuietOption,
 ) -> None:
-    """Список кампаний с фильтрами по Id, состоянию и типу.
+    """Список кампаний с фильтрами по Id, состоянию, статусу, оплате и типу.
 
     --json: {"ok": true, "count": N, "campaigns": [{Id, Name, Type, State, Status, DailyBudget, …}]};
     суммы — в микроединицах валюты, как в API.
@@ -67,6 +95,10 @@ def list_campaigns(
         criteria["Ids"] = ids
     if states:
         criteria["States"] = [s.value for s in states]
+    if statuses:
+        criteria["Statuses"] = [s.value for s in statuses]
+    if payment:
+        criteria["StatusesPayment"] = [s.value for s in payment]
     if types:
         criteria["Types"] = types
     items = services.run(
@@ -83,7 +115,7 @@ def get_campaign(
     json_output: bool = output.JsonOption,
     quiet: bool = output.QuietOption,
 ) -> None:
-    """Одна кампания по Id: общие поля (набор как у `campaigns list`).
+    """Кампания целиком: общие поля и блок её типа (стратегия, настройки, счётчики, цели, минус-фразы).
 
     --json: {"ok": true, "campaign": {...}}; нет такой кампании — INVALID_ARGUMENTS.
 
@@ -350,5 +382,205 @@ def _json_mutation(ctx: typer.Context, method: str, verb: str, path: str, confir
         service="campaigns",
         method=method,
         params={"Campaigns": items},
+        confirm=confirm,
+    )
+
+
+@app.command("add")
+@output.guard
+def add(
+    ctx: typer.Context,
+    kind: CampaignKind = typer.Argument(
+        ..., help="Тип кампании: text, unified, dynamic, smart, mobile-app, cpm-banner."
+    ),
+    name: str = typer.Option(..., "--name", help="Название кампании."),
+    start_date: str = typer.Option(None, "--start-date", help="Дата начала, YYYY-MM-DD (по умолчанию сегодня)."),
+    end_date: str = typer.Option(None, "--end-date", help="Дата окончания, YYYY-MM-DD."),
+    daily_budget: float = typer.Option(None, "--daily-budget", help="Дневной бюджет, ₽ (для ручных стратегий)."),
+    budget_mode: BudgetMode = typer.Option(BudgetMode.STANDARD, "--budget-mode", help="Режим дневного бюджета."),
+    search_strategy: str = typer.Option(
+        None,
+        "--search-strategy",
+        help="Стратегия на поиске: HIGHEST_POSITION, WB_MAXIMUM_CLICKS, AVERAGE_CPA, SERVING_OFF…",
+    ),
+    network_strategy: str = typer.Option(
+        None, "--network-strategy", help="Стратегия в сетях: SERVING_OFF, NETWORK_DEFAULT, WB_MAXIMUM_CLICKS…"
+    ),
+    weekly_budget: float = st.WeeklyBudgetOption,
+    bid_ceiling: float = st.BidCeilingOption,
+    average_cpc: float = st.AverageCpcOption,
+    average_cpa: float = st.AverageCpaOption,
+    cpa: float = st.CpaOption,
+    goal_id: int = st.GoalIdOption,
+    crr: int = st.CrrOption,
+    clicks_per_week: int = st.ClicksPerWeekOption,
+    limit_percent: int = st.LimitPercentOption,
+    average_cpi: float = st.AverageCpiOption,
+    average_cpm: float = st.AverageCpmOption,
+    average_cpv: float = st.AverageCpvOption,
+    spend_limit: float = st.SpendLimitOption,
+    placements: list[str] = typer.Option(
+        None, "--placement", help="Площадка поиска ИМЯ=YES|NO: SearchResults, ProductGallery, DynamicPlaces, Maps…"
+    ),
+    settings: list[str] = typer.Option(None, "--setting", help="Настройка ИМЯ=YES|NO, например ADD_METRICA_TAG=YES."),
+    counter_ids: list[int] = typer.Option(None, "--counter-id", help="Счётчик Метрики (повторяемая; смарт — один)."),
+    priority_goals: list[str] = typer.Option(
+        None, "--priority-goal", help="Ключевая цель ЦЕЛЬ=ЦЕННОСТЬ_₽ (повторяемая; нужна для *_MULTIPLE_GOALS)."
+    ),
+    words: list[str] = typer.Option(None, "--negative-keyword", "-w", help="Минус-фраза кампании (повторяемая)."),
+    blocked_ips: list[str] = typer.Option(None, "--blocked-ip", help="Запрещённый IP (повторяемая)."),
+    excluded_sites: list[str] = typer.Option(None, "--excluded-site", help="Запрещённая площадка (повторяемая)."),
+    tracking_params: str = typer.Option(None, "--tracking-params", help="UTM-метки для всех ссылок кампании."),
+    attribution_model: str = typer.Option(
+        None, "--attribution-model", help="Модель атрибуции: LC, LSC, FC, LYDC, LSCCD, FCCD, LYDCCD, AUTO."
+    ),
+    time_zone: str = typer.Option(None, "--time-zone", help="Часовой пояс, например Europe/Moscow."),
+    frequency_cap: str = typer.Option(
+        None, "--frequency-cap", help="Частота показов ПОКАЗЫ/ДНИ (cpm-banner), например 3/7."
+    ),
+    video_target: str = typer.Option(None, "--video-target", help="Цель видео (cpm-banner): VIEWS или CLICKS."),
+    confirm: bool = output.ConfirmOption,
+    dry_run: bool = output.DryRunOption,
+    non_interactive: bool = output.NonInteractiveOption,
+    json_output: bool = output.JsonOption,
+    quiet: bool = output.QuietOption,
+) -> None:
+    """Создать кампанию нужного типа из опций: стратегия, бюджет, настройки, счётчики, цели.
+
+    Без стратегии text/unified/dynamic/mobile-app создаются с ручными ставками на поиске
+    (HIGHEST_POSITION) без сетей; smart и cpm-banner требуют стратегию явно. Параметры
+    стратегии (--weekly-budget, --goal-id, --average-cpa…) идут в блок той площадки, чья
+    стратегия их принимает; лишний или недостающий параметр — INVALID_ARGUMENTS до запроса.
+    Чего нет в опциях (пакетные стратегии, AVERAGE_ROI, временной таргетинг) — `campaigns
+    add-json`. --json: как у изменяющих команд, `ids` — Id созданной кампании.
+
+    \b
+    Ещё примеры:
+      {cli} campaigns add unified --name Лиды --search-strategy AVERAGE_CPA --network-strategy AVERAGE_CPA --average-cpa 800 --goal-id 12345 --counter-id 987 --dry-run
+      {cli} campaigns add smart --name Фид --search-strategy AVERAGE_CPC_PER_CAMPAIGN --network-strategy NETWORK_DEFAULT --average-cpc 25 --counter-id 987 --dry-run
+
+    Example: {cli} campaigns add text --name 'Весна 2026' --search-strategy WB_MAXIMUM_CLICKS --weekly-budget 10000 --dry-run
+    """
+    campaign_type = CAMPAIGN_TYPES[kind.value]
+    spec = CampaignSpec(
+        name=name,
+        start_date=start_date,
+        end_date=end_date,
+        daily_budget=daily_budget,
+        budget_mode=budget_mode.value,
+        negative_keywords=words or [],
+        blocked_ips=blocked_ips or [],
+        excluded_sites=excluded_sites or [],
+        time_zone=time_zone,
+        search_strategy=search_strategy,
+        network_strategy=network_strategy,
+        strategy=st.params(
+            weekly_budget,
+            bid_ceiling,
+            average_cpc,
+            average_cpa,
+            cpa,
+            goal_id,
+            crr,
+            clicks_per_week,
+            limit_percent,
+            average_cpi,
+            average_cpm,
+            average_cpv,
+            spend_limit,
+        ),
+        placements=placements or [],
+        settings=settings or [],
+        counter_ids=counter_ids or [],
+        priority_goals=priority_goals or [],
+        tracking_params=tracking_params,
+        attribution_model=attribution_model,
+        frequency_cap=frequency_cap,
+        video_target=video_target,
+    )
+    mutate(
+        ctx,
+        title=f"Создать кампанию «{name}» ({campaign_type})",
+        service="campaigns",
+        method="add",
+        params={"Campaigns": [campaign_add_item(campaign_type, spec)]},
+        confirm=confirm,
+    )
+
+
+@app.command("set-strategy")
+@output.guard
+def set_strategy(
+    ctx: typer.Context,
+    campaign_id: int = typer.Argument(..., help="Id кампании."),
+    campaign_type: str = typer.Option(
+        None, "--campaign-type", help="Тип кампании (TEXT_CAMPAIGN…); по умолчанию узнаётся запросом campaigns.get."
+    ),
+    search_strategy: str = typer.Option(None, "--search-strategy", help="Новая стратегия на поиске."),
+    network_strategy: str = typer.Option(None, "--network-strategy", help="Новая стратегия в сетях."),
+    weekly_budget: float = st.WeeklyBudgetOption,
+    bid_ceiling: float = st.BidCeilingOption,
+    average_cpc: float = st.AverageCpcOption,
+    average_cpa: float = st.AverageCpaOption,
+    cpa: float = st.CpaOption,
+    goal_id: int = st.GoalIdOption,
+    crr: int = st.CrrOption,
+    clicks_per_week: int = st.ClicksPerWeekOption,
+    limit_percent: int = st.LimitPercentOption,
+    average_cpi: float = st.AverageCpiOption,
+    average_cpm: float = st.AverageCpmOption,
+    average_cpv: float = st.AverageCpvOption,
+    spend_limit: float = st.SpendLimitOption,
+    confirm: bool = output.ConfirmOption,
+    dry_run: bool = output.DryRunOption,
+    non_interactive: bool = output.NonInteractiveOption,
+    json_output: bool = output.JsonOption,
+    quiet: bool = output.QuietOption,
+) -> None:
+    """Сменить стратегию кампании или её параметры (бюджет, цель, цену конверсии).
+
+    Задайте стратегию площадки (--search-strategy/--network-strategy) и её параметры;
+    незаданная площадка не меняется. Тип кампании берётся из campaigns.get, если не передан
+    --campaign-type (тогда и --dry-run делает один запрос на чтение).
+
+    Example: {cli} campaigns set-strategy 12345 --campaign-type TEXT_CAMPAIGN --search-strategy WB_MAXIMUM_CLICKS --weekly-budget 7000 --dry-run
+    """
+    if not (search_strategy or network_strategy):
+        raise InvalidArguments("Укажите --search-strategy и/или --network-strategy.")
+    if campaign_type is None:
+        found = services.run(services.direct(ctx.obj).get_campaign(campaign_id, field_names=["Id", "Type"]))
+        if found is None:
+            raise InvalidArguments(f"Кампания {campaign_id} не найдена (или нет доступа в этом кабинете).")
+        campaign_type = found["Type"]
+    campaign_type = campaign_type.upper()
+    if campaign_type not in CAMPAIGN_BLOCKS:
+        raise InvalidArguments(f"Тип кампании {campaign_type}? Варианты: {', '.join(CAMPAIGN_BLOCKS)}.")
+    strategy = bidding_strategy(
+        campaign_type,
+        search_strategy,
+        network_strategy,
+        st.params(
+            weekly_budget,
+            bid_ceiling,
+            average_cpc,
+            average_cpa,
+            cpa,
+            goal_id,
+            crr,
+            clicks_per_week,
+            limit_percent,
+            average_cpi,
+            average_cpm,
+            average_cpv,
+            spend_limit,
+        ),
+        update=True,
+    )
+    mutate(
+        ctx,
+        title=f"Стратегия кампании {campaign_id}",
+        service="campaigns",
+        method="update",
+        params={"Campaigns": [{"Id": campaign_id, CAMPAIGN_BLOCKS[campaign_type]: {"BiddingStrategy": strategy}}]},
         confirm=confirm,
     )

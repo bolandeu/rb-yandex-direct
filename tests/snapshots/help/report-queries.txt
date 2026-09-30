@@ -1,0 +1,43 @@
+
+ Usage: yd report queries [OPTIONS]
+
+ Реальные поисковые запросы пользователей: по какой фразе и с каким типом соответствия был показ.
+
+ Основа для минус-слов и новых ключевых фраз. --json: как у `report campaigns`.
+
+ Example: yd report queries --date-from 2026-09-01 --date-to 2026-09-27 --campaign 12345
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --date-from                        <str>                          Начало периода, YYYY-MM-DD     │
+│                                                                   (вместе с --date-to).          │
+│ --date-to                          <str>                          Конец периода, YYYY-MM-DD.     │
+│ --range                            <CUSTOM_DATE|TODAY|YESTERDAY|  Готовый период вместо дат:     │
+│                                    LAST_3_DAYS|LAST_5_DAYS|LAST_  LAST_7_DAYS, LAST_30_DAYS,     │
+│                                    7_DAYS|LAST_14_DAYS|LAST_30_D  LAST_MONTH… (по умолчанию      │
+│                                    AYS|LAST_90_DAYS|LAST_365_DAY  LAST_30_DAYS).                 │
+│                                    S|THIS_WEEK_MON_TODAY|THIS_WE                                 │
+│                                    EK_SUN_TODAY|LAST_WEEK|LAST_B                                 │
+│                                    USINESS_WEEK|LAST_WEEK_SUN_SA                                 │
+│                                    T|THIS_MONTH|LAST_MONTH|ALL_T                                 │
+│                                    IME|AUTO>                                                     │
+│ --campaign                         <int>                          Только эти кампании            │
+│                                                                   (повторяемая).                 │
+│ --goal                             <int>                          Цель Метрики для конверсий     │
+│                                                                   (повторяемая, до 10).          │
+│ --attribution-model                <str>                          Модель атрибуции: LC, LSC, FC, │
+│                                                                   LYDC, LSCCD, FCCD, LYDCCD,     │
+│                                                                   AUTO (повторяемая).            │
+│ --vat                  --no-vat                                   Суммы с НДС или без.           │
+│                                                                   [по умолчанию: vat]            │
+│ --micros                                                          Деньги в микроединицах, как в  │
+│                                                                   остальном API (по умолчанию —  │
+│                                                                   рубли).                        │
+│ --dry-run                                                         Показать, что будет сделано,   │
+│                                                                   ничего не меняя.               │
+│ --json                                                            Машиночитаемый вывод: JSON в   │
+│                                                                   stdout.                        │
+│ --quiet                                                           Не печатать ничего, кроме      │
+│                                                                   данных.                        │
+│ --help                                                            Show this message and exit.    │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

@@ -1,0 +1,20 @@
+
+ Usage: yd agency list [OPTIONS]
+
+ Клиенты агентства со всеми параметрами (agencyclients.get; только агентский токен).
+
+ --json: {"ok": true, "count": N, "clients": [{ClientId, Login, ClientInfo, Currency, Archived,
+ Grants, Representatives, Restrictions, Settings, …}]}.
+
+ Example: yd agency list --active --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --client-login                <str>  Только эти логины клиентов (повторяемая).                   │
+│ --archived        --active           Только архивные или только действующие (по умолчанию —      │
+│                                      все).                                                       │
+│ --field                       <str>  Поле FieldNames вместо всех (повторяемая).                  │
+│ --json                               Машиночитаемый вывод: JSON в stdout.                        │
+│ --quiet                              Не печатать ничего, кроме данных.                           │
+│ --help                               Show this message and exit.                                 │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

@@ -1,0 +1,29 @@
+
+ Usage: yd dict get [OPTIONS] {names}:<Currencies|MetroStations|GeoRegions|GeoReg
+                    ionNames|TimeZones|Constants|AdCategories|OperationSystemVers
+                    ions|ProductivityAssertions|SupplySidePlatforms|Interests|Aud
+                    ienceCriteriaTypes|AudienceDemographicProfiles|AudienceIntere
+                    sts|FilterSchemas>...
+
+ Один или несколько справочников целиком (dictionaries.get).
+
+ Справочники большие (GeoRegions — десятки тысяч записей): для поиска региона
+ удобнее `dict geo-regions`. --json: {"ok": true, "dictionaries": {"<Имя>": [...]}}.
+
+ Example: yd dict get Currencies TimeZones --json
+
+╭─ Аргументы ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *    names      <Currencies|MetroStations|GeoRegions|G  Имена справочников (см. `dict names`).   │
+│                 eoRegionNames|TimeZones|Constants|AdCa  [обязательный]                           │
+│                 tegories|OperationSystemVersions|Produ                                           │
+│                 ctivityAssertions|SupplySidePlatforms|                                           │
+│                 Interests|AudienceCriteriaTypes|Audien                                           │
+│                 ceDemographicProfiles|AudienceInterest                                           │
+│                 s|FilterSchemas>                                                                 │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --json           Машиночитаемый вывод: JSON в stdout.                                            │
+│ --quiet          Не печатать ничего, кроме данных.                                               │
+│ --help           Show this message and exit.                                                     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

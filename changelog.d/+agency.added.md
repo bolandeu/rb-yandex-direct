@@ -1,0 +1,1 @@
+`agency list|add-organization|add-member|update|update-json` — клиенты агентства (AgencyClients, в т.ч. addPassportOrganization/Member); `clients update` с типизированными опциями. `client update-agency` → `agency update-json`.

@@ -11,8 +11,12 @@ import typer
 
 from . import (
     account,
+    agency,
     bids,
     campaigns,
+    changes,
+    dictionaries,
+    feeds,
     finance,
     forecast,
     history,
@@ -20,7 +24,9 @@ from . import (
     masters,
     minus_sets,
     modifiers,
+    report,
     retargeting,
+    strategies,
     targets,
     v4misc,
     wordstat,
@@ -33,6 +39,7 @@ from . import media as media_cmd
 
 GROUPS: dict[str, typer.Typer] = {
     "clients": account.clients_app,
+    "agency": agency.app,
     "campaigns": campaigns.app,
     # API v4 Live
     "wordstat": wordstat.app,
@@ -68,6 +75,12 @@ GROUPS: dict[str, typer.Typer] = {
     "dynamic-targets": targets.dynamic_app,
     "dynamic-feed-targets": targets.feed_app,
     "smart-targets": targets.smart_app,
+    # Кампании, стратегии, инфраструктура
+    "strategies": strategies.app,
+    "feeds": feeds.app,
+    "dict": dictionaries.app,
+    "changes": changes.app,
+    "report": report.app,
 }
 
 TOP_LEVEL: dict[str, Callable] = {
