@@ -1,0 +1,17 @@
+
+ Usage: yd finance credit-limits [OPTIONS]
+
+ Кредитные лимиты агентства по договорам (GetCreditLimits). Нужен мастер-токен.
+
+ Расходует номер финансовой операции. --json: {"ok": true, "limits": {Currency, Limits:
+ [{ContractID,
+ Limit, LimitSpent}]}}.
+
+ Example: yd finance credit-limits --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --json           Машиночитаемый вывод: JSON в stdout.                                            │
+│ --quiet          Не печатать ничего, кроме данных.                                               │
+│ --help           Show this message and exit.                                                     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

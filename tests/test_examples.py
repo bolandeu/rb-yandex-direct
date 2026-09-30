@@ -18,6 +18,7 @@ import respx
 from typer.testing import CliRunner
 
 from rb_yandex_direct.cli import app
+from rb_yandex_direct.commands import skill as skill_cmd
 
 from .test_help import CLI, COMMANDS, _slug
 
@@ -36,8 +37,17 @@ TEXT_FILES = {"minus.txt": "бесплатно\nскачать\n", "keywords.txt
 # Ответы `get`, без которых пример законно падает (объект не найден).
 RESULTS = {"campaigns": {"Campaigns": [{"Id": 12345, "Name": "Весна"}]}}
 REPORT_TSV = "Date\tClicks\tCost\n2026-09-01\t10\t1000000\nTotal rows: 1\n"
-# auth — браузер и keychain, покрыт в test_auth.py.
-SKIP = {("auth", "login"), ("auth", "refresh"), ("auth", "logout")}
+# Ответы API v4 Live (`{"data": ...}`) по методу; остальные методы — `{"data": null}`.
+LIVE_DATA = {
+    "CreateNewWordstatReport": 101,
+    "GetWordstatReportList": [{"ReportID": 101, "StatusReport": "Done"}],
+    "GetWordstatReport": [{"Phrase": "купить диван", "SearchedWith": [{"Phrase": "купить диван", "Shows": 100}]}],
+    "CreateNewForecast": 202,
+    "GetForecastList": [{"ForecastID": 202, "StatusForecast": "Done"}],
+    "GetForecast": {"Phrases": [{"Phrase": "купить диван", "Shows": 100, "Clicks": 5}], "Common": {"Shows": 100}},
+}
+# auth и finance setup — браузер, скрытый ввод и keychain; покрыты в test_auth.py и test_cmd_v4_finance.py.
+SKIP = {("auth", "login"), ("auth", "refresh"), ("auth", "logout"), ("finance", "setup")}
 
 
 def _example(path: tuple[str, ...]) -> list[str]:
@@ -48,6 +58,11 @@ def _example(path: tuple[str, ...]) -> list[str]:
     if "confirm" in params and not {"--dry-run", "--confirm"} & set(args):
         args += ["--confirm", "--non-interactive"]
     return args
+
+
+def _live(request: httpx.Request) -> httpx.Response:
+    method = json.loads(request.content).get("method")
+    return httpx.Response(200, json={"data": LIVE_DATA.get(method)})
 
 
 def _api(request: httpx.Request) -> httpx.Response:
@@ -63,7 +78,14 @@ def _api(request: httpx.Request) -> httpx.Response:
 @pytest.mark.parametrize("path", sorted(set(COMMANDS) - SKIP), ids=_slug)
 def test_example_runs(path: tuple[str, ...], monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setenv("YANDEX_DIRECT_TOKEN", "t")
+    monkeypatch.setenv("YANDEX_OAUTH_DIRECT_FINANCE_MASTER_TOKEN", "m")
+    monkeypatch.setenv("YANDEX_OAUTH_DIRECT_FINANCE_LOGIN", "agency")
+    monkeypatch.setattr("rb_yandex_direct.core.live.state_path", lambda: tmp_path / "finance.json")
+    monkeypatch.setattr("rb_yandex_direct.commands._live.POLL_INTERVAL", 0)
     monkeypatch.chdir(tmp_path)
+    # `skill install` пишет в ~/.claude/skills — в тесте только во временную папку.
+    for targets in skill_cmd._TOOL_TARGETS.values():
+        monkeypatch.setitem(targets, "user", tmp_path / "home-skills")
     for name, content in FILES.items():
         (tmp_path / name).write_text(json.dumps(content, ensure_ascii=False), encoding="utf-8")
     for name, text in TEXT_FILES.items():
@@ -73,6 +95,8 @@ def test_example_runs(path: tuple[str, ...], monkeypatch: pytest.MonkeyPatch, tm
     assert CliRunner().invoke(app, ["init", "--name", "demo"], prog_name=CLI).exit_code == 0
     args = _example(path)
     with respx.mock(assert_all_called=False) as router:
+        router.post(url__startswith="https://api.direct.yandex.ru/live/v4/json").mock(side_effect=_live)
+        router.post(url__startswith="https://api-sandbox.direct.yandex.ru/live/v4/json").mock(side_effect=_live)
         router.post(url__startswith="https://api.direct.yandex.com").mock(side_effect=_api)
         router.post(url__startswith="https://api-sandbox.direct.yandex.com").mock(side_effect=_api)
         router.post(url__startswith="https://oauth.yandex.ru").mock(

@@ -60,6 +60,7 @@ yd auth refresh | logout
 | `YANDEX_DIRECT_CLIENT_ID`, `YANDEX_DIRECT_CLIENT_SECRET` | прежние имена приложения для `auth login` (legacy) |
 | `YANDEX_DIRECT_LOGIN` | Client-Login по умолчанию (не секрет) |
 | `YANDEX_DIRECT_MANAGED_LOGINS` | кабинеты, где владелец токена — представитель (`accounts`) |
+| `YANDEX_OAUTH_DIRECT_FINANCE_MASTER_TOKEN`, `YANDEX_OAUTH_DIRECT_FINANCE_LOGIN` | финансовые методы v4 Live (`finance`, `shared-account`) без keychain; иначе `yd finance setup` |
 | `YANDEX_DIRECT_SANDBOX=true`, `YANDEX_DIRECT_USE_OPERATOR_UNITS=true` | песочница; баллы оператора |
 
 `auth status --json` — отчёт по контракту §8 стандарта tools (`tools/docs/standard-release.md`).

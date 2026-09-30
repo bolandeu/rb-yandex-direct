@@ -1,0 +1,15 @@
+
+ Usage: yd forecast list [OPTIONS]
+
+ Прогнозы на сервере (до пяти) и их статус: Done, Pending, Failed.
+
+ --json: {"ok": true, "count": N, "forecasts": [{ForecastID, StatusForecast}]}.
+
+ Example: yd forecast list --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --json           Машиночитаемый вывод: JSON в stdout.                                            │
+│ --quiet          Не печатать ничего, кроме данных.                                               │
+│ --help           Show this message and exit.                                                     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

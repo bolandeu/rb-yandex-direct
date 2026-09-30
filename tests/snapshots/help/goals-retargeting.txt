@@ -1,0 +1,16 @@
+
+ Usage: yd goals retargeting [OPTIONS]
+
+ Цели и сегменты для условий ретаргетинга (GetRetargetingGoals).
+
+ --json: {"ok": true, "count": N, "goals": [{GoalID, Name, GoalDomain, Type, Login}]}.
+
+ Example: yd goals retargeting --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --client        <str>  Логин клиента агентства (повторяемая); нет — свой.                        │
+│ --json                 Машиночитаемый вывод: JSON в stdout.                                      │
+│ --quiet                Не печатать ничего, кроме данных.                                         │
+│ --help                 Show this message and exit.                                               │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

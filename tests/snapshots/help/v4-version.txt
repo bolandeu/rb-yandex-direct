@@ -1,0 +1,16 @@
+
+ Usage: yd v4 version [OPTIONS]
+
+ Версия API v4 (GetVersion) или список доступных (--available).
+
+ --json: {"ok": true, "version": ...}.
+
+ Example: yd v4 version --available --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --available          Все доступные версии (GetAvailableVersions).                                │
+│ --json               Машиночитаемый вывод: JSON в stdout.                                        │
+│ --quiet              Не печатать ничего, кроме данных.                                           │
+│ --help               Show this message and exit.                                                 │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
