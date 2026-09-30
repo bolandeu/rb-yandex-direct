@@ -15,3 +15,6 @@ htmlcov/
 *.token
 data/
 reports/
+
+# git worktree сабагентов Claude Code
+.claude/worktrees/
