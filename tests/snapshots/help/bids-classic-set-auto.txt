@@ -1,0 +1,36 @@
+
+ Usage: yd bids-classic set-auto [OPTIONS]
+
+ Однократно выставить ставки по позиции на поиске и/или охвату в сетях (bids.setAuto).
+
+ Example: yd bids-classic set-auto --campaign 12345 --scope SEARCH --position P12 --max-bid 30
+ --dry-run
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --scope                   <SEARCH|NETWORK>                  Где подбирать: SEARCH и/или       │
+│                                                                NETWORK (повторяемая).            │
+│                                                                [обязательный]                    │
+│    --keyword                 <int>                             Id фразы (или автотаргетинга).    │
+│    --adgroup                 <int>                             Id группы — для всех её фраз.     │
+│    --campaign                <int>                             Id кампании — для всех её фраз.   │
+│    --max-bid                 <float>                           Максимальная ставка, ₽.           │
+│    --position                <PREMIUMFIRST|PREMIUMBLOCK|FOOTE  Целевая позиция на поиске:        │
+│                              RFIRST|FOOTERBLOCK|P11|P12|P13|P  P11…P24, PREMIUMBLOCK…            │
+│                              14|P21|P22|P23|P24>                                                 │
+│    --increase-percent        <int>                             Надбавка к цене позиции, %.       │
+│    --calculate-by            <VALUE|DIFF>                      VALUE — от цены позиции, DIFF —   │
+│                                                                от разницы с соседней позицией.   │
+│    --context-coverage        <int>                             Целевой охват в сетях, %.         │
+│    --confirm                                                   Подтвердить изменение в кабинете  │
+│                                                                без вопроса (обязательно вместе с │
+│                                                                --non-interactive).               │
+│    --dry-run                                                   Показать, что будет сделано,      │
+│                                                                ничего не меняя.                  │
+│    --non-interactive                                           Никогда не спрашивать; при        │
+│                                                                нехватке данных — ошибка.         │
+│    --json                                                      Машиночитаемый вывод: JSON в      │
+│                                                                stdout.                           │
+│    --quiet                                                     Не печатать ничего, кроме данных. │
+│    --help                                                      Show this message and exit.       │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

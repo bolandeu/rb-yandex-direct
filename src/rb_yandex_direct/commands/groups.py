@@ -9,7 +9,22 @@ from collections.abc import Callable
 
 import typer
 
-from . import account, campaigns, finance, forecast, history, masters, v4misc, wordstat
+from . import (
+    account,
+    bids,
+    campaigns,
+    finance,
+    forecast,
+    history,
+    keywords,
+    masters,
+    minus_sets,
+    modifiers,
+    retargeting,
+    targets,
+    v4misc,
+    wordstat,
+)
 from . import adgroups as adgroups_cmd
 from . import ads as ads_cmd
 from . import browser as browser_cmd
@@ -42,6 +57,17 @@ GROUPS: dict[str, typer.Typer] = {
     "vcards": extensions_cmd.vcards_app,
     "extensions": extensions_cmd.extensions_app,
     "turbo": extensions_cmd.turbo_app,
+    # Таргетинг и ставки.
+    "keywords": keywords.app,
+    "bids": bids.app,
+    "bids-classic": bids.classic_app,
+    "modifiers": modifiers.app,
+    "minus-sets": minus_sets.app,
+    "retargeting": retargeting.app,
+    "audiences": retargeting.audiences_app,
+    "dynamic-targets": targets.dynamic_app,
+    "dynamic-feed-targets": targets.feed_app,
+    "smart-targets": targets.smart_app,
 }
 
 TOP_LEVEL: dict[str, Callable] = {

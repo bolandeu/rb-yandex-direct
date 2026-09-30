@@ -1,0 +1,29 @@
+
+ Usage: yd dynamic-targets add [OPTIONS]
+
+ Добавить условие нацеливания по страницам сайта.
+
+ Example: yd dynamic-targets add --adgroup 555 --name Каталог --condition
+ URL:CONTAINS_ANY:/catalog/ --bid 10 --dry-run
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --adgroup                <int>              Группа динамических объявлений. [обязательный]    │
+│ *  --name                   <str>              Название условия. [обязательный]                  │
+│    --condition              <str>              Условие OPERAND:OPERATOR:ARG1|ARG2 (повторяемая); │
+│                                                OPERAND — URL, DOMAIN, PAGE_TITLE, PAGE_CONTENT,  │
+│                                                OFFERS_LIST_URL; OPERATOR — EQUALS_ANY,           │
+│                                                NOT_EQUALS_ALL, CONTAINS_ANY, NOT_CONTAINS_ALL.   │
+│                                                Без условий — все страницы.                       │
+│    --bid                    <float>            Ставка на поиске, ₽.                              │
+│    --context-bid            <float>            Ставка в сетях, ₽.                                │
+│    --priority               <LOW|NORMAL|HIGH>  Приоритет для автостратегии: LOW, NORMAL, HIGH.   │
+│    --confirm                                   Подтвердить изменение в кабинете без вопроса      │
+│                                                (обязательно вместе с --non-interactive).         │
+│    --dry-run                                   Показать, что будет сделано, ничего не меняя.     │
+│    --non-interactive                           Никогда не спрашивать; при нехватке данных —      │
+│                                                ошибка.                                           │
+│    --json                                      Машиночитаемый вывод: JSON в stdout.              │
+│    --quiet                                     Не печатать ничего, кроме данных.                 │
+│    --help                                      Show this message and exit.                       │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

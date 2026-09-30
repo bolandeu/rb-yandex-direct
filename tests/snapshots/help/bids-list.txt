@@ -1,0 +1,30 @@
+
+ Usage: yd bids list [OPTIONS]
+
+ Ставки и торги по фразам: текущая ставка, аукцион на поиске (объём трафика → ставка/цена), охват в
+ сетях.
+
+ Нужен хотя бы один из --keyword, --adgroup, --campaign.
+ --json: {"ok": true, "count": N, "bids": [{KeywordId, AdGroupId, CampaignId, ServingStatus,
+ StrategyPriority, Search: {Bid, AutotargetingSearchBidIsAuto, AuctionBids}, Network: {Bid,
+ Coverage}}]};
+ суммы — в микроединицах валюты.
+
+ Example: yd bids list --campaign 12345
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --keyword               <int>                     Фильтр по фразе (повторяемая).                 │
+│ --adgroup               <int>                     Фильтр по группе (повторяемая).                │
+│ --campaign              <int>                     Фильтр по кампании (повторяемая; у             │
+│                                                   bids-classic — до 10).                         │
+│ --serving-status        <ELIGIBLE|RARELY_SERVED>  ELIGIBLE или RARELY_SERVED (повторяемая).      │
+│ --field                 <str>                     Поле FieldNames вместо набора по умолчанию     │
+│                                                   (повторяемая).                                 │
+│ --search-field          <str>                     Поле SearchFieldNames: Bid,                    │
+│                                                   AutotargetingSearchBidIsAuto, AuctionBids.     │
+│ --network-field         <str>                     Поле NetworkFieldNames: Bid, Coverage.         │
+│ --json                                            Машиночитаемый вывод: JSON в stdout.           │
+│ --quiet                                           Не печатать ничего, кроме данных.              │
+│ --help                                            Show this message and exit.                    │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

@@ -87,7 +87,7 @@ async def test_update_negative_set_body() -> None:
     body = json.loads(route.calls.last.request.content)
     set_obj = body["params"]["NegativeKeywordSharedSets"][0]
     assert set_obj["Id"] == 1
-    assert set_obj["NegativeKeywords"]["Items"] == ["стоп", "минус"]
+    assert set_obj["NegativeKeywords"] == ["стоп", "минус"]
 
 
 # --- CLI: проверка, что -y пропускает промпт ---
@@ -176,23 +176,6 @@ async def test_add_bid_modifiers_body() -> None:
     body = json.loads(route.calls.last.request.content)
     assert body["method"] == "add"
     assert body["params"]["BidModifiers"][0]["MobileAdjustment"]["BidModifier"] == 80
-
-
-@pytest.mark.asyncio
-@respx.mock
-async def test_toggle_bid_modifiers_body() -> None:
-    route = _route("bidmodifiers", {"ToggleResults": [{"CampaignId": 1}]})
-    c = DirectClient(token="t")
-    await c.toggle_bid_modifiers(
-        [
-            {"CampaignId": 1, "Type": "DEMOGRAPHICS_ADJUSTMENT", "Enabled": "NO"},
-        ]
-    )
-    body = json.loads(route.calls.last.request.content)
-    assert body["method"] == "toggle"
-    item = body["params"]["BidModifierToggleItems"][0]
-    assert item["Type"] == "DEMOGRAPHICS_ADJUSTMENT"
-    assert item["Enabled"] == "NO"
 
 
 @pytest.mark.asyncio

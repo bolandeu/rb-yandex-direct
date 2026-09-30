@@ -44,6 +44,7 @@ FILES = {
     "adgroups.json": [{"Name": "Диваны", "CampaignId": 12345, "RegionIds": [213]}],
     "adgroups-update.json": [{"Id": 555, "Name": "Диваны Москва"}],
     "ads-update.json": [{"Id": 777, "TextAd": {"Title": "Диваны от 8990 ₽"}}],
+    "lists.json": [{"Name": "Корзина", "Rules": [{"Operator": "ANY", "Arguments": [{"ExternalId": 1}]}]}],
 }
 TEXT_FILES = {"minus.txt": "бесплатно\nскачать\n", "keywords.txt": "купить диван\nдиван недорого\n"}
 # Ответы `get`, без которых пример законно падает (объект не найден).

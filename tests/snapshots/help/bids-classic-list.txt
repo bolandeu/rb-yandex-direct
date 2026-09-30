@@ -1,0 +1,28 @@
+
+ Usage: yd bids-classic list [OPTIONS]
+
+ Ставки через сервис Bids: ставки, минимальная и текущая цена на поиске, цены позиций, охват в
+ сетях.
+
+ Нужен хотя бы один из --keyword, --adgroup, --campaign (кампаний — не больше 10).
+ --json: {"ok": true, "count": N, "bids": [{KeywordId, AdGroupId, CampaignId, Bid, ContextBid,
+ StrategyPriority, ServingStatus, MinSearchPrice, CurrentSearchPrice, …}]}; суммы — в
+ микроединицах.
+
+ Example: yd bids-classic list --campaign 12345 --field SearchPrices --field KeywordId
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --keyword               <int>                     Фильтр по фразе (повторяемая).                 │
+│ --adgroup               <int>                     Фильтр по группе (повторяемая).                │
+│ --campaign              <int>                     Фильтр по кампании (повторяемая; у             │
+│                                                   bids-classic — до 10).                         │
+│ --serving-status        <ELIGIBLE|RARELY_SERVED>  ELIGIBLE или RARELY_SERVED (повторяемая).      │
+│ --field                 <str>                     Поле FieldNames (повторяемая): Bid,            │
+│                                                   ContextBid, CompetitorsBids, SearchPrices,     │
+│                                                   ContextCoverage, MinSearchPrice,               │
+│                                                   CurrentSearchPrice, AuctionBids, …             │
+│ --json                                            Машиночитаемый вывод: JSON в stdout.           │
+│ --quiet                                           Не печатать ничего, кроме данных.              │
+│ --help                                            Show this message and exit.                    │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

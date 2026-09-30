@@ -74,18 +74,43 @@ DEFAULT_KEYWORD_FIELDS = [
     "CampaignId",
     "State",
     "Status",
-    "UserParam",
     "ServingStatus",
+    "Bid",
+    "ContextBid",
+    "StrategyPriority",
 ]
-DEFAULT_KEYWORD_BID_FIELDS = [
+# KeywordBids.get: общие поля — FieldNames, вложенные Search/Network — свои *FieldNames.
+DEFAULT_KEYWORD_BID_FIELDS = ["KeywordId", "AdGroupId", "CampaignId", "ServingStatus", "StrategyPriority"]
+DEFAULT_KEYWORD_BID_SEARCH_FIELDS = ["Bid", "AutotargetingSearchBidIsAuto", "AuctionBids"]
+DEFAULT_KEYWORD_BID_NETWORK_FIELDS = ["Bid", "Coverage"]
+# Bids.get (классический сервис ставок): цены позиций и прогноз охвата — в самих полях.
+DEFAULT_BID_FIELDS = [
     "KeywordId",
     "AdGroupId",
     "CampaignId",
-    "ServingStatus",
-    "Search",
-    "Network",  # вложенные объекты с текущими ставками и позициями
+    "Bid",
+    "ContextBid",
     "StrategyPriority",
+    "ServingStatus",
+    "MinSearchPrice",
+    "CurrentSearchPrice",
 ]
+# BidModifiers.get: у каждого типа корректировки свой *FieldNames (без них блок не приходит).
+BID_MODIFIER_SUBFIELDS = {
+    "MobileAdjustment": ["BidModifier", "OperatingSystemType"],
+    "DesktopAdjustment": ["BidModifier"],
+    "SmartTvAdjustment": ["BidModifier"],
+    "TabletAdjustment": ["BidModifier", "OperatingSystemType"],
+    "DesktopOnlyAdjustment": ["BidModifier"],
+    "DemographicsAdjustment": ["Gender", "Age", "BidModifier", "Enabled"],
+    "RetargetingAdjustment": ["RetargetingConditionId", "BidModifier", "Accessible", "Enabled"],
+    "RegionalAdjustment": ["RegionId", "BidModifier", "Enabled"],
+    "VideoAdjustment": ["BidModifier"],
+    "SmartAdAdjustment": ["BidModifier"],
+    "SerpLayoutAdjustment": ["SerpLayout", "BidModifier", "Enabled"],
+    "IncomeGradeAdjustment": ["Grade", "BidModifier", "Enabled"],
+    "AdGroupAdjustment": ["BidModifier"],
+}
 
 
 # Ответы «не сейчас», а не «нет»: повторяем с экспоненциальной паузой.
@@ -409,7 +434,12 @@ class DirectClient:
         states: list[str] | None = None,
         field_names: list[str] | None = None,
         page_limit: int = 10000,
+        *,
+        statuses: list[str] | None = None,
+        serving_statuses: list[str] | None = None,
+        modified_since: str | None = None,
     ) -> list[dict]:
+        """Ключевые фразы (keywords.get) по Id, группам, кампаниям, состоянию, статусу, показам."""
         criteria: dict[str, Any] = {}
         if keyword_ids:
             criteria["Ids"] = keyword_ids
@@ -419,6 +449,12 @@ class DirectClient:
             criteria["CampaignIds"] = campaign_ids
         if states:
             criteria["States"] = states
+        if statuses:
+            criteria["Statuses"] = statuses
+        if serving_statuses:
+            criteria["ServingStatuses"] = serving_statuses
+        if modified_since:
+            criteria["ModifiedSince"] = modified_since
         return await self._paginated_get(
             "keywords",
             "Keywords",
@@ -438,24 +474,41 @@ class DirectClient:
         campaign_ids: list[int] | None = None,
         field_names: list[str] | None = None,
         page_limit: int = 10000,
+        *,
+        serving_statuses: list[str] | None = None,
+        search_field_names: list[str] | None = None,
+        network_field_names: list[str] | None = None,
     ) -> list[dict]:
-        criteria: dict[str, Any] = {}
-        if keyword_ids:
-            criteria["KeywordIds"] = keyword_ids
-        if adgroup_ids:
-            criteria["AdGroupIds"] = adgroup_ids
-        if campaign_ids:
-            criteria["CampaignIds"] = campaign_ids
-        if not criteria:
-            raise ValueError("keywordbids.get требует хотя бы один фильтр: keyword_ids / adgroup_ids / campaign_ids")
+        """Ставки и торги (keywordbids.get): нужен хотя бы один из keyword/adgroup/campaign."""
+        criteria = _bids_criteria(keyword_ids, adgroup_ids, campaign_ids, serving_statuses)
         return await self._paginated_get(
             "keywordbids",
             "KeywordBids",
             {
                 "SelectionCriteria": criteria,
                 "FieldNames": field_names or DEFAULT_KEYWORD_BID_FIELDS,
+                "SearchFieldNames": search_field_names or DEFAULT_KEYWORD_BID_SEARCH_FIELDS,
+                "NetworkFieldNames": network_field_names or DEFAULT_KEYWORD_BID_NETWORK_FIELDS,
             },
             page_limit=page_limit,
+        )
+
+    async def list_bids(
+        self,
+        keyword_ids: list[int] | None = None,
+        adgroup_ids: list[int] | None = None,
+        campaign_ids: list[int] | None = None,
+        field_names: list[str] | None = None,
+        *,
+        serving_statuses: list[str] | None = None,
+    ) -> list[dict]:
+        """Классический сервис Bids (bids.get): ставки, цены позиций, прогноз охвата в сетях."""
+        criteria = _bids_criteria(keyword_ids, adgroup_ids, campaign_ids, serving_statuses)
+        return await self._paginated_get(
+            "bids",
+            "Bids",
+            {"SelectionCriteria": criteria, "FieldNames": field_names or DEFAULT_BID_FIELDS},
+            page_limit=10000,
         )
 
     # --- Минус-слова общие ---
@@ -686,9 +739,11 @@ class DirectClient:
         return await self.call("keywordbids", "set", {"KeywordBids": bids})
 
     async def set_keyword_bids_auto(self, bids: list[dict]) -> dict:
-        """Установить приоритеты стратегии (для авто-стратегий).
+        """Автоматически подбирать ставку по правилу (keywordbids.setAuto).
 
-        Элемент: {"KeywordId": 123, "StrategyPriority": "HIGH|NORMAL|LOW"}
+        Элемент: {"KeywordId"|"AdGroupId"|"CampaignId": ..., "BiddingRule": {"SearchByTrafficVolume":
+        {"TargetTrafficVolume", "IncreasePercent"?, "BidCeiling"?} | "NetworkByCoverage": {...}}}.
+        Приоритет авто-стратегии задаётся не здесь, а в `set` (StrategyPriority).
         """
         return await self.call("keywordbids", "setAuto", {"KeywordBids": bids})
 
@@ -800,8 +855,7 @@ class DirectClient:
         Фразы без минуса в начале, до 7 слов, до 35 символов на слово, общая
         длина всех фраз в наборе — до 4096 символов (без пробелов и операторов).
 
-        Формат `NegativeKeywords` в add — плоский массив строк, а не
-        `{"Items": [...]}`, как в update.
+        `NegativeKeywords` — плоский массив строк (и в add, и в update).
         """
         if not sets:
             raise ValueError("sets пустой")
@@ -849,7 +903,7 @@ class DirectClient:
         if name is not None:
             item["Name"] = name
         if negative_keywords is not None:
-            item["NegativeKeywords"] = {"Items": negative_keywords}
+            item["NegativeKeywords"] = negative_keywords
         return await self.call(
             "negativekeywordsharedsets",
             "update",
@@ -867,15 +921,15 @@ class DirectClient:
         ids: list[int] | None = None,
         types: list[str] | None = None,
         field_names: list[str] | None = None,
+        *,
+        levels: list[str] | None = None,
     ) -> list[dict]:
-        """Корректировки ставок.
+        """Корректировки ставок (bidmodifiers.get) со всеми полями каждого типа.
 
-        Args:
-            types: MOBILE_ADJUSTMENT (устройства), DEMOGRAPHICS_ADJUSTMENT
-                (пол/возраст), RETARGETING_ADJUSTMENT, REGIONAL_ADJUSTMENT,
-                VIDEO_ADJUSTMENT, INCOME_GRADE_ADJUSTMENT.
+        levels — CAMPAIGN и/или AD_GROUP (в API поле обязательное; по умолчанию оба).
+        Нужен хотя бы один из campaign_ids / adgroup_ids / ids.
         """
-        criteria: dict[str, Any] = {}
+        criteria: dict[str, Any] = {"Levels": levels or ["CAMPAIGN", "AD_GROUP"]}
         if ids:
             criteria["Ids"] = ids
         if campaign_ids:
@@ -884,40 +938,26 @@ class DirectClient:
             criteria["AdGroupIds"] = adgroup_ids
         if types:
             criteria["Types"] = types
-        fields = field_names or [
-            "Id",
-            "CampaignId",
-            "AdGroupId",
-            "Type",
-            "Level",
-            "MobileAdjustment",
-            "DesktopAdjustment",
-            "DemographicsAdjustment",
-            "RetargetingAdjustment",
-            "RegionalAdjustment",
-            "VideoAdjustment",
-            "IncomeGradeAdjustment",
-        ]
-        return await self._paginated_get(
-            "bidmodifiers",
-            "BidModifiers",
-            {"SelectionCriteria": criteria, "FieldNames": fields},
-            page_limit=10000,
-        )
+        params: dict[str, Any] = {
+            "SelectionCriteria": criteria,
+            "FieldNames": field_names or ["Id", "CampaignId", "AdGroupId", "Level", "Type"],
+        }
+        for block, sub in BID_MODIFIER_SUBFIELDS.items():
+            params[f"{block}FieldNames"] = sub
+        return await self._paginated_get("bidmodifiers", "BidModifiers", params, page_limit=10000)
 
     async def add_bid_modifiers(self, modifiers: list[dict]) -> dict:
         """Добавить корректировки ставок.
 
         Элемент — объект с привязкой (`CampaignId` **или** `AdGroupId`) и
-        одним type-specific блоком:
-            - `MobileAdjustment: {BidModifier}`
-            - `DesktopAdjustment: {BidModifier}`
-            - `DemographicsAdjustment: {Age, Gender, BidModifier}`
-            - `RetargetingAdjustment: {RetargetingConditionId, BidModifier}`
-            - `RegionalAdjustment: {RegionId, BidModifier}`
-            - `VideoAdjustment: {BidModifier}`
-            - `IncomeGradeAdjustment: {IncomeGrade, BidModifier}`
-        BidModifier — процент, 0-1200 (0 = отключить показы, 100 = без корректировки).
+        одним блоком типа. Одиночные: `MobileAdjustment {BidModifier, OperatingSystemType?}`,
+        `DesktopAdjustment`, `SmartTvAdjustment`, `TabletAdjustment`, `DesktopOnlyAdjustment`,
+        `VideoAdjustment`, `SmartAdAdjustment`, `AdGroupAdjustment` — `{BidModifier}`.
+        Массивы: `DemographicsAdjustments [{Gender?, Age?, BidModifier}]`,
+        `RetargetingAdjustments [{RetargetingConditionId, BidModifier}]`,
+        `RegionalAdjustments [{RegionId, BidModifier}]`, `SerpLayoutAdjustments [{SerpLayout, BidModifier}]`,
+        `IncomeGradeAdjustments [{Grade, BidModifier}]`.
+        BidModifier — процент (0 = отключить показы, 100 = без корректировки).
         """
         if not modifiers:
             raise ValueError("modifiers пустой")
@@ -936,21 +976,6 @@ class DirectClient:
     async def delete_bid_modifiers(self, ids: list[int]) -> dict:
         return await self.call("bidmodifiers", "delete", {"SelectionCriteria": {"Ids": ids}})
 
-    async def toggle_bid_modifiers(self, toggles: list[dict]) -> dict:
-        """Включить/выключить корректировки без удаления (до 1000 за вызов).
-
-        Toggle работает по связке `уровень+тип`, а не по Id модификатора:
-            `[{"CampaignId": 1, "Type": "DEMOGRAPHICS_ADJUSTMENT", "Enabled": "NO"}]`
-        Можно использовать `AdGroupId` вместо `CampaignId`. Type — один из
-        `DEMOGRAPHICS_ADJUSTMENT`, `RETARGETING_ADJUSTMENT`, `REGIONAL_ADJUSTMENT`,
-        `SERP_LAYOUT_ADJUSTMENT`, `INCOME_GRADE_ADJUSTMENT`.
-        """
-        if not toggles:
-            raise ValueError("toggles пустой")
-        if len(toggles) > 1000:
-            raise ValueError("bidmodifiers.toggle — не более 1000 за вызов")
-        return await self.call("bidmodifiers", "toggle", {"BidModifierToggleItems": toggles})
-
     # --- Ретаргетинг и аудитории ---
 
     async def list_retargeting_lists(
@@ -961,8 +986,7 @@ class DirectClient:
     ) -> list[dict]:
         """Списки ретаргетинга.
 
-        types: RETARGETING (цели Метрики), AUDIENCE (аудитории Метрики),
-        SHARED_AUDIENCE, YANDEX_PROVIDER.
+        types: RETARGETING (цели Метрики) или AUDIENCE (аудитории Метрики).
         """
         criteria: dict[str, Any] = {}
         if ids:
@@ -982,7 +1006,7 @@ class DirectClient:
                     "Type",
                     "Rules",
                     "IsAvailable",
-                    "CryptaScoring",
+                    "Scope",
                 ],
             },
             page_limit=1000,
@@ -1072,6 +1096,9 @@ class DirectClient:
         ids: list[int] | None = None,
         states: list[str] | None = None,
         field_names: list[str] | None = None,
+        *,
+        retargeting_list_ids: list[int] | None = None,
+        interest_ids: list[int] | None = None,
     ) -> list[dict]:
         """Привязки аудиторий (retargeting/interest) к группам объявлений."""
         criteria: dict[str, Any] = {}
@@ -1081,6 +1108,10 @@ class DirectClient:
             criteria["AdGroupIds"] = adgroup_ids
         if campaign_ids:
             criteria["CampaignIds"] = campaign_ids
+        if retargeting_list_ids:
+            criteria["RetargetingListIds"] = retargeting_list_ids
+        if interest_ids:
+            criteria["InterestIds"] = interest_ids
         if states:
             criteria["States"] = states
         return await self._paginated_get(
@@ -1109,28 +1140,36 @@ class DirectClient:
         self,
         keywords: list[str],
         region_ids: list[int] | None = None,
+        field_names: list[str] | None = None,
     ) -> list[dict]:
-        """Проверить, есть ли у фраз поисковый спрос.
+        """Есть ли у фраз поисковый спрос (keywordsresearch.hasSearchVolume), по типам устройств.
 
-        region_ids: список регионов Яндекса (213 = Москва, 2 = Санкт-Петербург).
-            None → по всей России.
-        Возвращает список {Phrase, HasSearchVolume}.
+        region_ids — регионы Яндекса (213 — Москва, 225 — Россия); API требует хотя бы один,
+        по умолчанию — Россия. Ответ: [{Keyword, RegionIds, AllDevices, MobilePhones, Tablets, Desktops}],
+        значения YES/NO.
         """
-        params: dict[str, Any] = {"Keywords": keywords}
-        if region_ids:
-            params["RegionIds"] = region_ids
-        result = await self.call("keywordsresearch", "hasSearchVolume", params)
-        return result.get("SearchVolumeItems") or result.get("Items", [])
-
-    async def keywords_deduplicate(self, keyword_ids: list[int]) -> dict:
-        """Найти и приостановить дубли среди переданных фраз (write-операция)."""
-        return await self.call(
+        result = await self.call(
             "keywordsresearch",
-            "deduplicate",
+            "hasSearchVolume",
             {
-                "KeywordIds": keyword_ids,
+                "SelectionCriteria": {"Keywords": keywords, "RegionIds": region_ids or [225]},
+                "FieldNames": field_names
+                or ["Keyword", "RegionIds", "AllDevices", "MobilePhones", "Tablets", "Desktops"],
             },
         )
+        return result.get("HasSearchVolumeResults", [])
+
+    async def keywords_deduplicate(self, keywords: list[dict], operations: list[str] | None = None) -> dict:
+        """Подсказки по дублям фраз (keywordsresearch.deduplicate) — только расчёт, кабинет не меняется.
+
+        keywords — [{"Keyword": "...", "Id"?: id существующей фразы, "Weight"?: вес}].
+        operations — MERGE_DUPLICATES (склеить дубли), ELIMINATE_OVERLAPPING (минусовать
+        пересечения); по умолчанию API делает обе. Ответ: {Add, Update, Delete: {Ids}, Failure}.
+        """
+        params: dict[str, Any] = {"Keywords": keywords}
+        if operations:
+            params["Operation"] = operations
+        return await self.call("keywordsresearch", "deduplicate", params)
 
     # --- Write: создание/удаление кампаний (P3) ---
 
@@ -1288,30 +1327,26 @@ class DirectClient:
         campaign_ids: list[int] | None = None,
         ids: list[int] | None = None,
         states: list[str] | None = None,
+        field_names: list[str] | None = None,
     ) -> list[dict]:
-        """Условия таргетинга для динамических объявлений."""
-        criteria: dict[str, Any] = {}
-        if ids:
-            criteria["Ids"] = ids
-        if adgroup_ids:
-            criteria["AdGroupIds"] = adgroup_ids
-        if campaign_ids:
-            criteria["CampaignIds"] = campaign_ids
-        if states:
-            criteria["States"] = states
+        """Условия нацеливания динамических объявлений по страницам сайта (dynamictextadtargets.get)."""
         return await self._paginated_get(
             "dynamictextadtargets",
             "Webpages",
             {
-                "SelectionCriteria": criteria,
-                "FieldNames": [
+                "SelectionCriteria": _ad_targets_criteria(ids, adgroup_ids, campaign_ids, states),
+                "FieldNames": field_names
+                or [
                     "Id",
                     "AdGroupId",
+                    "CampaignId",
                     "Name",
                     "State",
                     "Bid",
                     "ContextBid",
                     "StrategyPriority",
+                    "Conditions",
+                    "ConditionType",
                 ],
             },
             page_limit=10000,
@@ -1335,11 +1370,42 @@ class DirectClient:
     async def set_dynamic_text_ad_target_bids(self, bids: list[dict]) -> dict:
         """Установить ставки для условий таргетинга dynamic-ads.
 
-        Элемент: {Id, Bid (микро), ContextBid, StrategyPriority}
+        Элемент: {Id | AdGroupId | CampaignId, Bid (микро)?, ContextBid?, StrategyPriority?}
         """
         if not bids:
             raise ValueError("bids пустой")
         return await self.call("dynamictextadtargets", "setBids", {"Bids": bids})
+
+    async def list_dynamic_feed_ad_targets(
+        self,
+        adgroup_ids: list[int] | None = None,
+        campaign_ids: list[int] | None = None,
+        ids: list[int] | None = None,
+        states: list[str] | None = None,
+        field_names: list[str] | None = None,
+    ) -> list[dict]:
+        """Фильтры динамических объявлений по фиду (dynamicfeedadtargets.get)."""
+        return await self._paginated_get(
+            "dynamicfeedadtargets",
+            "DynamicFeedAdTargets",
+            {
+                "SelectionCriteria": _ad_targets_criteria(ids, adgroup_ids, campaign_ids, states),
+                "FieldNames": field_names
+                or [
+                    "Id",
+                    "AdGroupId",
+                    "CampaignId",
+                    "Name",
+                    "State",
+                    "Bid",
+                    "ContextBid",
+                    "Conditions",
+                    "ConditionType",
+                    "AvailableItemsOnly",
+                ],
+            },
+            page_limit=10000,
+        )
 
     async def list_smart_ad_targets(
         self,
@@ -1347,29 +1413,28 @@ class DirectClient:
         campaign_ids: list[int] | None = None,
         ids: list[int] | None = None,
         states: list[str] | None = None,
+        field_names: list[str] | None = None,
     ) -> list[dict]:
-        """Условия таргетинга для смарт-баннеров."""
-        criteria: dict[str, Any] = {}
-        if ids:
-            criteria["Ids"] = ids
-        if adgroup_ids:
-            criteria["AdGroupIds"] = adgroup_ids
-        if campaign_ids:
-            criteria["CampaignIds"] = campaign_ids
-        if states:
-            criteria["States"] = states
+        """Фильтры смарт-баннеров (smartadtargets.get)."""
         return await self._paginated_get(
             "smartadtargets",
-            "Filters",
+            "SmartAdTargets",
             {
-                "SelectionCriteria": criteria,
-                "FieldNames": [
+                "SelectionCriteria": _ad_targets_criteria(ids, adgroup_ids, campaign_ids, states),
+                "FieldNames": field_names
+                or [
                     "Id",
                     "AdGroupId",
+                    "CampaignId",
                     "Name",
                     "State",
-                    "Bid",
+                    "Audience",
+                    "AverageCpc",
+                    "AverageCpa",
                     "StrategyPriority",
+                    "Conditions",
+                    "ConditionType",
+                    "AvailableItemsOnly",
                 ],
             },
             page_limit=10000,
@@ -1378,7 +1443,7 @@ class DirectClient:
     async def add_smart_ad_targets(self, targets: list[dict]) -> dict:
         if not targets:
             raise ValueError("targets пустой")
-        return await self.call("smartadtargets", "add", {"Filters": targets})
+        return await self.call("smartadtargets", "add", {"SmartAdTargets": targets})
 
     async def delete_smart_ad_targets(self, ids: list[int]) -> dict:
         return await self.call("smartadtargets", "delete", {"SelectionCriteria": {"Ids": ids}})
@@ -1390,7 +1455,7 @@ class DirectClient:
         return await self.call("smartadtargets", "resume", {"SelectionCriteria": {"Ids": ids}})
 
     async def set_smart_ad_target_bids(self, bids: list[dict]) -> dict:
-        """Элемент: {Id, Bid (микро), StrategyPriority}"""
+        """Элемент: {Id | AdGroupId | CampaignId, AverageCpc (микро)?, AverageCpa (микро)?, StrategyPriority?}"""
         if not bids:
             raise ValueError("bids пустой")
         return await self.call("smartadtargets", "setBids", {"Bids": bids})
@@ -1666,6 +1731,46 @@ class DirectClient:
                 "DictionaryNames": dictionary_names,
             },
         )
+
+
+def _bids_criteria(
+    keyword_ids: list[int] | None,
+    adgroup_ids: list[int] | None,
+    campaign_ids: list[int] | None,
+    serving_statuses: list[str] | None,
+) -> dict[str, Any]:
+    """SelectionCriteria для keywordbids.get / bids.get: API требует хотя бы один из трёх фильтров."""
+    criteria: dict[str, Any] = {}
+    if keyword_ids:
+        criteria["KeywordIds"] = keyword_ids
+    if adgroup_ids:
+        criteria["AdGroupIds"] = adgroup_ids
+    if campaign_ids:
+        criteria["CampaignIds"] = campaign_ids
+    if not criteria:
+        raise ValueError("нужен хотя бы один фильтр: keyword_ids / adgroup_ids / campaign_ids")
+    if serving_statuses:
+        criteria["ServingStatuses"] = serving_statuses
+    return criteria
+
+
+def _ad_targets_criteria(
+    ids: list[int] | None,
+    adgroup_ids: list[int] | None,
+    campaign_ids: list[int] | None,
+    states: list[str] | None,
+) -> dict[str, Any]:
+    """AdTargetsSelectionCriteria — общая для dynamictextadtargets, dynamicfeedadtargets, smartadtargets."""
+    criteria: dict[str, Any] = {}
+    if ids:
+        criteria["Ids"] = ids
+    if adgroup_ids:
+        criteria["AdGroupIds"] = adgroup_ids
+    if campaign_ids:
+        criteria["CampaignIds"] = campaign_ids
+    if states:
+        criteria["States"] = states
+    return criteria
 
 
 class DirectProvider(Provider):

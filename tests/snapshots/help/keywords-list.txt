@@ -1,0 +1,28 @@
+
+ Usage: yd keywords list [OPTIONS]
+
+ Список ключевых фраз с фильтрами по Id, группам, кампаниям, состоянию и статусу.
+
+ Нужен хотя бы один из --id, --adgroup, --campaign.
+ --json: {"ok": true, "count": N, "keywords": [{Id, Keyword, AdGroupId, CampaignId, State, Status,
+ ServingStatus, Bid, ContextBid, StrategyPriority}]}; ставки — в микроединицах валюты.
+
+ Example: yd keywords list --adgroup 555
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id                    <int>                      Только эти Id (повторяемая).                  │
+│ --adgroup               <int>                      Фильтр по группе объявлений (повторяемая).    │
+│ --campaign              <int>                      Фильтр по кампании (повторяемая).             │
+│ --state                 <ON|OFF|SUSPENDED>         Фильтр по состоянию (повторяемая).            │
+│ --status                <DRAFT|ACCEPTED|REJECTED>  Фильтр по статусу модерации (повторяемая).    │
+│ --serving-status        <ELIGIBLE|RARELY_SERVED>   ELIGIBLE — показывается, RARELY_SERVED — мало │
+│                                                    показов (повторяемая).                        │
+│ --modified-since        <str>                      Изменённые после момента,                     │
+│                                                    YYYY-MM-DDThh:mm:ssZ.                         │
+│ --field                 <str>                      Поле FieldNames вместо набора по умолчанию    │
+│                                                    (повторяемая).                                │
+│ --json                                             Машиночитаемый вывод: JSON в stdout.          │
+│ --quiet                                            Не печатать ничего, кроме данных.             │
+│ --help                                             Show this message and exit.                   │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

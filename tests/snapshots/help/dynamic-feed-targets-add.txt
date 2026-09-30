@@ -1,0 +1,29 @@
+
+ Usage: yd dynamic-feed-targets add [OPTIONS]
+
+ Добавить фильтр динамических объявлений по фиду.
+
+ Example: yd dynamic-feed-targets add --adgroup 555 --name Диваны --condition
+ categoryId:EQUALS_ANY:12 --bid 10 --dry-run
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --adgroup                     <int>     Группа динамических объявлений по фиду.               │
+│                                            [обязательный]                                        │
+│ *  --name                        <str>     Название фильтра. [обязательный]                      │
+│    --condition                   <str>     Условие по полю фида OPERAND:OPERATOR:ARG1|ARG2       │
+│                                            (повторяемая), например categoryId:EQUALS_ANY:12|15;  │
+│                                            OPERATOR — EQUALS_ANY, NOT_EQUALS_ALL, CONTAINS_ANY,  │
+│                                            NOT_CONTAINS_ALL, GREATER_THAN, LESS_THAN, IN_RANGE.  │
+│                                            Без условий — все товары.                             │
+│    --bid                         <float>   Ставка на поиске, ₽.                                  │
+│    --context-bid                 <float>   Ставка в сетях, ₽.                                    │
+│    --available-items-only        <YES|NO>  YES — только товары в наличии.                        │
+│    --confirm                               Подтвердить изменение в кабинете без вопроса          │
+│                                            (обязательно вместе с --non-interactive).             │
+│    --dry-run                               Показать, что будет сделано, ничего не меняя.         │
+│    --non-interactive                       Никогда не спрашивать; при нехватке данных — ошибка.  │
+│    --json                                  Машиночитаемый вывод: JSON в stdout.                  │
+│    --quiet                                 Не печатать ничего, кроме данных.                     │
+│    --help                                  Show this message and exit.                           │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
