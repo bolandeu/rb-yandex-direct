@@ -1,0 +1,24 @@
+
+ Usage: yd audiences list [OPTIONS]
+
+ Нацеливания на аудитории в группах: условие или интерес, состояние, ставка.
+
+ Нужен хотя бы один из --id, --adgroup, --campaign, --retargeting, --interest.
+ --json: {"ok": true, "count": N, "audiences": [{Id, AdGroupId, CampaignId, RetargetingListId,
+ InterestId, State, ContextBid, StrategyPriority}]}.
+
+ Example: yd audiences list --campaign 12345
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id                 <int>           Только эти Id (повторяемая).                                │
+│ --adgroup            <int>           Фильтр по группе объявлений (повторяемая).                  │
+│ --campaign           <int>           Фильтр по кампании (повторяемая).                           │
+│ --retargeting        <int>           Фильтр по условию ретаргетинга (повторяемая).               │
+│ --interest           <int>           Фильтр по интересу (повторяемая).                           │
+│ --state              <ON|SUSPENDED>  ON или SUSPENDED (повторяемая).                             │
+│ --field              <str>           Поле FieldNames вместо набора по умолчанию (повторяемая).   │
+│ --json                               Машиночитаемый вывод: JSON в stdout.                        │
+│ --quiet                              Не печатать ничего, кроме данных.                           │
+│ --help                               Show this message and exit.                                 │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

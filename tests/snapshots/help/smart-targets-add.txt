@@ -1,0 +1,49 @@
+
+ Usage: yd smart-targets add [OPTIONS]
+
+ Добавить фильтр смарт-баннеров.
+
+ Example: yd smart-targets add --adgroup 555 --name Диваны --condition categoryId:EQUALS_ANY:12
+ --average-cpc 15 --dry-run
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --adgroup                     <int>                           Группа смарт-баннеров.          │
+│                                                                  [обязательный]                  │
+│ *  --name                        <str>                           Название фильтра.               │
+│                                                                  [обязательный]                  │
+│    --audience                    <INTERESTED_IN_SIMILAR_PRODUCT  Кому показывать: ALL_SEGMENTS,  │
+│                                  S|VISITED_PRODUCT_PAGE|ALL_SEG  VISITED_PRODUCT_PAGE,           │
+│                                  MENTS>                          INTERESTED_IN_SIMILAR_PRODUCTS. │
+│                                                                  [по умолчанию: ALL_SEGMENTS]    │
+│    --condition                   <str>                           Условие по полю фида            │
+│                                                                  OPERAND:OPERATOR:ARG1|ARG2      │
+│                                                                  (повторяемая), например         │
+│                                                                  categoryId:EQUALS_ANY:12|15;    │
+│                                                                  OPERATOR — EQUALS_ANY,          │
+│                                                                  NOT_EQUALS_ALL, CONTAINS_ANY,   │
+│                                                                  NOT_CONTAINS_ALL, GREATER_THAN, │
+│                                                                  LESS_THAN, IN_RANGE. Без        │
+│                                                                  условий — все товары.           │
+│    --average-cpc                 <float>                         Средняя цена клика, ₽           │
+│                                                                  (стратегия с оплатой за клики). │
+│    --average-cpa                 <float>                         Средняя цена конверсии, ₽       │
+│                                                                  (стратегия с оплатой за         │
+│                                                                  конверсии).                     │
+│    --priority                    <LOW|NORMAL|HIGH>               Приоритет для автостратегии:    │
+│                                                                  LOW, NORMAL, HIGH.              │
+│    --available-items-only        <YES|NO>                        YES — только товары в наличии.  │
+│    --confirm                                                     Подтвердить изменение в         │
+│                                                                  кабинете без вопроса            │
+│                                                                  (обязательно вместе с           │
+│                                                                  --non-interactive).             │
+│    --dry-run                                                     Показать, что будет сделано,    │
+│                                                                  ничего не меняя.                │
+│    --non-interactive                                             Никогда не спрашивать; при      │
+│                                                                  нехватке данных — ошибка.       │
+│    --json                                                        Машиночитаемый вывод: JSON в    │
+│                                                                  stdout.                         │
+│    --quiet                                                       Не печатать ничего, кроме       │
+│                                                                  данных.                         │
+│    --help                                                        Show this message and exit.     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

@@ -1,0 +1,24 @@
+
+ Usage: yd modifiers list [OPTIONS]
+
+ Корректировки ставок кампаний и групп со значениями по каждому типу.
+
+ Нужен хотя бы один из --id, --campaign, --adgroup.
+ --json: {"ok": true, "count": N, "modifiers": [{Id, CampaignId, AdGroupId, Level, Type,
+ <Тип>Adjustment: {BidModifier, …}}]}.
+
+ Example: yd modifiers list --campaign 12345
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id              <int>                Только эти Id (повторяемая).                              │
+│ --campaign        <int>                Фильтр по кампании (повторяемая).                         │
+│ --adgroup         <int>                Фильтр по группе (повторяемая).                           │
+│ --type            <str>                Тип с суффиксом: MOBILE_ADJUSTMENT,                       │
+│                                        DEMOGRAPHICS_ADJUSTMENT, … (повторяемая).                 │
+│ --level           <CAMPAIGN|AD_GROUP>  Уровень: CAMPAIGN и/или AD_GROUP (по умолчанию оба).      │
+│ --field           <str>                Поле FieldNames вместо набора по умолчанию (повторяемая). │
+│ --json                                 Машиночитаемый вывод: JSON в stdout.                      │
+│ --quiet                                Не печатать ничего, кроме данных.                         │
+│ --help                                 Show this message and exit.                               │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

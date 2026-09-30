@@ -25,8 +25,11 @@ async def test_list_bid_modifiers_filters() -> None:
     assert body["params"]["SelectionCriteria"] == {
         "CampaignIds": [1, 2],
         "Types": ["MOBILE_ADJUSTMENT"],
+        "Levels": ["CAMPAIGN", "AD_GROUP"],
     }
-    assert "MobileAdjustment" in body["params"]["FieldNames"]
+    assert body["params"]["FieldNames"] == ["Id", "CampaignId", "AdGroupId", "Level", "Type"]
+    assert body["params"]["MobileAdjustmentFieldNames"] == ["BidModifier", "OperatingSystemType"]
+    assert "RegionalAdjustmentFieldNames" in body["params"]
 
 
 @pytest.mark.asyncio
@@ -68,9 +71,9 @@ async def test_keywords_has_search_volume_with_regions() -> None:
     route = _route(
         "keywordsresearch",
         {
-            "SearchVolumeItems": [
-                {"Phrase": "купить диван", "HasSearchVolume": True},
-                {"Phrase": "купить бегемота", "HasSearchVolume": False},
+            "HasSearchVolumeResults": [
+                {"Keyword": "купить диван", "AllDevices": "YES"},
+                {"Keyword": "купить бегемота", "AllDevices": "NO"},
             ]
         },
     )
@@ -81,16 +84,26 @@ async def test_keywords_has_search_volume_with_regions() -> None:
     )
     body = json.loads(route.calls.last.request.content)
     assert body["method"] == "hasSearchVolume"
-    assert body["params"]["RegionIds"] == [213, 2]
-    assert result[0]["HasSearchVolume"] is True
+    assert body["params"]["SelectionCriteria"] == {
+        "Keywords": ["купить диван", "купить бегемота"],
+        "RegionIds": [213, 2],
+    }
+    assert "AllDevices" in body["params"]["FieldNames"]
+    assert result[0]["AllDevices"] == "YES"
 
 
 @pytest.mark.asyncio
 @respx.mock
 async def test_keywords_deduplicate() -> None:
-    route = _route("keywordsresearch", {"DeduplicationResult": [{"KeywordId": 1, "State": "SUSPENDED"}]})
+    route = _route("keywordsresearch", {"Delete": {"Ids": [2]}})
     c = DirectClient(token="t")
-    await c.keywords_deduplicate([1, 2, 3])
+    result = await c.keywords_deduplicate(
+        [{"Id": 1, "Keyword": "диван"}, {"Id": 2, "Keyword": "диван"}], operations=["MERGE_DUPLICATES"]
+    )
     body = json.loads(route.calls.last.request.content)
     assert body["method"] == "deduplicate"
-    assert body["params"]["KeywordIds"] == [1, 2, 3]
+    assert body["params"] == {
+        "Keywords": [{"Id": 1, "Keyword": "диван"}, {"Id": 2, "Keyword": "диван"}],
+        "Operation": ["MERGE_DUPLICATES"],
+    }
+    assert result["Delete"]["Ids"] == [2]

@@ -1,0 +1,19 @@
+
+ Usage: yd retargeting list [OPTIONS]
+
+ Условия ретаргетинга: правила из целей Метрики, доступность, где применимы.
+
+ --json: {"ok": true, "count": N, "lists": [{Id, Name, Description, Type, Rules, IsAvailable,
+ Scope}]}.
+
+ Example: yd retargeting list --type AUDIENCE
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id           <int>                   Только эти Id (повторяемая).                              │
+│ --type         <RETARGETING|AUDIENCE>  RETARGETING или AUDIENCE (повторяемая).                   │
+│ --field        <str>                   Поле FieldNames вместо набора по умолчанию (повторяемая). │
+│ --json                                 Машиночитаемый вывод: JSON в stdout.                      │
+│ --quiet                                Не печатать ничего, кроме данных.                         │
+│ --help                                 Show this message and exit.                               │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

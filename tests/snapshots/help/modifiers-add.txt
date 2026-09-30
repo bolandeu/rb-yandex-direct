@@ -1,0 +1,50 @@
+
+ Usage: yd modifiers add [OPTIONS]
+
+ Добавить корректировку ставки на кампанию или группу.
+
+
+ Ещё примеры:
+   yd modifiers add --adgroup 456 --type DEMOGRAPHICS --gender GENDER_MALE --age AGE_25_34 --value
+ 120
+   yd modifiers add --campaign 123 --type REGIONAL --region 213 --value 150
+   yd modifiers add --campaign 123 --type MOBILE --os IOS --value 80
+
+ Example: yd modifiers add --campaign 12345 --type MOBILE --value 50 --dry-run
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --type                   <MOBILE|DESKTOP|SMART_TV|TABLET|  Тип корректировки. [обязательный]  │
+│                             DESKTOP_ONLY|DEMOGRAPHICS|RETARG                                     │
+│                             ETING|REGIONAL|VIDEO|SMART_AD|SE                                     │
+│                             RP_LAYOUT|INCOME_GRADE|AD_GROUP>                                     │
+│ *  --value                  <int>                             Процент ставки: 100 — без          │
+│                                                               изменений, 0 — не показывать.      │
+│                                                               [обязательный]                     │
+│    --campaign               <int>                             Кампания (или --adgroup).          │
+│    --adgroup                <int>                             Группа объявлений (или             │
+│                                                               --campaign).                       │
+│    --os                     <IOS|ANDROID>                     MOBILE/TABLET: только IOS или      │
+│                                                               ANDROID.                           │
+│    --gender                 <GENDER_MALE|GENDER_FEMALE>       DEMOGRAPHICS: пол.                 │
+│    --age                    <AGE_0_17|AGE_18_24|AGE_25_34|AG  DEMOGRAPHICS: возраст.             │
+│                             E_35_44|AGE_45|AGE_45_54|AGE_55>                                     │
+│    --region                 <int>                             REGIONAL: Id региона (213 —        │
+│                                                               Москва).                           │
+│    --retargeting            <int>                             RETARGETING: Id условия            │
+│                                                               ретаргетинга.                      │
+│    --serp-layout            <ALONE|SUGGEST>                   SERP_LAYOUT: ALONE — эксклюзив,    │
+│                                                               SUGGEST — подсказка.               │
+│    --grade                  <VERY_HIGH|HIGH|ABOVE_AVERAGE>    INCOME_GRADE: уровень дохода.      │
+│    --confirm                                                  Подтвердить изменение в кабинете   │
+│                                                               без вопроса (обязательно вместе с  │
+│                                                               --non-interactive).                │
+│    --dry-run                                                  Показать, что будет сделано,       │
+│                                                               ничего не меняя.                   │
+│    --non-interactive                                          Никогда не спрашивать; при         │
+│                                                               нехватке данных — ошибка.          │
+│    --json                                                     Машиночитаемый вывод: JSON в       │
+│                                                               stdout.                            │
+│    --quiet                                                    Не печатать ничего, кроме данных.  │
+│    --help                                                     Show this message and exit.        │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

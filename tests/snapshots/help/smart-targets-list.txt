@@ -1,0 +1,24 @@
+
+ Usage: yd smart-targets list [OPTIONS]
+
+ Фильтры смарт-баннеров: аудитория, условия по фиду, средние цены клика и конверсии.
+
+ Нужен хотя бы один из --id, --adgroup, --campaign.
+ --json: {"ok": true, "count": N, "targets": [{Id, AdGroupId, CampaignId, Name, State, Audience,
+ AverageCpc, AverageCpa, StrategyPriority, Conditions: {Items}, ConditionType,
+ AvailableItemsOnly}]}.
+
+ Example: yd smart-targets list --campaign 12345
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id              <int>                       Только эти Id (повторяемая).                       │
+│ --adgroup         <int>                       Фильтр по группе объявлений (повторяемая).         │
+│ --campaign        <int>                       Фильтр по кампании (повторяемая).                  │
+│ --state           <ON|OFF|SUSPENDED|DELETED>  ON, OFF, SUSPENDED, DELETED (повторяемая).         │
+│ --field           <str>                       Поле FieldNames вместо набора по умолчанию         │
+│                                               (повторяемая).                                     │
+│ --json                                        Машиночитаемый вывод: JSON в stdout.               │
+│ --quiet                                       Не печатать ничего, кроме данных.                  │
+│ --help                                        Show this message and exit.                        │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
