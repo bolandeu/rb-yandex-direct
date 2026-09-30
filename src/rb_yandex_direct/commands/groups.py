@@ -9,11 +9,15 @@ from collections.abc import Callable
 
 import typer
 
-from . import account, campaigns
+from . import account, campaigns, history, masters
+from . import browser as browser_cmd
 
 GROUPS: dict[str, typer.Typer] = {
     "clients": account.clients_app,
     "campaigns": campaigns.app,
+    "masters": masters.app,
+    "history": history.app,
+    "browser": browser_cmd.app,
 }
 
 TOP_LEVEL: dict[str, Callable] = {

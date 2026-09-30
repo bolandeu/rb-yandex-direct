@@ -13,5 +13,5 @@ build/
 htmlcov/
 .python-version
 *.token
-data/
-reports/
+/data/
+/reports/

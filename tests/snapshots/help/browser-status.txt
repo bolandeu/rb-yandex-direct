@@ -1,0 +1,17 @@
+
+ Usage: yd browser status [OPTIONS]
+
+ Какую сессию возьмут `masters`/`history` и что о ней известно — без сети и браузера.
+
+ `active`: profile (свой Chromium после `browser login`), saved (снимок кук после
+ `browser login --from-chrome`; с датой истечения) или chrome (свежие куки Chrome каждый раз).
+ --json: {"ok": true, "active", "profile": {path, usable}, "saved": {path, exists, expired, …}}.
+
+ Example: yd browser status --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --json           Машиночитаемый вывод: JSON в stdout.                                            │
+│ --quiet          Не печатать ничего, кроме данных.                                               │
+│ --help           Show this message and exit.                                                     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

@@ -30,3 +30,20 @@ def fake_keyring(monkeypatch: pytest.MonkeyPatch) -> dict[tuple[str, str], str]:
         if var.startswith(_ENV_PREFIXES):
             monkeypatch.delenv(var)
     return store
+
+
+@pytest.fixture(autouse=True)
+def fake_browser(monkeypatch: pytest.MonkeyPatch, tmp_path_factory: pytest.TempPathFactory):
+    """Браузерный слой (direct-cli + Playwright) подменён, данные yd — во временной папке.
+
+    Ни один тест не запускает браузер и не читает куки Chrome, даже если extra `browser` установлен.
+    """
+    from rb_yandex_direct.providers import browser
+
+    from .fake_browser import FakeBrowser
+
+    fake = FakeBrowser()
+    root = tmp_path_factory.mktemp("yd-data") / "browser"
+    monkeypatch.setattr(browser, "_lib", fake)
+    monkeypatch.setattr(browser, "paths", lambda: browser.Paths(root))
+    return fake

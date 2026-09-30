@@ -1,0 +1,19 @@
+
+ Usage: yd browser doctor [OPTIONS]
+
+ Готовность веб-интерфейса: playwright и Chromium, доступ к кукам Chrome, сохранённая сессия.
+
+ Всегда код 0 — результат в самом отчёте; `ok: null` — проверка неприменима.
+ --json: {"ok": true, "healthy": bool, "checks": [{name, ok, detail, hint}]}.
+
+ Example: yd browser doctor --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --chrome-dir            <str>  Папка профилей Chrome (user-data-dir): всегда свежие куки оттуда, │
+│                                без сохранённой сессии.                                           │
+│ --chrome-profile        <str>  Профиль Chrome внутри --chrome-dir. [по умолчанию: Default]       │
+│ --json                         Машиночитаемый вывод: JSON в stdout.                              │
+│ --quiet                        Не печатать ничего, кроме данных.                                 │
+│ --help                         Show this message and exit.                                       │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

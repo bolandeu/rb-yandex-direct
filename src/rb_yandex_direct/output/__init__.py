@@ -119,9 +119,9 @@ def emit_report(
     else:
         if not ctx.obj.get("quiet"):
             render_human(payload)
-        human.err_console.print(f"[red]Error:[/red] {problem.message}")
+        human.err_console.print(f"[red]Error:[/red] {escape(problem.message)}")
         if problem.action:
-            human.err_console.print(f"[dim]{problem.action}[/dim]")
+            human.err_console.print(f"[dim]{escape(problem.action)}[/dim]")
     raise typer.Exit(code=problem.exit_code)
 
 
@@ -129,9 +129,9 @@ def emit_error(ctx: typer.Context, error: CliError) -> None:
     if ctx.obj.get("json"):
         json_output.emit({"ok": False, "error": error.to_dict()})
     else:
-        human.err_console.print(f"[red]Error:[/red] {error.message}")
+        human.err_console.print(f"[red]Error:[/red] {escape(error.message)}")
         if error.action:
-            human.err_console.print(f"[dim]{error.action}[/dim]")
+            human.err_console.print(f"[dim]{escape(error.action)}[/dim]")
     raise typer.Exit(code=error.exit_code)
 
 
@@ -155,7 +155,7 @@ def vecho(ctx: typer.Context, message: str) -> None:
     `logging.getLogger(__name__).debug(...)` instead — see configure_logging.
     """
     if ctx.obj.get("verbose") and not ctx.obj.get("json") and not ctx.obj.get("quiet"):
-        human.err_console.print(f"[dim]{message}[/dim]")
+        human.err_console.print(f"[dim]{escape(message)}[/dim]")
 
 
 def require_confirmation(ctx: typer.Context, description: str, confirm: bool) -> None:
