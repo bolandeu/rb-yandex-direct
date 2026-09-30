@@ -31,11 +31,27 @@ FILES = {
     "feeds.json": [{"Id": 7001, "Name": "Каталог", "UrlFeed": {"Url": "https://example.com/feed.xml"}}],
     "targets.json": [{"AdGroupId": 555, "Name": "Все страницы"}],
     "sitelinks.json": [{"Title": "Доставка", "Href": "https://example.com/d"}],
-    "vcards.json": [{"CampaignId": 12345, "Country": "Россия", "City": "Москва", "CompanyName": "Ромашка"}],
+    "vcards.json": [
+        {
+            "CampaignId": 12345,
+            "Country": "Россия",
+            "City": "Москва",
+            "CompanyName": "Ромашка",
+            "WorkTime": "0#4#9#00#18#00",
+            "Phone": {"CountryCode": "+7", "CityCode": "495", "PhoneNumber": "1234567"},
+        }
+    ],
+    "adgroups.json": [{"Name": "Диваны", "CampaignId": 12345, "RegionIds": [213]}],
+    "adgroups-update.json": [{"Id": 555, "Name": "Диваны Москва"}],
+    "ads-update.json": [{"Id": 777, "TextAd": {"Title": "Диваны от 8990 ₽"}}],
 }
 TEXT_FILES = {"minus.txt": "бесплатно\nскачать\n", "keywords.txt": "купить диван\nдиван недорого\n"}
 # Ответы `get`, без которых пример законно падает (объект не найден).
-RESULTS = {"campaigns": {"Campaigns": [{"Id": 12345, "Name": "Весна"}]}}
+RESULTS = {
+    "campaigns": {"Campaigns": [{"Id": 12345, "Name": "Весна"}]},
+    "adgroups": {"AdGroups": [{"Id": 555, "Name": "Диваны"}]},
+    "ads": {"Ads": [{"Id": 777, "TextAd": {"Title": "Диваны"}}]},
+}
 REPORT_TSV = "Date\tClicks\tCost\n2026-09-01\t10\t1000000\nTotal rows: 1\n"
 # Ответы API v4 Live (`{"data": ...}`) по методу; остальные методы — `{"data": null}`.
 LIVE_DATA = {

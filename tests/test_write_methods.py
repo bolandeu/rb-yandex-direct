@@ -6,6 +6,7 @@ import pytest
 import respx
 from httpx import Response
 
+from rb_yandex_direct.core.errors import InvalidArguments
 from rb_yandex_direct.providers.direct import PROD_BASE, DirectClient
 
 
@@ -401,19 +402,20 @@ async def test_add_text_ad_shortcut() -> None:
     assert ad["AdGroupId"] == 10
     assert ad["TextAd"]["Title"] == "Куртка зимой"
     assert ad["TextAd"]["Title2"] == "в каталоге"
+    assert ad["TextAd"]["Mobile"] == "NO"  # в API поле обязательно
 
 
 @pytest.mark.asyncio
 async def test_add_ads_rejects_missing_type_block() -> None:
     c = DirectClient(token="t")
-    with pytest.raises(ValueError, match="type-specific"):
+    with pytest.raises(InvalidArguments, match="type-specific"):
         await c.add_ads([{"AdGroupId": 1}])
 
 
 @pytest.mark.asyncio
 async def test_add_ads_rejects_two_type_blocks() -> None:
     c = DirectClient(token="t")
-    with pytest.raises(ValueError, match="type-specific"):
+    with pytest.raises(InvalidArguments, match="type-specific"):
         await c.add_ads(
             [
                 {
@@ -428,7 +430,7 @@ async def test_add_ads_rejects_two_type_blocks() -> None:
 @pytest.mark.asyncio
 async def test_add_ads_rejects_missing_adgroup() -> None:
     c = DirectClient(token="t")
-    with pytest.raises(ValueError, match="AdGroupId"):
+    with pytest.raises(InvalidArguments, match="AdGroupId"):
         await c.add_ads([{"TextAd": {"Title": "a", "Text": "b", "Href": "c"}}])
 
 
@@ -436,7 +438,7 @@ async def test_add_ads_rejects_missing_adgroup() -> None:
 @respx.mock
 async def test_add_adgroups_requires_fields() -> None:
     c = DirectClient(token="t")
-    with pytest.raises(ValueError, match="RegionIds"):
+    with pytest.raises(InvalidArguments, match="RegionIds"):
         await c.add_adgroups([{"Name": "g", "CampaignId": 1}])
 
 
@@ -601,7 +603,7 @@ async def test_add_creatives_video_extension() -> None:
 @pytest.mark.asyncio
 async def test_add_creatives_rejects_over_10() -> None:
     c = DirectClient(token="t")
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidArguments):
         await c.add_creatives([{"VideoExtensionCreative": {"VideoId": str(i)}} for i in range(11)])
 
 

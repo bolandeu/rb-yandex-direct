@@ -1,0 +1,39 @@
+
+ Usage: yd ads add-mobile-app [OPTIONS]
+
+ Создать объявление мобильного приложения (MobileAppAd).
+
+ Example: yd ads add-mobile-app --adgroup 555 --title 'Игра' --text 'Скачай бесплатно' --feature
+ ICON=YES --dry-run
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --adgroup                 <int>                             Id группы (тип                    │
+│                                                                MOBILE_APP_AD_GROUP).             │
+│                                                                [обязательный]                    │
+│ *  --title                   <str>                             Заголовок. [обязательный]         │
+│ *  --text                    <str>                             Текст. [обязательный]             │
+│    --action                  <DOWNLOAD|GET|INSTALL|MORE|OPEN|  Надпись на кнопке.                │
+│                              UPDATE|PLAY|BUY_AUTODETECT>       [по умолчанию: INSTALL]           │
+│    --tracking-url            <str>                             Трекинговая ссылка (AppMetrica,   │
+│                                                                AppsFlyer…).                      │
+│    --image-hash              <str>                             Хэш изображения.                  │
+│    --feature                 <str>                             Показ данных из магазина:         │
+│                                                                PRICE|ICON|CUSTOMER_RATING|RATIN… │
+│                                                                (повторяемая).                    │
+│    --age-label               <str>                             Возрастная метка: AGE_0, AGE_6,   │
+│                                                                AGE_12, AGE_16, AGE_18.           │
+│    --erir-description        <str>                             Описание объекта рекламы для      │
+│                                                                ЕРИР.                             │
+│    --confirm                                                   Подтвердить изменение в кабинете  │
+│                                                                без вопроса (обязательно вместе с │
+│                                                                --non-interactive).               │
+│    --dry-run                                                   Показать, что будет сделано,      │
+│                                                                ничего не меняя.                  │
+│    --non-interactive                                           Никогда не спрашивать; при        │
+│                                                                нехватке данных — ошибка.         │
+│    --json                                                      Машиночитаемый вывод: JSON в      │
+│                                                                stdout.                           │
+│    --quiet                                                     Не печатать ничего, кроме данных. │
+│    --help                                                      Show this message and exit.       │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

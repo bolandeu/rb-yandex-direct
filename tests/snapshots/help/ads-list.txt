@@ -1,0 +1,38 @@
+
+ Usage: yd ads list [OPTIONS]
+
+ Список объявлений с фильтрами; поля TextAd (заголовок, текст, ссылка) — по умолчанию.
+
+ API требует хотя бы один из фильтров --id, --campaign, --adgroup.
+ --json: {"ok": true, "count": N, "ads": [{Id, AdGroupId, CampaignId, Type, State, Status, TextAd,
+ …}]}.
+
+ Example: yd ads list --campaign 12345 --status REJECTED
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id                  <int>                                 Только эти объявления (повторяемая). │
+│ --campaign            <int>                                 Объявления этих кампаний             │
+│                                                             (повторяемая).                       │
+│ --adgroup             <int>                                 Объявления этих групп (повторяемая). │
+│ --state               <ON|OFF|SUSPENDED|OFF_BY_MONITORING|  Фильтр по состоянию (повторяемая).   │
+│                       ARCHIVED>                                                                  │
+│ --status              <DRAFT|MODERATION|PREACCEPTED|ACCEPT  Фильтр по статусу модерации          │
+│                       ED|REJECTED>                          (повторяемая).                       │
+│ --type                <TEXT_AD|MOBILE_APP_AD|DYNAMIC_TEXT_  Фильтр по типу объявления            │
+│                       AD|IMAGE_AD|CPC_VIDEO_AD|CPM_BANNER_  (повторяемая).                       │
+│                       AD|CPM_VIDEO_AD|SMART_AD|SHOPPING_AD                                       │
+│                       |LISTING_AD>                                                               │
+│ --mobile              <YES|NO>                              Только мобильные (YES) или только    │
+│                                                             обычные (NO).                        │
+│ --vcard               <int>                                 С этой визиткой (повторяемая).       │
+│ --sitelink-set        <int>                                 С этим набором быстрых ссылок        │
+│                                                             (повторяемая).                       │
+│ --image-hash          <str>                                 С этим изображением (повторяемая).   │
+│ --extension           <int>                                 С этим уточнением (повторяемая).     │
+│ --field               <str>                                 Поле FieldNames вместо набора по     │
+│                                                             умолчанию (повторяемая).             │
+│ --json                                                      Машиночитаемый вывод: JSON в stdout. │
+│ --quiet                                                     Не печатать ничего, кроме данных.    │
+│ --help                                                      Show this message and exit.          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

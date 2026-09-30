@@ -1,0 +1,57 @@
+
+ Usage: yd adgroups add [OPTIONS]
+
+ Создать группу объявлений; --type задаёт тип и нужные ему опции.
+
+ text — обычная (фид необязателен), dynamic — по домену (--domain-url), dynamic-feed и
+ smart — по фиду (--feed-id), mobile-app — приложение (--store-url), unified — ЕПК.
+ Автотаргетинг и прочие тонкие настройки — через `adgroups add-json`.
+
+ Example: yd adgroups add --campaign 12345 --name 'Диваны' --region 213 --dry-run
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --campaign                 <int>                             Id кампании. [обязательный]      │
+│ *  --name                     <str>                             Название группы. [обязательный]  │
+│ *  --region                   <int>                             Id региона показа (повторяемая;  │
+│                                                                 0 — все регионы).                │
+│                                                                 [обязательный]                   │
+│    --type                     <text|dynamic|dynamic-feed|mobil  Тип группы: определяет блок типа │
+│                               e-app|smart|unified>              в запросе.                       │
+│                                                                 [по умолчанию: text]             │
+│    --negative-keyword         <str>                             Минус-фраза группы               │
+│                                                                 (повторяемая).                   │
+│    --minus-set                <int>                             Id набора общих минус-фраз       │
+│                                                                 (повторяемая).                   │
+│    --tracking-params          <str>                             UTM и другие параметры к ссылкам │
+│                                                                 группы.                          │
+│    --domain-url               <str>                             dynamic: домен сайта для         │
+│                                                                 динамических объявлений.         │
+│    --feed-id                  <int>                             dynamic-feed, smart, text: Id    │
+│                                                                 фида.                            │
+│    --feed-category            <int>                             text: Id категории фида          │
+│                                                                 (повторяемая).                   │
+│    --store-url                <str>                             mobile-app: ссылка на приложение │
+│                                                                 в магазине.                      │
+│    --device                   <DEVICE_TYPE_MOBILE|DEVICE_TYPE_  mobile-app: тип устройства       │
+│                               TABLET>                           (повторяемая; по умолчанию все). │
+│    --carrier                  <WI_FI_ONLY|WI_FI_AND_CELLULAR>   mobile-app: тип связи (по        │
+│                                                                 умолчанию WI_FI_AND_CELLULAR).   │
+│    --os-version               <str>                             mobile-app: минимальная версия   │
+│                                                                 ОС (по умолчанию 1.0).           │
+│    --ad-title-source          <str>                             smart: поле фида для заголовка.  │
+│    --ad-body-source           <str>                             smart: поле фида для текста.     │
+│    --offer-retargeting        <YES|NO>                          unified: офферный ретаргетинг.   │
+│    --confirm                                                    Подтвердить изменение в кабинете │
+│                                                                 без вопроса (обязательно вместе  │
+│                                                                 с --non-interactive).            │
+│    --dry-run                                                    Показать, что будет сделано,     │
+│                                                                 ничего не меняя.                 │
+│    --non-interactive                                            Никогда не спрашивать; при       │
+│                                                                 нехватке данных — ошибка.        │
+│    --json                                                       Машиночитаемый вывод: JSON в     │
+│                                                                 stdout.                          │
+│    --quiet                                                      Не печатать ничего, кроме        │
+│                                                                 данных.                          │
+│    --help                                                       Show this message and exit.      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

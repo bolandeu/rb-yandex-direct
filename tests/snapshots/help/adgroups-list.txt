@@ -1,0 +1,34 @@
+
+ Usage: yd adgroups list [OPTIONS]
+
+ Список групп объявлений с фильтрами по Id, кампании, типу и статусам.
+
+ API требует хотя бы один из фильтров --id или --campaign.
+ --json: {"ok": true, "count": N, "adgroups": [{Id, Name, CampaignId, Type, Status, RegionIds,
+ …}]}.
+
+ Example: yd adgroups list --campaign 12345
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id                    <int>                               Только эти группы (повторяемая).     │
+│ --campaign              <int>                               Группы этих кампаний (повторяемая).  │
+│ --type                  <TEXT_AD_GROUP|MOBILE_APP_AD_GROUP  Фильтр по типу группы (повторяемая). │
+│                         |DYNAMIC_TEXT_AD_GROUP|CPM_BANNER_                                       │
+│                         AD_GROUP|CPM_VIDEO_AD_GROUP|UNIFIE                                       │
+│                         D_AD_GROUP>                                                              │
+│ --status                <ACCEPTED|DRAFT|MODERATION|PREACCE  Фильтр по статусу модерации          │
+│                         PTED|REJECTED>                      (повторяемая).                       │
+│ --serving-status        <ELIGIBLE|RARELY_SERVED>            ELIGIBLE — показывается,             │
+│                                                             RARELY_SERVED — мало показов         │
+│                                                             (повторяемая).                       │
+│ --tag                   <str>                               Фильтр по метке группы               │
+│                                                             (повторяемая).                       │
+│ --field                 <str>                               Поле FieldNames вместо набора по     │
+│                                                             умолчанию (Id, Name, CampaignId,     │
+│                                                             Type, Status, RegionIds,             │
+│                                                             TrackingParams); повторяемая.        │
+│ --json                                                      Машиночитаемый вывод: JSON в stdout. │
+│ --quiet                                                     Не печатать ничего, кроме данных.    │
+│ --help                                                      Show this message and exit.          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
