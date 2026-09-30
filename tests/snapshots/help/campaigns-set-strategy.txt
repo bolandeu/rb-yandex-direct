@@ -1,0 +1,42 @@
+
+ Usage: yd campaigns set-strategy [OPTIONS] {campaign_id}
+
+ Сменить стратегию кампании или её параметры (бюджет, цель, цену конверсии).
+
+ Задайте стратегию площадки (--search-strategy/--network-strategy) и её параметры;
+ незаданная площадка не меняется. Тип кампании берётся из campaigns.get, если не передан
+ --campaign-type (тогда и --dry-run делает один запрос на чтение).
+
+ Example: yd campaigns set-strategy 12345 --campaign-type TEXT_CAMPAIGN --search-strategy
+ WB_MAXIMUM_CLICKS --weekly-budget 7000 --dry-run
+
+╭─ Аргументы ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *    campaign_id      <int>  Id кампании. [обязательный]                                         │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --campaign-type           <str>    Тип кампании (TEXT_CAMPAIGN…); по умолчанию узнаётся запросом │
+│                                    campaigns.get.                                                │
+│ --search-strategy         <str>    Новая стратегия на поиске.                                    │
+│ --network-strategy        <str>    Новая стратегия в сетях.                                      │
+│ --weekly-budget           <float>  Недельный бюджет стратегии (WeeklySpendLimit), ₽.             │
+│ --bid-ceiling             <float>  Максимальная ставка (BidCeiling), ₽.                          │
+│ --average-cpc             <float>  Средняя цена клика (AverageCpc/FilterAverageCpc), ₽.          │
+│ --average-cpa             <float>  Средняя цена конверсии (AverageCpa/FilterAverageCpa), ₽.      │
+│ --cpa                     <float>  Цена конверсии при оплате за конверсии (Cpa), ₽.              │
+│ --goal-id                 <int>    Id цели Метрики для конверсионных стратегий (GoalId).         │
+│ --crr                     <int>    Доля рекламных расходов, % (Crr).                             │
+│ --clicks-per-week         <int>    Пакет кликов в неделю (ClicksPerWeek).                        │
+│ --limit-percent           <int>    Доля бюджета на сети при NETWORK_DEFAULT, % (LimitPercent).   │
+│ --average-cpi             <float>  Средняя цена установки приложения (AverageCpi), ₽.            │
+│ --average-cpm             <float>  Средняя цена тысячи показов (AverageCpm), ₽.                  │
+│ --average-cpv             <float>  Средняя цена просмотра (AverageCpv), ₽.                       │
+│ --spend-limit             <float>  Бюджет медийной стратегии (SpendLimit), ₽.                    │
+│ --confirm                          Подтвердить изменение в кабинете без вопроса (обязательно     │
+│                                    вместе с --non-interactive).                                  │
+│ --dry-run                          Показать, что будет сделано, ничего не меняя.                 │
+│ --non-interactive                  Никогда не спрашивать; при нехватке данных — ошибка.          │
+│ --json                             Машиночитаемый вывод: JSON в stdout.                          │
+│ --quiet                            Не печатать ничего, кроме данных.                             │
+│ --help                             Show this message and exit.                                   │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

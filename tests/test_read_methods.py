@@ -93,11 +93,10 @@ async def test_keyword_bids_ok() -> None:
 async def test_check_campaign_changes() -> None:
     route = _route_service("changes", {"result": {"Timestamp": "2026-01-01T00:00:00Z"}})
     c = DirectClient(token="t")
-    await c.check_campaign_changes(timestamp="2026-01-01T00:00:00Z", campaign_ids=[1, 2])
+    await c.check_campaign_changes(timestamp="2026-01-01T00:00:00Z")
     body = json.loads(route.calls.last.request.content)
     assert body["method"] == "checkCampaigns"
-    assert body["params"]["Timestamp"] == "2026-01-01T00:00:00Z"
-    assert body["params"]["CampaignIds"] == [1, 2]
+    assert body["params"] == {"Timestamp": "2026-01-01T00:00:00Z"}
 
 
 @pytest.mark.asyncio
@@ -108,6 +107,7 @@ async def test_check_dictionaries() -> None:
     result = await c.check_dictionaries("2026-03-01T00:00:00Z")
     body = json.loads(route.calls.last.request.content)
     assert body["method"] == "checkDictionaries"
+    assert body["params"] == {"Timestamp": "2026-03-01T00:00:00Z"}
     assert result["Timestamp"].startswith("2026")
 
 
@@ -138,7 +138,8 @@ async def test_report_preset_campaign_performance() -> None:
     rep = await rc.campaign_performance("2026-04-01", "2026-04-19")
     rows = rep.parse()
     assert len(rows) == 1
-    assert rows[0]["CampaignId"] == "1"
+    assert rows[0]["CampaignId"] == 1
+    assert rows[0]["Date"] == "2026-04-01"
 
 
 @pytest.mark.asyncio

@@ -1,0 +1,34 @@
+
+ Usage: yd agency update [OPTIONS] {client_id}
+
+ Изменить клиента агентства: имя, контакты, уведомления, настройки, ИНН, права клиента.
+
+ Передаются только заданные поля. Права (--grant) — что клиент может делать сам
+ в своём кабинете. Всё прочее (данные ЕРИР) — `agency update-json`.
+
+ Example: yd agency update 777 --grant EDIT_CAMPAIGNS=NO --dry-run
+
+╭─ Аргументы ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *    client_id      <int>  ClientId клиента агентства (см. `agency list`). [обязательный]        │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --client-info            <str>  Имя/описание клиента.                                            │
+│ --phone                  <str>  Телефон клиента.                                                 │
+│ --email                  <str>  Email для уведомлений.                                           │
+│ --lang                   <str>  Язык уведомлений: RU, UK, EN, TR.                                │
+│ --subscription           <str>  Подписка ИМЯ=YES|NO: RECEIVE_RECOMMENDATIONS,                    │
+│                                 TRACK_MANAGED_CAMPAIGNS, TRACK_POSITION_CHANGES.                 │
+│ --setting                <str>  Настройка ИМЯ=YES|NO: CORRECT_TYPOS_AUTOMATICALLY,               │
+│                                 DISPLAY_STORE_RATING.                                            │
+│ --tin-type               <str>  Тип ИНН: PHYSICAL, LEGAL, INDIVIDUAL, FOREIGN_*.                 │
+│ --tin                    <str>  ИНН клиента.                                                     │
+│ --grant                  <str>  Право ИМЯ=YES|NO: EDIT_CAMPAIGNS, IMPORT_XLS, TRANSFER_MONEY.    │
+│ --confirm                       Подтвердить изменение в кабинете без вопроса (обязательно вместе │
+│                                 с --non-interactive).                                            │
+│ --dry-run                       Показать, что будет сделано, ничего не меняя.                    │
+│ --non-interactive               Никогда не спрашивать; при нехватке данных — ошибка.             │
+│ --json                          Машиночитаемый вывод: JSON в stdout.                             │
+│ --quiet                         Не печатать ничего, кроме данных.                                │
+│ --help                          Show this message and exit.                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

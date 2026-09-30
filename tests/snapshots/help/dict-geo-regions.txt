@@ -1,0 +1,19 @@
+
+ Usage: yd dict geo-regions [OPTIONS]
+
+ Найти регионы по названию или Id: Id для таргетинга групп и корректировок
+ (dictionaries.getGeoRegions).
+
+ --json: {"ok": true, "count": N, "regions": [{GeoRegionId, GeoRegionName, ParentGeoRegionNames}]}.
+
+ Example: yd dict geo-regions --name Казань
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --name         <str>  Часть названия региона, например Москв.                                    │
+│ --id           <int>  Id региона (повторяемая).                                                  │
+│ --exact        <str>  Точное название региона (повторяемая).                                     │
+│ --json                Машиночитаемый вывод: JSON в stdout.                                       │
+│ --quiet               Не печатать ничего, кроме данных.                                          │
+│ --help                Show this message and exit.                                                │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

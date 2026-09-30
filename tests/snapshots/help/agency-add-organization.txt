@@ -1,0 +1,30 @@
+
+ Usage: yd agency add-organization [OPTIONS]
+
+ Создать клиента агентства как организацию Яндекс ID (agencyclients.addPassportOrganization).
+
+ Замена устаревшего agencyclients.add (новых клиентов-логинов API больше не создаёт, код 3500).
+ Сотрудников в организацию приглашает `agency add-member`.
+ --json: `result` — {Login, ClientId} созданного клиента.
+
+ Example: yd agency add-organization --name 'ООО Ромашка' --email ads@romashka.ru --dry-run
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --name                   <str>  Название организации клиента. [обязательный]                  │
+│    --currency               <str>  Валюта кабинета: RUB, BYN, KZT, USD, EUR… [по умолчанию: RUB] │
+│ *  --email                  <str>  Email для уведомлений. [обязательный]                         │
+│    --lang                   <str>  Язык уведомлений: RU, UK, EN, TR. [по умолчанию: RU]          │
+│    --subscription           <str>  Подписка ИМЯ=YES|NO: RECEIVE_RECOMMENDATIONS,                 │
+│                                    TRACK_MANAGED_CAMPAIGNS, TRACK_POSITION_CHANGES.              │
+│    --setting                <str>  Настройка ИМЯ=YES|NO: CORRECT_TYPOS_AUTOMATICALLY,            │
+│                                    DISPLAY_STORE_RATING, SHARED_ACCOUNT_ENABLED.                 │
+│    --grant                  <str>  Право ИМЯ=YES|NO: EDIT_CAMPAIGNS, IMPORT_XLS, TRANSFER_MONEY. │
+│    --confirm                       Подтвердить изменение в кабинете без вопроса (обязательно     │
+│                                    вместе с --non-interactive).                                  │
+│    --dry-run                       Показать, что будет сделано, ничего не меняя.                 │
+│    --non-interactive               Никогда не спрашивать; при нехватке данных — ошибка.          │
+│    --json                          Машиночитаемый вывод: JSON в stdout.                          │
+│    --quiet                         Не печатать ничего, кроме данных.                             │
+│    --help                          Show this message and exit.                                   │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

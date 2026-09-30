@@ -1,0 +1,58 @@
+
+ Usage: yd strategies update [OPTIONS] {strategy_id}
+
+ Изменить пакетную стратегию: название, параметры, счётчики, цели, атрибуцию.
+
+ Параметры стратегии (--weekly-budget, --average-cpa…) требуют --type — он указывает
+ блок, в который они пишутся; задано только то, что передано.
+
+ Example: yd strategies update 555 --type WB_MAXIMUM_CLICKS --weekly-budget 20000 --dry-run
+
+╭─ Аргументы ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *    strategy_id      <int>  Id стратегии. [обязательный]                                        │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --type                     <WB_MAXIMUM_CLICKS|WB_MAXIMUM_CON  Тип стратегии — нужен, чтобы       │
+│                            VERSION_RATE|AVERAGE_CPC|AVERAGE_  менять её параметры (тип самой     │
+│                            CPA|MAX_PROFIT|PAY_FOR_CONVERSION  стратегии не меняется).            │
+│                            |AVERAGE_CPA_PER_CAMPAIGN|PAY_FOR                                     │
+│                            _CONVERSION_PER_CAMPAIGN|PAY_FOR_                                     │
+│                            CONVERSION_PER_FILTER|AVERAGE_CPA                                     │
+│                            _PER_FILTER|AVERAGE_CPC_PER_CAMPA                                     │
+│                            IGN|AVERAGE_CPC_PER_FILTER|AVERAG                                     │
+│                            E_CRR|PAY_FOR_CONVERSION_CRR|AVER                                     │
+│                            AGE_CPA_MULTIPLE_GOALS|PAY_FOR_CO                                     │
+│                            NVERSION_MULTIPLE_GOALS>                                              │
+│ --name                     <str>                              Новое название.                    │
+│ --weekly-budget            <float>                            Недельный бюджет стратегии         │
+│                                                               (WeeklySpendLimit), ₽.             │
+│ --bid-ceiling              <float>                            Максимальная ставка (BidCeiling),  │
+│                                                               ₽.                                 │
+│ --average-cpc              <float>                            Средняя цена клика                 │
+│                                                               (AverageCpc/FilterAverageCpc), ₽.  │
+│ --average-cpa              <float>                            Средняя цена конверсии             │
+│                                                               (AverageCpa/FilterAverageCpa), ₽.  │
+│ --cpa                      <float>                            Цена конверсии при оплате за       │
+│                                                               конверсии (Cpa), ₽.                │
+│ --goal-id                  <int>                              Id цели Метрики для конверсионных  │
+│                                                               стратегий (GoalId).                │
+│ --crr                      <int>                              Доля рекламных расходов, % (Crr).  │
+│ --counter-id               <int>                              Счётчик Метрики (повторяемая).     │
+│ --priority-goal            <str>                              Ключевая цель ЦЕЛЬ=ЦЕННОСТЬ_₽      │
+│                                                               (повторяемая; для                  │
+│                                                               *_MULTIPLE_GOALS).                 │
+│ --attribution-model        <str>                              Модель атрибуции: LC, LSC, FC,     │
+│                                                               LYDC, LSCCD, FCCD, LYDCCD, AUTO.   │
+│ --confirm                                                     Подтвердить изменение в кабинете   │
+│                                                               без вопроса (обязательно вместе с  │
+│                                                               --non-interactive).                │
+│ --dry-run                                                     Показать, что будет сделано,       │
+│                                                               ничего не меняя.                   │
+│ --non-interactive                                             Никогда не спрашивать; при         │
+│                                                               нехватке данных — ошибка.          │
+│ --json                                                        Машиночитаемый вывод: JSON в       │
+│                                                               stdout.                            │
+│ --quiet                                                       Не печатать ничего, кроме данных.  │
+│ --help                                                        Show this message and exit.        │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

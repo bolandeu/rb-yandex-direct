@@ -9,11 +9,17 @@ from collections.abc import Callable
 
 import typer
 
-from . import account, campaigns
+from . import account, agency, campaigns, changes, dictionaries, feeds, report, strategies
 
 GROUPS: dict[str, typer.Typer] = {
     "clients": account.clients_app,
+    "agency": agency.app,
     "campaigns": campaigns.app,
+    "strategies": strategies.app,
+    "feeds": feeds.app,
+    "dict": dictionaries.app,
+    "changes": changes.app,
+    "report": report.app,
 }
 
 TOP_LEVEL: dict[str, Callable] = {

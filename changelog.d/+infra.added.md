@@ -1,0 +1,1 @@
+`dict geo-regions` (поиск регионов), `dict names`, `changes campaigns`, `report types`; `report *`: `--range`, `--goal`, `--attribution-model`, `--vat/--no-vat`, `--micros`, `--dry-run`, в `report custom` ещё `--filter`, `--order-by`, `--adgroup`, `--limit`, `--mode`; строки отчёта — список в `--json` (числа — числами); `feeds add|update` по ссылке или файлом.

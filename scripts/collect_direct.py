@@ -37,7 +37,6 @@ async def collect(login: str | None, date_from: str, date_to: str, out_dir: Path
     reports = ReportsClient(token=token, client_login=login, sandbox=sandbox)
 
     _dump(out_dir / "clients.json", await client.list_clients())
-    _dump(out_dir / "balance.json", await client.get_clients_units([login] if login else None))
     _dump(out_dir / "campaigns.json", await client.list_campaigns())
     _dump(out_dir / "adgroups.json", await client.list_adgroups())
 

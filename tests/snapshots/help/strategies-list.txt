@@ -1,0 +1,32 @@
+
+ Usage: yd strategies list [OPTIONS]
+
+ Пакетные стратегии кабинета со всеми параметрами (бюджет, цель, цена конверсии).
+
+ --json: {"ok": true, "count": N, "strategies": [{Id, Name, Type, StatusArchived, CounterIds,
+ PriorityGoals, <Блок типа>: {...}}]}; суммы — в микроединицах валюты.
+
+ Example: yd strategies list --active
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id                      <int>                               Только эти стратегии               │
+│                                                               (повторяемая).                     │
+│ --type                    <WB_MAXIMUM_CLICKS|WB_MAXIMUM_CONV  Фильтр по типу стратегии           │
+│                           ERSION_RATE|AVERAGE_CPC|AVERAGE_CP  (повторяемая).                     │
+│                           A|MAX_PROFIT|PAY_FOR_CONVERSION|AV                                     │
+│                           ERAGE_CPA_PER_CAMPAIGN|PAY_FOR_CON                                     │
+│                           VERSION_PER_CAMPAIGN|PAY_FOR_CONVE                                     │
+│                           RSION_PER_FILTER|AVERAGE_CPA_PER_F                                     │
+│                           ILTER|AVERAGE_CPC_PER_CAMPAIGN|AVE                                     │
+│                           RAGE_CPC_PER_FILTER|AVERAGE_CRR|PA                                     │
+│                           Y_FOR_CONVERSION_CRR|AVERAGE_CPA_M                                     │
+│                           ULTIPLE_GOALS|PAY_FOR_CONVERSION_M                                     │
+│                           ULTIPLE_GOALS>                                                         │
+│ --archived    --active                                        Только архивные или только         │
+│                                                               действующие (по умолчанию — все).  │
+│ --json                                                        Машиночитаемый вывод: JSON в       │
+│                                                               stdout.                            │
+│ --quiet                                                       Не печатать ничего, кроме данных.  │
+│ --help                                                        Show this message and exit.        │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

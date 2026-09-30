@@ -1,0 +1,97 @@
+
+ Usage: yd campaigns add [OPTIONS] {kind}:<text|unified|dynamic|smart|mobile-
+                         app|cpm-banner>
+
+ Создать кампанию нужного типа из опций: стратегия, бюджет, настройки, счётчики, цели.
+
+ Без стратегии text/unified/dynamic/mobile-app создаются с ручными ставками на поиске
+ (HIGHEST_POSITION) без сетей; smart и cpm-banner требуют стратегию явно. Параметры
+ стратегии (--weekly-budget, --goal-id, --average-cpa…) идут в блок той площадки, чья
+ стратегия их принимает; лишний или недостающий параметр — INVALID_ARGUMENTS до запроса.
+ Чего нет в опциях (пакетные стратегии, AVERAGE_ROI, временной таргетинг) — `campaigns
+ add-json`. --json: как у изменяющих команд, `ids` — Id созданной кампании.
+
+
+ Ещё примеры:
+   yd campaigns add unified --name Лиды --search-strategy AVERAGE_CPA --network-strategy
+ AVERAGE_CPA --average-cpa 800 --goal-id 12345 --counter-id 987 --dry-run
+   yd campaigns add smart --name Фид --search-strategy AVERAGE_CPC_PER_CAMPAIGN --network-strategy
+ NETWORK_DEFAULT --average-cpc 25 --counter-id 987 --dry-run
+
+ Example: yd campaigns add text --name 'Весна 2026' --search-strategy WB_MAXIMUM_CLICKS
+ --weekly-budget 10000 --dry-run
+
+╭─ Аргументы ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *    kind      <text|unified|dynamic|smart|mobile-app|  Тип кампании: text, unified, dynamic,    │
+│                cpm-banner>                              smart, mobile-app, cpm-banner.           │
+│                                                         [обязательный]                           │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --name                       <str>                   Название кампании. [обязательный]        │
+│    --start-date                 <str>                   Дата начала, YYYY-MM-DD (по умолчанию    │
+│                                                         сегодня).                                │
+│    --end-date                   <str>                   Дата окончания, YYYY-MM-DD.              │
+│    --daily-budget               <float>                 Дневной бюджет, ₽ (для ручных            │
+│                                                         стратегий).                              │
+│    --budget-mode                <STANDARD|DISTRIBUTED>  Режим дневного бюджета.                  │
+│                                                         [по умолчанию: STANDARD]                 │
+│    --search-strategy            <str>                   Стратегия на поиске: HIGHEST_POSITION,   │
+│                                                         WB_MAXIMUM_CLICKS, AVERAGE_CPA,          │
+│                                                         SERVING_OFF…                             │
+│    --network-strategy           <str>                   Стратегия в сетях: SERVING_OFF,          │
+│                                                         NETWORK_DEFAULT, WB_MAXIMUM_CLICKS…      │
+│    --weekly-budget              <float>                 Недельный бюджет стратегии               │
+│                                                         (WeeklySpendLimit), ₽.                   │
+│    --bid-ceiling                <float>                 Максимальная ставка (BidCeiling), ₽.     │
+│    --average-cpc                <float>                 Средняя цена клика                       │
+│                                                         (AverageCpc/FilterAverageCpc), ₽.        │
+│    --average-cpa                <float>                 Средняя цена конверсии                   │
+│                                                         (AverageCpa/FilterAverageCpa), ₽.        │
+│    --cpa                        <float>                 Цена конверсии при оплате за конверсии   │
+│                                                         (Cpa), ₽.                                │
+│    --goal-id                    <int>                   Id цели Метрики для конверсионных        │
+│                                                         стратегий (GoalId).                      │
+│    --crr                        <int>                   Доля рекламных расходов, % (Crr).        │
+│    --clicks-per-week            <int>                   Пакет кликов в неделю (ClicksPerWeek).   │
+│    --limit-percent              <int>                   Доля бюджета на сети при                 │
+│                                                         NETWORK_DEFAULT, % (LimitPercent).       │
+│    --average-cpi                <float>                 Средняя цена установки приложения        │
+│                                                         (AverageCpi), ₽.                         │
+│    --average-cpm                <float>                 Средняя цена тысячи показов              │
+│                                                         (AverageCpm), ₽.                         │
+│    --average-cpv                <float>                 Средняя цена просмотра (AverageCpv), ₽.  │
+│    --spend-limit                <float>                 Бюджет медийной стратегии (SpendLimit),  │
+│                                                         ₽.                                       │
+│    --placement                  <str>                   Площадка поиска ИМЯ=YES|NO:              │
+│                                                         SearchResults, ProductGallery,           │
+│                                                         DynamicPlaces, Maps…                     │
+│    --setting                    <str>                   Настройка ИМЯ=YES|NO, например           │
+│                                                         ADD_METRICA_TAG=YES.                     │
+│    --counter-id                 <int>                   Счётчик Метрики (повторяемая; смарт —    │
+│                                                         один).                                   │
+│    --priority-goal              <str>                   Ключевая цель ЦЕЛЬ=ЦЕННОСТЬ_₽            │
+│                                                         (повторяемая; нужна для                  │
+│                                                         *_MULTIPLE_GOALS).                       │
+│    --negative-keyword   -w      <str>                   Минус-фраза кампании (повторяемая).      │
+│    --blocked-ip                 <str>                   Запрещённый IP (повторяемая).            │
+│    --excluded-site              <str>                   Запрещённая площадка (повторяемая).      │
+│    --tracking-params            <str>                   UTM-метки для всех ссылок кампании.      │
+│    --attribution-model          <str>                   Модель атрибуции: LC, LSC, FC, LYDC,     │
+│                                                         LSCCD, FCCD, LYDCCD, AUTO.               │
+│    --time-zone                  <str>                   Часовой пояс, например Europe/Moscow.    │
+│    --frequency-cap              <str>                   Частота показов ПОКАЗЫ/ДНИ (cpm-banner), │
+│                                                         например 3/7.                            │
+│    --video-target               <str>                   Цель видео (cpm-banner): VIEWS или       │
+│                                                         CLICKS.                                  │
+│    --confirm                                            Подтвердить изменение в кабинете без     │
+│                                                         вопроса (обязательно вместе с            │
+│                                                         --non-interactive).                      │
+│    --dry-run                                            Показать, что будет сделано, ничего не   │
+│                                                         меняя.                                   │
+│    --non-interactive                                    Никогда не спрашивать; при нехватке      │
+│                                                         данных — ошибка.                         │
+│    --json                                               Машиночитаемый вывод: JSON в stdout.     │
+│    --quiet                                              Не печатать ничего, кроме данных.        │
+│    --help                                               Show this message and exit.              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

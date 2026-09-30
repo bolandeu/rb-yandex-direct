@@ -26,6 +26,7 @@ FILES = {
     "client.json": {"ClientInfo": "ООО Ромашка"},
     "campaigns.json": [{"Name": "Весна", "StartDate": "2026-10-01", "TextCampaign": {"BiddingStrategy": {}}}],
     "update.json": [{"Id": 12345, "Name": "Весна"}],
+    "strategies.json": [{"Name": "Клики", "WbMaximumClicks": {"WeeklySpendLimit": 15000000000}}],
     "ads.json": [{"AdGroupId": 555, "TextAd": {"Title": "Диваны", "Text": "Доставка", "Href": "https://example.com"}}],
     "feeds.json": [{"Id": 7001, "Name": "Каталог", "UrlFeed": {"Url": "https://example.com/feed.xml"}}],
     "targets.json": [{"AdGroupId": 555, "Name": "Все страницы"}],

@@ -1,7 +1,7 @@
 
  Usage: yd campaigns list [OPTIONS]
 
- Список кампаний с фильтрами по Id, состоянию и типу.
+ Список кампаний с фильтрами по Id, состоянию, статусу, оплате и типу.
 
  --json: {"ok": true, "count": N, "campaigns": [{Id, Name, Type, State, Status, DailyBudget, …}]};
  суммы — в микроединицах валюты, как в API.
@@ -9,18 +9,24 @@
  Example: yd campaigns list --state ON
 
 ╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
-│ --id           <int>                                    Только эти кампании (повторяемая).       │
-│ --state        <ON|OFF|SUSPENDED|ENDED|CONVERTED|ARCHI  Фильтр по состоянию (повторяемая).       │
-│                VED>                                                                              │
-│ --type         <str>                                    Фильтр по типу: TEXT_CAMPAIGN,           │
-│                                                         UNIFIED_CAMPAIGN, SMART_CAMPAIGN…        │
-│                                                         (повторяемая).                           │
-│ --field        <str>                                    Поле FieldNames вместо набора по         │
-│                                                         умолчанию (Id, Name, State, Status,      │
-│                                                         Type, StartDate, EndDate, DailyBudget,   │
-│                                                         Currency, ClientInfo); повторяемая.      │
-│ --json                                                  Машиночитаемый вывод: JSON в stdout.     │
-│ --quiet                                                 Не печатать ничего, кроме данных.        │
-│ --help                                                  Show this message and exit.              │
+│ --id                    <int>                                Только эти кампании (повторяемая).  │
+│ --state                 <ON|OFF|SUSPENDED|ENDED|CONVERTED|A  Фильтр по состоянию (повторяемая).  │
+│                         RCHIVED>                                                                 │
+│ --status                <ACCEPTED|DRAFT|MODERATION|REJECTED  Фильтр по статусу модерации         │
+│                         >                                    (повторяемая).                      │
+│ --payment-status        <ALLOWED|DISALLOWED>                 Фильтр по возможности оплаты:       │
+│                                                              ALLOWED, DISALLOWED (повторяемая).  │
+│ --type                  <str>                                Фильтр по типу: TEXT_CAMPAIGN,      │
+│                                                              UNIFIED_CAMPAIGN, SMART_CAMPAIGN…   │
+│                                                              (повторяемая).                      │
+│ --field                 <str>                                Поле FieldNames вместо набора по    │
+│                                                              умолчанию (Id, Name, State, Status, │
+│                                                              Type, StartDate, EndDate,           │
+│                                                              DailyBudget, Currency, ClientInfo); │
+│                                                              повторяемая.                        │
+│ --json                                                       Машиночитаемый вывод: JSON в        │
+│                                                              stdout.                             │
+│ --quiet                                                      Не печатать ничего, кроме данных.   │
+│ --help                                                       Show this message and exit.         │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
 

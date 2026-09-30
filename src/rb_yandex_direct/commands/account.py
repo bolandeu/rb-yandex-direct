@@ -6,6 +6,8 @@ import typer
 
 from .. import output
 from ..core import services
+from ..core.client_payloads import client_update_fields
+from ..core.errors import InvalidArguments
 from ._common import FromJsonOption, emit_list, mutate, read_json
 
 CLIENT_COLUMNS = [
@@ -98,5 +100,57 @@ def clients_update_json(
         service="clients",
         method="update",
         params={"Clients": items},
+        confirm=confirm,
+    )
+
+
+@clients_app.command("update")
+@output.guard
+def clients_update(
+    ctx: typer.Context,
+    client_info: str = typer.Option(None, "--client-info", help="Имя/описание кабинета."),
+    phone: str = typer.Option(None, "--phone", help="Телефон."),
+    email: str = typer.Option(None, "--email", help="Email для уведомлений."),
+    lang: str = typer.Option(None, "--lang", help="Язык уведомлений: RU, UK, EN, TR."),
+    subscriptions: list[str] = typer.Option(
+        None,
+        "--subscription",
+        help="Подписка ИМЯ=YES|NO: RECEIVE_RECOMMENDATIONS, TRACK_MANAGED_CAMPAIGNS, TRACK_POSITION_CHANGES.",
+    ),
+    settings: list[str] = typer.Option(
+        None, "--setting", help="Настройка ИМЯ=YES|NO: CORRECT_TYPOS_AUTOMATICALLY, DISPLAY_STORE_RATING."
+    ),
+    tin_type: str = typer.Option(None, "--tin-type", help="Тип ИНН: PHYSICAL, LEGAL, INDIVIDUAL, FOREIGN_*."),
+    tin: str = typer.Option(None, "--tin", help="ИНН."),
+    confirm: bool = output.ConfirmOption,
+    dry_run: bool = output.DryRunOption,
+    non_interactive: bool = output.NonInteractiveOption,
+    json_output: bool = output.JsonOption,
+    quiet: bool = output.QuietOption,
+) -> None:
+    """Изменить настройки кабинета (clients.update): имя, контакты, уведомления, ИНН.
+
+    Передаются только заданные поля; данные ЕРИР и прочее — `clients update-json`.
+
+    Example: {cli} clients update --email ads@romashka.ru --subscription TRACK_POSITION_CHANGES=NO --dry-run
+    """
+    item = client_update_fields(
+        client_info=client_info,
+        phone=phone,
+        email=email,
+        lang=lang,
+        subscriptions=subscriptions,
+        settings=settings,
+        tin_type=tin_type,
+        tin=tin,
+    )
+    if not item:
+        raise InvalidArguments("Нечего менять: укажите хотя бы одно поле.")
+    mutate(
+        ctx,
+        title="Изменить настройки кабинета",
+        service="clients",
+        method="update",
+        params={"Clients": [item]},
         confirm=confirm,
     )

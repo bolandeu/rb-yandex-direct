@@ -1,0 +1,41 @@
+
+ Usage: yd feeds add [OPTIONS]
+
+ Добавить фид по ссылке (--url) или файлом (--file).
+
+ Example: yd feeds add --name Каталог --url https://example.com/feed.xml --dry-run
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --name                             <str>                         Название фида.               │
+│                                                                     [обязательный]               │
+│    --business-type                    <RETAIL|HOTELS|REALTY|AUTOMO  Тип бизнеса фида.            │
+│                                       BILES|FLIGHTS|OTHER>          [по умолчанию: RETAIL]       │
+│    --url                              <str>                         Ссылка на фид (фид по ссылке │
+│                                                                     Директ обновляет сам).       │
+│    --file                             <str>                         Файл фида (XML/YML/CSV) —    │
+│                                                                     загружается целиком.         │
+│    --feed-login                       <str>                         Логин HTTP-авторизации для   │
+│                                                                     ссылки на фид.               │
+│    --feed-password                    <str>                         Пароль HTTP-авторизации для  │
+│                                                                     ссылки (лучше через          │
+│                                                                     YANDEX_DIRECT_FEED_PASSWORD, │
+│                                                                     не в истории shell).         │
+│                                                                     [env var:                    │
+│                                                                     YANDEX_DIRECT_FEED_PASSWORD] │
+│    --remove-utm         --keep-utm                                  Убирать ли UTM-метки из      │
+│                                                                     ссылок фида (RemoveUtmTags). │
+│    --confirm                                                        Подтвердить изменение в      │
+│                                                                     кабинете без вопроса         │
+│                                                                     (обязательно вместе с        │
+│                                                                     --non-interactive).          │
+│    --dry-run                                                        Показать, что будет сделано, │
+│                                                                     ничего не меняя.             │
+│    --non-interactive                                                Никогда не спрашивать; при   │
+│                                                                     нехватке данных — ошибка.    │
+│    --json                                                           Машиночитаемый вывод: JSON в │
+│                                                                     stdout.                      │
+│    --quiet                                                          Не печатать ничего, кроме    │
+│                                                                     данных.                      │
+│    --help                                                           Show this message and exit.  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
