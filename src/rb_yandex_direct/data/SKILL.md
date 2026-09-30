@@ -64,9 +64,16 @@ uv tool install "rb-yandex-direct @ git+ssh://git@github.com/bolandeu/yandex-dir
   без трат; нужен тестовый доступ к API.
 - **Баллы API** ограничены: не перебирайте кабинет поштучно, берите списки
   фильтрами (`--campaign`, `--id` повторяемые); `--verbose` показывает `Units`.
-- **Веб-интерфейс** (Мастер кампаний, история изменений) работает через браузер с
-  куками Chrome и нужен дополнительно `uv tool install "rb-yandex-direct[browser] @ …"`
-  + `playwright install chromium`; без них эти команды отвечают DEPENDENCY_TOO_OLD.
+- **Веб-интерфейс** (`masters` — Мастер кампаний, `history` — история изменений) —
+  у них нет API, они идут через браузер (Playwright) с сессией Яндекса. Нужен extra:
+  `uv tool install --reinstall "rb-yandex-direct[browser] @ …"` + `playwright install chromium`;
+  без него эти команды отвечают DEPENDENCY_TOO_OLD. Сессия: `yd browser status --json`
+  (что будет использовано, без сети), `yd browser doctor --json` (что не так). Нет сессии
+  (AUTH_REQUIRED) — попросите пользователя выполнить `yd browser login` (окно для ручного
+  входа) или `yd browser login --from-chrome` (куки из его Chrome); сами не входите.
+  Кабинет — тот, где пользователь вошёл в браузере: `--login` здесь не действует. Браузерные
+  команды медленные (секунды–минуты) и хрупкие к смене разметки Яндекса: изменения в
+  Мастере — только после `--dry-run` и согласия, как и остальные.
 
 ## Ошибки
 

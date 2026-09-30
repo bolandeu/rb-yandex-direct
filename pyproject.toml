@@ -23,6 +23,17 @@ dependencies = [
 # в venv, без коммита. Переход на новый тег: `tag = "vNEW"` + `uv lock --upgrade-package rb-yandex-oauth`.
 [tool.uv.sources]
 rb-yandex-oauth = { git = "https://github.com/bolandeu/yandex-oauth", tag = "v0.3.0" }
+# Браузерный слой direct-cli — с коммита main: в PyPI 0.5.2 ещё нет истории изменений
+# (change_history), чтения UTM/счётчиков Мастера и BrowserNetworkError. Вернуть на PyPI,
+# когда выйдет релиз с ними (0.5.3+): убрать строку и поднять нижнюю границу в extra.
+direct-cli = { git = "https://github.com/axisrow/direct-cli", rev = "66c48ac5362ae572ca8b3544e84c6e8cc47059b4" }
+
+[project.optional-dependencies]
+# Веб-интерфейс Директа (Мастер кампаний, история изменений): браузерный слой direct-cli
+# (MIT) — Playwright + куки Chrome. Внутренний модуль чужого пакета, поэтому узкий диапазон и
+# закреплённый коммит (см. [tool.uv.sources]); обновлять вместе с живой проверкой `yd masters list`.
+# После установки: `playwright install chromium`.
+browser = ["direct-cli[browser]>=0.5.2,<0.6"]
 
 [project.scripts]
 yd = "rb_yandex_direct.cli:main"

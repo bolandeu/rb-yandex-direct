@@ -9,7 +9,8 @@ from collections.abc import Callable
 
 import typer
 
-from . import account, campaigns, finance, forecast, v4misc, wordstat  # API v4 Live
+from . import account, campaigns, finance, forecast, history, masters, v4misc, wordstat
+from . import browser as browser_cmd
 
 GROUPS: dict[str, typer.Typer] = {
     "clients": account.clients_app,
@@ -23,6 +24,10 @@ GROUPS: dict[str, typer.Typer] = {
     "finance": finance.app,
     "shared-account": finance.shared_app,
     "v4": v4misc.v4_app,
+    # Веб-интерфейс (браузер)
+    "masters": masters.app,
+    "history": history.app,
+    "browser": browser_cmd.app,
 }
 
 TOP_LEVEL: dict[str, Callable] = {

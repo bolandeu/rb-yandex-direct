@@ -1,0 +1,25 @@
+
+ Usage: yd masters list [OPTIONS]
+
+ Кампании Мастера из общей таблицы кампаний кабинета, в котором вы вошли в браузере.
+
+ Кабинет — тот, что открыт в браузерной сессии: --login здесь не действует.
+ --json: {"ok": true, "count": N, "masters": [{CampaignId, Name, Status, Type, StartDate}]}.
+
+ Example: yd masters list --status active --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --status                <not-archived|active|stopped|archi  Фильтр по статусу.                   │
+│                         ved|all>                            [по умолчанию: not-archived]         │
+│ --headful                                                   Показать окно браузера (отладка,     │
+│                                                             капча).                              │
+│ --chrome-dir            <str>                               Папка профилей Chrome                │
+│                                                             (user-data-dir): всегда свежие куки  │
+│                                                             оттуда, без сохранённой сессии.      │
+│ --chrome-profile        <str>                               Профиль Chrome внутри --chrome-dir.  │
+│                                                             [по умолчанию: Default]              │
+│ --json                                                      Машиночитаемый вывод: JSON в stdout. │
+│ --quiet                                                     Не печатать ничего, кроме данных.    │
+│ --help                                                      Show this message and exit.          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
