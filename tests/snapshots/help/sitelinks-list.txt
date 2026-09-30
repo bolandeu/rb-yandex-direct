@@ -1,0 +1,17 @@
+
+ Usage: yd sitelinks list [OPTIONS]
+
+ Наборы быстрых ссылок кабинета.
+
+ --json: {"ok": true, "count": N, "sitelinks_sets": [{Id, Sitelinks: [{Title, Href, Description,
+ TurboPageId}]}]}.
+
+ Example: yd sitelinks list --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id           <int>  Только эти наборы (повторяемая).                                           │
+│ --json                Машиночитаемый вывод: JSON в stdout.                                       │
+│ --quiet               Не печатать ничего, кроме данных.                                          │
+│ --help                Show this message and exit.                                                │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

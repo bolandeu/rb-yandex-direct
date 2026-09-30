@@ -1,0 +1,20 @@
+
+ Usage: yd creatives list [OPTIONS]
+
+ Креативы кабинета: изображения, HTML5, видео, смарт-баннеры.
+
+ --json: {"ok": true, "count": N, "creatives": [{Id, Type, Name, Width, Height, Associated,
+ IsAdaptive, …}]}.
+
+ Example: yd creatives list --type VIDEO_EXTENSION_CREATIVE
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id           <int>                                    Только эти креативы (повторяемая).       │
+│ --type         <IMAGE_CREATIVE|HTML5_CREATIVE|VIDEO_EX  Фильтр по типу креатива (повторяемая).   │
+│                TENSION_CREATIVE|CPC_VIDEO_CREATIVE|CPM                                           │
+│                _VIDEO_CREATIVE|SMART_CREATIVE>                                                   │
+│ --json                                                  Машиночитаемый вывод: JSON в stdout.     │
+│ --quiet                                                 Не печатать ничего, кроме данных.        │
+│ --help                                                  Show this message and exit.              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

@@ -17,7 +17,15 @@ from typing import Any
 
 import httpx
 
-from ..core.errors import DirectAPIError
+from ..core.ads import (
+    AD_FIELDS,
+    AD_TYPE_FIELDS,
+    ADGROUP_FIELDS,
+    ADGROUP_TYPE_FIELDS,
+    validate_adgroups,
+    validate_ads,
+)
+from ..core.errors import DirectAPIError, InvalidArguments
 from ..core.version import DEV_VERSION, cli_name, installed_version
 from .base import Health, Provider, Quota
 
@@ -291,7 +299,12 @@ class DirectClient:
         types: list[str] | None = None,
         field_names: list[str] | None = None,
         page_limit: int = 1000,
+        *,
+        statuses: list[str] | None = None,
+        serving_statuses: list[str] | None = None,
+        tags: list[str] | None = None,
     ) -> list[dict]:
+        """Группы объявлений; API требует CampaignIds или Ids."""
         criteria: dict[str, Any] = {}
         if campaign_ids:
             criteria["CampaignIds"] = campaign_ids
@@ -299,6 +312,12 @@ class DirectClient:
             criteria["Ids"] = adgroup_ids
         if types:
             criteria["Types"] = types
+        if statuses:
+            criteria["Statuses"] = statuses
+        if serving_statuses:
+            criteria["ServingStatuses"] = serving_statuses
+        if tags:
+            criteria["Tags"] = tags
         return await self._paginated_get(
             "adgroups",
             "AdGroups",
@@ -323,6 +342,8 @@ class DirectClient:
         text_ad_field_names: list[str] | None = None,
         extra_type_fields: dict[str, list[str]] | None = None,
         page_limit: int = 1000,
+        *,
+        extra_criteria: dict[str, Any] | None = None,
     ) -> list[dict]:
         """Список объявлений.
 
@@ -346,6 +367,8 @@ class DirectClient:
             criteria["Statuses"] = statuses
         if types:
             criteria["Types"] = types
+        if extra_criteria:  # Mobile, VCardIds, SitelinkSetIds, AdImageHashes, AdExtensionIds, …
+            criteria.update(extra_criteria)
 
         params: dict[str, Any] = {
             "SelectionCriteria": criteria,
@@ -357,6 +380,14 @@ class DirectClient:
             params.update(extra_type_fields)
 
         return await self._paginated_get("ads", "Ads", params, page_limit=page_limit)
+
+    async def get_ad(self, ad_id: int) -> dict | None:
+        """Одно объявление со всеми полями всех типов."""
+        result = await self.call(
+            "ads", "get", {"SelectionCriteria": {"Ids": [ad_id]}, "FieldNames": AD_FIELDS, **AD_TYPE_FIELDS}
+        )
+        items = result.get("Ads", [])
+        return items[0] if items else None
 
     async def list_ads_in_moderation(
         self,
@@ -682,53 +713,15 @@ class DirectClient:
     async def delete_ads(self, ids: list[int]) -> dict:
         return await self.call("ads", "delete", {"SelectionCriteria": {"Ids": ids}})
 
-    # Валидные ключи type-specific блоков для ads.add и ads.update.
-    # См. https://yandex.ru/dev/direct/doc/ref-v5/ads/add.html
-    _AD_TYPE_KEYS = frozenset(
-        [
-            "TextAd",
-            "DynamicTextAd",
-            "MobileAppAd",
-            "TextImageAd",
-            "MobileAppImageAd",
-            "TextAdBuilderAd",
-            "MobileAppAdBuilderAd",
-            "CpcVideoAdBuilderAd",
-            "MobileAppCpcVideoAdBuilderAd",
-            "CpmBannerAdBuilderAd",
-            "CpmVideoAdBuilderAd",
-            "SmartAdBuilderAd",
-            "ShoppingAd",
-            "ListingAd",
-        ]
-    )
-
     async def add_ads(self, ads: list[dict]) -> dict:
-        """Создать объявления (до 1000 за вызов).
+        """Создать объявления (до 1000 за вызов): у каждого `AdGroupId` и ровно один блок типа.
 
-        Каждый элемент — dict с `AdGroupId` и **ровно одним** type-specific
-        блоком: `TextAd`, `DynamicTextAd`, `MobileAppAd`, `TextImageAd`,
-        `MobileAppImageAd`, `TextAdBuilderAd`, `MobileAppAdBuilderAd`,
-        `CpcVideoAdBuilderAd`, `MobileAppCpcVideoAdBuilderAd`,
-        `CpmBannerAdBuilderAd`, `CpmVideoAdBuilderAd`, `SmartAdBuilderAd`,
-        `ShoppingAd`, `ListingAd`.
-
-        Обязательные поля внутри блоков различаются по типу — смотри
-        справочник Яндекса. Для TextAd обязательны: Title, Text, Href.
-        Есть шорткат `add_text_ad` для простых текстовых объявлений.
+        Блоки: TextAd, ResponsiveAd, DynamicTextAd, MobileAppAd, TextImageAd, MobileAppImageAd,
+        TextAdBuilderAd, MobileAppAdBuilderAd, MobileAppCpcVideoAdBuilderAd, CpmBannerAdBuilderAd,
+        CpcVideoAdBuilderAd, CpmVideoAdBuilderAd, SmartAdBuilderAd, ShoppingAd, ListingAd
+        (`core.ads.AD_TYPE_BLOCKS`). Ошибка формы — InvalidArguments до запроса.
         """
-        if not ads:
-            raise ValueError("ads пустой")
-        if len(ads) > 1000:
-            raise ValueError("ads.add — не более 1000 за вызов")
-        for i, ad in enumerate(ads):
-            if "AdGroupId" not in ad:
-                raise ValueError(f"ads[{i}]: нет AdGroupId")
-            type_keys = self._AD_TYPE_KEYS & ad.keys()
-            if len(type_keys) != 1:
-                raise ValueError(
-                    f"ads[{i}]: нужен ровно один type-specific блок, нашёл {sorted(type_keys) or 'ни одного'}"
-                )
+        validate_ads(ads)
         return await self.call("ads", "add", {"Ads": ads})
 
     async def add_text_ad(
@@ -747,15 +740,12 @@ class DirectClient:
         ad_image_hash: str | None = None,
         turbo_page_id: int | None = None,
     ) -> dict:
-        """Шорткат: добавить одно текстовое объявление."""
-        ad: dict[str, Any] = {
-            "AdGroupId": adgroup_id,
-            "TextAd": {"Title": title, "Text": text, "Href": href},
-        }
+        """Шорткат: добавить одно текстовое объявление. `Mobile` в API обязателен — по умолчанию NO."""
+        text_ad: dict[str, Any] = {"Title": title, "Text": text, "Href": href, "Mobile": mobile or "NO"}
+        ad: dict[str, Any] = {"AdGroupId": adgroup_id, "TextAd": text_ad}
         for key, value in [
             ("Title2", title2),
             ("DisplayUrlPath", display_url_path),
-            ("Mobile", mobile),
             ("AgeLabel", age_label),
             ("VCardId", vcard_id),
             ("SitelinkSetId", sitelink_set_id),
@@ -763,73 +753,40 @@ class DirectClient:
             ("TurboPageId", turbo_page_id),
         ]:
             if value is not None:
-                ad["TextAd"][key] = value
+                text_ad[key] = value
         return await self.add_ads([ad])
 
     async def update_ads(self, ads: list[dict]) -> dict:
-        """Обновить объявления. Каждый элемент должен содержать `Id` и
-        ровно один type-specific блок с обновляемыми полями.
-        """
-        if not ads:
-            raise ValueError("ads пустой")
-        for i, ad in enumerate(ads):
-            if "Id" not in ad:
-                raise ValueError(f"ads[{i}]: нет Id")
-            type_keys = self._AD_TYPE_KEYS & ad.keys()
-            if len(type_keys) != 1:
-                raise ValueError(f"ads[{i}]: нужен ровно один type-specific блок")
+        """Изменить объявления: у каждого `Id` и ровно один блок типа с изменяемыми полями."""
+        validate_ads(ads, update=True)
         return await self.call("ads", "update", {"Ads": ads})
 
     # --- Группы объявлений: write ---
 
-    # Type-specific блоки для adgroups.add. Группа задаёт тип объявлений в ней.
-    # https://yandex.ru/dev/direct/doc/ref-v5/adgroups/add.html
-    _ADGROUP_TYPE_KEYS = frozenset(
-        [
-            "MobileAppAdGroup",
-            "DynamicTextAdGroup",
-            "DynamicTextFeedAdGroup",
-            "CpmBannerAdGroup",
-            "CpmBannerNonSkippableAdGroup",
-            "CpmVideoAdGroup",
-            "CpmPriceAdGroup",
-            "SmartAdGroup",
-            "ShoppingAdGroup",
-            "ListingAdGroup",
-        ]
-    )
-
     async def add_adgroups(self, groups: list[dict]) -> dict:
         """Создать группы объявлений (до 1000 за вызов).
 
-        Каждый элемент: `{Name, CampaignId, RegionIds, TrackingParams?,
-                          NegativeKeywords?: {Items}, <TypeBlock>?}`.
-        Для обычной текстовой группы type-specific блок не нужен — тип
-        определяется типом кампании. Для остальных типов передай один из:
-        `MobileAppAdGroup`, `DynamicTextAdGroup`, `CpmBannerAdGroup`,
-        `CpmVideoAdGroup`, `SmartAdGroup`, `ShoppingAdGroup`, `ListingAdGroup` и т.д.
+        Элемент: `{Name, CampaignId, RegionIds, NegativeKeywords?: {Items}, NegativeKeywordSharedSetIds?,
+        TrackingParams?, <блок типа>?}`. У текстовой группы блока нет; иначе один из
+        `core.ads.ADGROUP_TYPE_BLOCKS` (MobileAppAdGroup, DynamicTextAdGroup, SmartAdGroup, UnifiedAdGroup…).
         """
-        if not groups:
-            raise ValueError("groups пустой")
-        if len(groups) > 1000:
-            raise ValueError("adgroups.add — не более 1000 за вызов")
-        for i, g in enumerate(groups):
-            for required in ("Name", "CampaignId", "RegionIds"):
-                if required not in g:
-                    raise ValueError(f"adgroups[{i}]: нет {required}")
-            type_keys = self._ADGROUP_TYPE_KEYS & g.keys()
-            if len(type_keys) > 1:
-                raise ValueError(f"adgroups[{i}]: не более одного type-specific блока")
+        validate_adgroups(groups)
         return await self.call("adgroups", "add", {"AdGroups": groups})
 
     async def update_adgroups(self, groups: list[dict]) -> dict:
-        """Обновить группы объявлений. Каждый элемент содержит `Id`."""
-        if not groups:
-            raise ValueError("groups пустой")
-        for i, g in enumerate(groups):
-            if "Id" not in g:
-                raise ValueError(f"adgroups[{i}]: нет Id")
+        """Изменить группы объявлений. Каждый элемент содержит `Id`."""
+        validate_adgroups(groups, update=True)
         return await self.call("adgroups", "update", {"AdGroups": groups})
+
+    async def get_adgroup(self, adgroup_id: int) -> dict | None:
+        """Одна группа со всеми полями, включая блок её типа."""
+        result = await self.call(
+            "adgroups",
+            "get",
+            {"SelectionCriteria": {"Ids": [adgroup_id]}, "FieldNames": ADGROUP_FIELDS, **ADGROUP_TYPE_FIELDS},
+        )
+        items = result.get("AdGroups", [])
+        return items[0] if items else None
 
     async def delete_adgroups(self, ids: list[int]) -> dict:
         return await self.call("adgroups", "delete", {"SelectionCriteria": {"Ids": ids}})
@@ -1287,47 +1244,28 @@ class DirectClient:
         ids: list[int] | None = None,
         field_names: list[str] | None = None,
     ) -> list[dict]:
-        """Бизнес-данные (организации из Яндекс.Бизнес)."""
-        criteria: dict[str, Any] = {}
+        """Организации из Яндекс Бизнеса, доступные кабинету (для привязки к объявлениям)."""
+        params: dict[str, Any] = {
+            "FieldNames": field_names or ["Id", "Name", "Address", "Phone", "ProfileUrl", "IsPublished"]
+        }
         if ids:
-            criteria["Ids"] = ids
-        return await self._paginated_get(
-            "businesses",
-            "Businesses",
-            {
-                "SelectionCriteria": criteria,
-                "FieldNames": field_names
-                or [
-                    "Id",
-                    "Name",
-                    "ChainId",
-                    "Status",
-                ],
-            },
-            page_limit=1000,
-        )
+            params["SelectionCriteria"] = {"Ids": ids}
+        return await self._paginated_get("businesses", "Businesses", params, page_limit=1000)
 
     async def list_leads(
         self,
-        campaign_ids: list[int] | None = None,
-        adgroup_ids: list[int] | None = None,
-        ad_ids: list[int] | None = None,
+        turbo_page_ids: list[int],
         date_from: str | None = None,
         date_to: str | None = None,
         field_names: list[str] | None = None,
     ) -> list[dict]:
-        """Лиды с форм «Турбо-страниц» и lead-форм.
+        """Лиды с форм Турбо-страниц. `turbo_page_ids` обязателен (так в API).
 
-        date_from/date_to — YYYY-MM-DD, в UTC. По умолчанию API возвращает
-        лиды за последние 30 дней.
+        date_from/date_to — `YYYY-MM-DDThh:mm:ssZ` или `YYYY-MM-DD` (UTC).
         """
-        criteria: dict[str, Any] = {}
-        if campaign_ids:
-            criteria["CampaignIds"] = campaign_ids
-        if adgroup_ids:
-            criteria["AdGroupIds"] = adgroup_ids
-        if ad_ids:
-            criteria["AdIds"] = ad_ids
+        if not turbo_page_ids:
+            raise InvalidArguments("leads.get требует хотя бы одну турбо-страницу (TurboPageIds).")
+        criteria: dict[str, Any] = {"TurboPageIds": turbo_page_ids}
         if date_from:
             criteria["DateTimeFrom"] = date_from
         if date_to:
@@ -1337,15 +1275,7 @@ class DirectClient:
             "Leads",
             {
                 "SelectionCriteria": criteria,
-                "FieldNames": field_names
-                or [
-                    "Id",
-                    "CampaignId",
-                    "AdGroupId",
-                    "AdId",
-                    "SubmitDateTime",
-                    "FormFields",
-                ],
+                "FieldNames": field_names or ["Id", "SubmittedAt", "TurboPageId", "TurboPageName", "Data"],
             },
             page_limit=10000,
         )
@@ -1472,18 +1402,10 @@ class DirectClient:
         ids: list[int] | None = None,
         field_names: list[str] | None = None,
     ) -> list[dict]:
-        criteria: dict[str, Any] = {}
+        params: dict[str, Any] = {"FieldNames": field_names or ["Id", "Sitelinks"]}
         if ids:
-            criteria["Ids"] = ids
-        return await self._paginated_get(
-            "sitelinks",
-            "SitelinksSets",
-            {
-                "SelectionCriteria": criteria,
-                "FieldNames": field_names or ["Id", "Sitelinks"],
-            },
-            page_limit=1000,
-        )
+            params["SelectionCriteria"] = {"Ids": ids}
+        return await self._paginated_get("sitelinks", "SitelinksSets", params, page_limit=1000)
 
     async def add_sitelinks(self, sitelinks_sets: list[dict]) -> dict:
         """Создать наборы быстрых ссылок (до 1000 за вызов).
@@ -1494,7 +1416,7 @@ class DirectClient:
         Редактирование невозможно — создай новый набор и переподключи к объявлениям.
         """
         if not sitelinks_sets:
-            raise ValueError("sitelinks_sets пустой")
+            raise InvalidArguments("Список наборов быстрых ссылок пуст.")
         return await self.call("sitelinks", "add", {"SitelinksSets": sitelinks_sets})
 
     async def delete_sitelinks(self, ids: list[int]) -> dict:
@@ -1507,32 +1429,16 @@ class DirectClient:
         campaign_ids: list[int] | None = None,
         field_names: list[str] | None = None,
     ) -> list[dict]:
-        criteria: dict[str, Any] = {}
+        """Визитки. API фильтрует только по Id; `campaign_ids` отбирает по CampaignId уже после ответа."""
+        default = ["Id", "CampaignId", "Country", "City", "CompanyName", "WorkTime", "Phone", "Street", "House"]
+        params: dict[str, Any] = {"FieldNames": field_names or [*default, "ContactEmail"]}
         if ids:
-            criteria["Ids"] = ids
+            params["SelectionCriteria"] = {"Ids": ids}
+        items = await self._paginated_get("vcards", "VCards", params, page_limit=1000)
         if campaign_ids:
-            criteria["CampaignIds"] = campaign_ids
-        return await self._paginated_get(
-            "vcards",
-            "VCards",
-            {
-                "SelectionCriteria": criteria,
-                "FieldNames": field_names
-                or [
-                    "Id",
-                    "CampaignId",
-                    "Country",
-                    "City",
-                    "CompanyName",
-                    "WorkTime",
-                    "Phone",
-                    "Street",
-                    "House",
-                    "ContactEmail",
-                ],
-            },
-            page_limit=1000,
-        )
+            wanted = set(campaign_ids)
+            items = [v for v in items if v.get("CampaignId") in wanted]
+        return items
 
     async def add_vcards(self, vcards: list[dict]) -> dict:
         """Создать визитки (до 1000 за вызов).
@@ -1541,7 +1447,7 @@ class DirectClient:
         `WorkTime`, `Phone: {CountryCode, CityCode, PhoneNumber, Extension?}`.
         """
         if not vcards:
-            raise ValueError("vcards пустой")
+            raise InvalidArguments("Список визиток пуст.")
         return await self.call("vcards", "add", {"VCards": vcards})
 
     async def delete_vcards(self, ids: list[int]) -> dict:
@@ -1553,12 +1459,13 @@ class DirectClient:
         types: list[str] | None = None,
         states: list[str] | None = None,
         statuses: list[str] | None = None,
+        modified_since: str | None = None,
         field_names: list[str] | None = None,
         callout_field_names: list[str] | None = None,
     ) -> list[dict]:
-        """Список уточнений (callouts) и других расширений.
+        """Расширения объявлений — сейчас это уточнения (CALLOUT).
 
-        types: CALLOUT (сейчас только этот тип поддерживается в API).
+        states: ON | DELETED; statuses: DRAFT, MODERATION, ACCEPTED, REJECTED.
         """
         criteria: dict[str, Any] = {}
         if ids:
@@ -1569,9 +1476,11 @@ class DirectClient:
             criteria["States"] = states
         if statuses:
             criteria["Statuses"] = statuses
+        if modified_since:
+            criteria["ModifiedSince"] = modified_since
         params: dict[str, Any] = {
             "SelectionCriteria": criteria,
-            "FieldNames": field_names or ["Id", "Type", "State", "Status", "AssociatedCampaignIds"],
+            "FieldNames": field_names or ["Id", "Type", "State", "Status", "StatusClarification", "Associated"],
             "CalloutFieldNames": callout_field_names or ["CalloutText"],
         }
         return await self._paginated_get("adextensions", "AdExtensions", params, page_limit=10000)
@@ -1583,12 +1492,8 @@ class DirectClient:
             `[{"Callout": {"CalloutText": "..."}}]`. Текст ≤ 25 символов.
         """
         if not extensions:
-            raise ValueError("extensions пустой")
+            raise InvalidArguments("Список уточнений пуст.")
         return await self.call("adextensions", "add", {"AdExtensions": extensions})
-
-    async def moderate_ad_extensions(self, ids: list[int]) -> dict:
-        """Отправить расширения на модерацию."""
-        return await self.call("adextensions", "moderate", {"SelectionCriteria": {"Ids": ids}})
 
     async def delete_ad_extensions(self, ids: list[int]) -> dict:
         return await self.call("adextensions", "delete", {"SelectionCriteria": {"Ids": ids}})
@@ -1638,9 +1543,9 @@ class DirectClient:
         В ответе — `AdImageHash`, по нему потом привязывай к объявлениям.
         """
         if not images:
-            raise ValueError("images пустой")
+            raise InvalidArguments("Список изображений пуст.")
         if len(images) > 100:
-            raise ValueError("adimages.add — не более 100 за вызов")
+            raise InvalidArguments("adimages.add — не более 100 изображений за вызов.")
         return await self.call("adimages", "add", {"AdImages": images})
 
     async def delete_ad_images(self, hashes: list[str]) -> dict:
@@ -1681,6 +1586,7 @@ class DirectClient:
                 "Height",
                 "ThumbnailUrl",
                 "Associated",
+                "IsAdaptive",
             ],
             "VideoExtensionCreativeFieldNames": ["Duration"],
             "CpcVideoCreativeFieldNames": ["Duration"],
@@ -1697,37 +1603,54 @@ class DirectClient:
         VideoId предварительно получается из AdVideos (загрузка видео).
         """
         if not creatives:
-            raise ValueError("creatives пустой")
+            raise InvalidArguments("Список креативов пуст.")
         if len(creatives) > 10:
-            raise ValueError("creatives.add — не более 10 за вызов")
+            raise InvalidArguments("creatives.add — не более 10 креативов за вызов.")
         return await self.call("creatives", "add", {"Creatives": creatives})
 
     async def list_turbopages(
         self,
         ids: list[int] | None = None,
+        bound_with_hrefs: list[str] | None = None,
         field_names: list[str] | None = None,
     ) -> list[dict]:
-        """Турбо-страницы клиента (созданные в Конструкторе)."""
+        """Турбо-страницы клиента; `bound_with_hrefs` — только привязанные к этим адресам сайта."""
         criteria: dict[str, Any] = {}
         if ids:
             criteria["Ids"] = ids
+        if bound_with_hrefs:
+            criteria["BoundWithHrefs"] = bound_with_hrefs
         return await self._paginated_get(
             "turbopages",
             "TurboPages",
             {
                 "SelectionCriteria": criteria,
-                "FieldNames": field_names
-                or [
-                    "Id",
-                    "Name",
-                    "PreviewUrl",
-                    "Href",
-                    "ModerationStatus",
-                    "CampaignType",
-                ],
+                "FieldNames": field_names or ["Id", "Name", "Href", "PreviewHref", "TurboSiteHref", "BoundWithHref"],
             },
             page_limit=1000,
         )
+
+    # --- Видео: advideos ---
+
+    async def list_ad_videos(self, ids: list[str], field_names: list[str] | None = None) -> list[dict]:
+        """Видео по Id (API не отдаёт список всех видео — Ids обязательны)."""
+        if not ids:
+            raise InvalidArguments("advideos.get требует хотя бы один Id видео.")
+        return await self._paginated_get(
+            "advideos",
+            "AdVideos",
+            {"SelectionCriteria": {"Ids": ids}, "FieldNames": field_names or ["Id", "Status"]},
+            page_limit=1000,
+        )
+
+    async def add_ad_videos(self, videos: list[dict]) -> dict:
+        """Загрузить видео: элемент `{Url | VideoData (base64), Name?}`; в ответе — Id видео для creatives.add."""
+        if not videos:
+            raise InvalidArguments("Список видео пуст.")
+        for i, video in enumerate(videos):
+            if not (video.get("Url") or video.get("VideoData")):
+                raise InvalidArguments(f"advideos[{i}]: нужен Url или VideoData.")
+        return await self.call("advideos", "add", {"AdVideos": videos})
 
     # --- Справочники ---
 

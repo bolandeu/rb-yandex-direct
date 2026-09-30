@@ -1,0 +1,23 @@
+
+ Usage: yd extensions list [OPTIONS]
+
+ Уточнения (callouts) кабинета.
+
+ --json: {"ok": true, "count": N, "extensions": [{Id, Type, State, Status, StatusClarification,
+ Associated, Callout}]}.
+
+ Example: yd extensions list --status REJECTED
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id                    <int>                               Только эти уточнения (повторяемая).  │
+│ --state                 <ON|DELETED>                        ON — действующие, DELETED —          │
+│                                                             удалённые.                           │
+│ --status                <DRAFT|MODERATION|ACCEPTED|REJECTE  Фильтр по статусу модерации          │
+│                         D>                                  (повторяемая).                       │
+│ --modified-since        <str>                               Изменённые после момента,            │
+│                                                             YYYY-MM-DDThh:mm:ssZ.                │
+│ --json                                                      Машиночитаемый вывод: JSON в stdout. │
+│ --quiet                                                     Не печатать ничего, кроме данных.    │
+│ --help                                                      Show this message and exit.          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

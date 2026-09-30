@@ -1,0 +1,17 @@
+
+ Usage: yd businesses [OPTIONS]
+
+ Организации из Яндекс Бизнеса, доступные кабинету; Id — для `ads add-text --business`.
+
+ --json: {"ok": true, "count": N, "businesses": [{Id, Name, Address, Phone, ProfileUrl,
+ IsPublished}]}.
+
+ Example: yd businesses --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --id           <int>  Только эти организации (повторяемая).                                      │
+│ --json                Машиночитаемый вывод: JSON в stdout.                                       │
+│ --quiet               Не печатать ничего, кроме данных.                                          │
+│ --help                Show this message and exit.                                                │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

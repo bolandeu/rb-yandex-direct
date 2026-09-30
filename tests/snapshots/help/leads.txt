@@ -1,0 +1,19 @@
+
+ Usage: yd leads [OPTIONS]
+
+ Заявки (лиды) с форм турбо-страниц.
+
+ Id турбо-страниц — `turbo list`. --json: {"ok": true, "count": N, "leads": [{Id, SubmittedAt,
+ TurboPageId, TurboPageName, Data: [{Name, Value}]}]}.
+
+ Example: yd leads --turbo-page 3001 --date-from 2026-09-01 --date-to 2026-09-27
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --turbo-page        <int>  Id турбо-страницы с формой (повторяемая). [обязательный]           │
+│    --date-from         <str>  С момента (UTC): YYYY-MM-DD или YYYY-MM-DDThh:mm:ssZ.              │
+│    --date-to           <str>  По момент (UTC): YYYY-MM-DD или YYYY-MM-DDThh:mm:ssZ.              │
+│    --json                     Машиночитаемый вывод: JSON в stdout.                               │
+│    --quiet                    Не печатать ничего, кроме данных.                                  │
+│    --help                     Show this message and exit.                                        │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
