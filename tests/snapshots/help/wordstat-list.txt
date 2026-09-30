@@ -1,0 +1,15 @@
+
+ Usage: yd wordstat list [OPTIONS]
+
+ Отчёты Wordstat на сервере (до пяти) и их статус: Done, Pending, Failed.
+
+ --json: {"ok": true, "count": N, "reports": [{ReportID, StatusReport}]}.
+
+ Example: yd wordstat list --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --json           Машиночитаемый вывод: JSON в stdout.                                            │
+│ --quiet          Не печатать ничего, кроме данных.                                               │
+│ --help           Show this message and exit.                                                     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

@@ -1,0 +1,20 @@
+
+ Usage: yd shared-account list [OPTIONS]
+
+ Общие счета: остаток, доступно к переводу, дневной бюджет, уведомления (AccountManagement Get).
+
+ Агентству нужен --client или --account. Суммы — в валюте счёта.
+ --json: {"ok": true, "count": N, "accounts": [{AccountID, Login, Amount,
+ AmountAvailableForTransfer,
+ Currency, AccountDayBudget, SmsNotification, EmailNotification, …}]}.
+
+ Example: yd shared-account list --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --client         <str>  Логин клиента агентства (повторяемая, до 50).                            │
+│ --account        <int>  Id общего счёта (повторяемая, до 100).                                   │
+│ --json                  Машиночитаемый вывод: JSON в stdout.                                     │
+│ --quiet                 Не печатать ничего, кроме данных.                                        │
+│ --help                  Show this message and exit.                                              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

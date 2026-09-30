@@ -13,8 +13,8 @@ build/
 htmlcov/
 .python-version
 *.token
-data/
-reports/
+/data/
+/reports/
 
 # git worktree сабагентов Claude Code
 .claude/worktrees/

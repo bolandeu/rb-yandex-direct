@@ -1,0 +1,16 @@
+
+ Usage: yd tags campaigns [OPTIONS]
+
+ Метки, заведённые в кампаниях (GetCampaignsTags).
+
+ --json: {"ok": true, "count": N, "campaigns": [{CampaignID, Tags: [{TagID, Tag}]}]}.
+
+ Example: yd tags campaigns --campaign 12345 --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --campaign        <int>  Id кампании (повторяемая). [обязательный]                            │
+│    --json                   Машиночитаемый вывод: JSON в stdout.                                 │
+│    --quiet                  Не печатать ничего, кроме данных.                                    │
+│    --help                   Show this message and exit.                                          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

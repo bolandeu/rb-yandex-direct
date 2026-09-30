@@ -1,0 +1,16 @@
+
+ Usage: yd finance units [OPTIONS]
+
+ Остаток баллов API по логинам (GetClientsUnits).
+
+ --json: {"ok": true, "count": N, "units": [{Login, UnitsRest}]}.
+
+ Example: yd finance units --client shop@yandex.ru --json
+
+╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --client        <str>  Логин (повторяемая). [обязательный]                                    │
+│    --json                 Машиночитаемый вывод: JSON в stdout.                                   │
+│    --quiet                Не печатать ничего, кроме данных.                                      │
+│    --help                 Show this message and exit.                                            │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
