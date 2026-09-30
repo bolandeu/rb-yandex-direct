@@ -7,34 +7,36 @@ uv sync
 uv run yd auth login
 uv run yd auth status --check
 uv run yd whoami
-uv run yd campaigns list --state ON
+uv run yd campaigns list --state ON --json
+uv run yd doctor
 uv run pytest                          # --snapshot-update после правки справки
 uv run scripts/release.py --check      # весь гейт перед каждым коммитом
 ```
 
 ## Architecture
 
-**Режимы:** Python-библиотека и CLI `yd` (дистрибутив `rb-yandex-direct`); планируемый Claude Code скилл `/direct-report`. MCP-сервера нет — агенты работают через CLI.
+Шаблон cli-generator (`.copier-answers.yml`, обновление — `uvx copier update --trust --defaults`,
+см. скилл cli-builder, режим Update). Python-библиотека `rb_yandex_direct` и CLI `yd` на Typer;
+дистрибутив `rb-yandex-direct`. MCP-сервера нет — агенты работают через CLI (`yd --ai`).
 
-**Source layout:** `src/rb_yandex_direct/`
-
-- `core/auth.py` — токен через rb-yandex-oauth (`PROFILE`, `store`, `resolve_token()`), `auth status` по §8, маппинг ошибок API в CliError (53/54/58/513/1002 → exit 3, прочее → 5).
-- `core/oauth.py` — `YandexOAuth`. Три потока: authorization-code с локальным callback (основной), OOB (ручная вставка кода), device flow. Scope: `direct:api passport:business`.
-- `core/client.py` — `DirectClient`. JSON-RPC-подобный вызов v5: `POST /json/v5/<service>` с `{"method": ..., "params": ...}`. Ошибки — в теле под `error`, код 1002 = невалидный токен. Заголовки: `Authorization: Bearer`, `Client-Login`, `Accept-Language`, `Use-Operator-Units`. Логирует `Units` и `RequestId` из ответа.
-- `core/reports.py` — `ReportsClient`. Отдельный базовый URL, polling 200/201/202 по `retryIn`, парсинг TSV в `list[dict]`.
-- `core/errors.py` — `DirectAPIError` (с `.is_auth_error`), `DirectAuthError`.
-- `cli.py` — Click. Группы:
-  - **Клиенты/баланс:** `auth login/refresh/logout/status`, `whoami`, `clients`, `client` (update/update-agency), `accounts`.
-  - **Кампании:** `campaigns list/suspend/resume/archive/unarchive/update/set-budget/set-negative-keywords/add-json/delete`.
-  - **Группы объявлений:** `adgroups list/add/update/delete/set-negative-keywords`.
-  - **Объявления:** `ads list/moderate/suspend/resume/archive/unarchive/delete/moderation/add-text/add-json`.
-  - **Ключи и ставки:** `keywords list/suspend/resume/delete/add/update/check-volume/dedup`, `bids list/set/set-auto`, `modifiers list/add/set/delete/toggle`.
-  - **Минус-слова:** `minus-sets list/add/update/delete`.
-  - **Расширения:** `sitelinks list/add/delete`, `vcards list/add/delete`, `extensions list/add/moderate/delete`.
-  - **Креативы:** `images list/add/delete`, `creatives list/add-video-extension`, `turbo list`.
-  - **Ретаргетинг:** `retargeting list/add/update/delete`, `audiences list/add/suspend/resume/delete/set-bid`.
-  - **P3:** `feeds list/add-json/update-json/delete`, `businesses`, `leads`, `dynamic-targets list/add-json/set-bid/suspend/resume/delete`, `smart-targets list/add-json/set-bid/suspend/resume/delete`.
-  - **Инфраструктура:** `dict get`, `changes check/dictionaries`, `report campaigns/ads/queries/account/custom`.
+- `cli.py` — корень: глобальные `--login`, `--sandbox/--prod`, `--json`, `--dry-run`, `--non-interactive`, `--project`.
+- `commands/<группа>.py` — по модулю на группу, `commands/groups.py` — реестр групп; команды тонкие:
+  параметры → `emit_list` / `emit_object` / `mutate` из `commands/_common.py`. `mutate` — единая
+  семантика изменений: `--dry-run` (запрос к API) → `require_confirmation` (`--confirm`) → вызов →
+  разбор `*Results`; поэлементные ошибки API — отчёт целиком и exit 5.
+- `core/services.py` — проект `.yd/config.toml` (кабинет и песочница по умолчанию), выбор кабинета
+  (`--login` → проект → `YANDEX_DIRECT_LOGIN`; подстрока логина из `YANDEX_DIRECT_MANAGED_LOGINS`),
+  фабрики клиентов, рубли ↔ микроединицы. Сложная сборка payload — в `core/`, не в командах.
+- `core/errors.py` — коды ошибок шаблона на базе `yandex_oauth.errors.CliError` (чтобы `output.guard`
+  ловил и ошибки общей библиотеки); `DirectAPIError`: коды учётных данных 53/54/58/513/1002 →
+  `AUTH_REQUIRED` (exit 3), прочее → `PROVIDER_ERROR` (exit 5), в JSON — `api_code`, `request_id`.
+- `providers/direct.py` — `DirectClient`: `POST /json/v5/<service>` `{"method", "params"}`, ошибки в теле
+  под `error`; ретраи 52/506/1000/1001, HTTP 429/5xx, сети; заголовки `Client-Login`,
+  `Use-Operator-Units`; `Units`/`RequestId` — в лог (`--verbose`). `DirectProvider.health_check` —
+  один `clients.get` для `auth status --check`. `providers/reports.py` — TSV-отчёты с polling.
+  `providers/oauth.py` — потоки входа (localhost callback, OOB, device flow).
+- `commands/auth.py` — свой `login` (приложение Директа — `YANDEX_OAUTH_DIRECT_CLIENT_ID`, не общий
+  `YANDEX_CLIENT_ID` ym/ywm), хранение и обновление токена — rb-yandex-oauth; `auth status` — §8.
 
 **API v5 endpoints (подтверждено WebFetch с yandex.ru/dev/direct и context7 из /dragonsigh/yandex-direct-api-docs):**
 
@@ -47,27 +49,12 @@ uv run scripts/release.py --check      # весь гейт перед кажды
 
 **Credentials:** rb-yandex-oauth — keychain `yandex-oauth:direct` (свой слот, не общий `yandex-oauth:yandex`: общее приложение не прошло заявку на API Директа, код 58) или env `YANDEX_OAUTH_DIRECT_*`; готовый токен — `YANDEX_DIRECT_TOKEN`. `.env` не читается. Тесты изолированы от keychain фикстурой `tests/conftest.py`.
 
-**Справка = docstring'и команд в `cli.py`** (Click, `[tool.cli-generator] commands` в pyproject): у каждой команды строка `Example: yd …`, у каждой опции `help=`. Тесты: `tests/test_help.py` (контракт + снапшоты), `tests/test_examples.py` (каждый Example выполняется против замоканного API).
+**Справка = docstring'и команд** (`src/rb_yandex_direct/commands/*.py`): резюме, `--json`-форма, `Example: {cli} …`, `help=` у каждого параметра. Тесты: `tests/test_help.py` (контракт + снапшоты), `tests/test_examples.py` (каждый Example выполняется против замоканного API; изменяющим добавляется `--confirm --non-interactive`), `tests/test_cmd_<группа>.py`.
 
-**host_id (в webmaster) здесь не применяется** — аналог «кто клиент»: `Client-Login` (`--login` у каждой команды).
+**Raw-dict подход:** ответы API — dict как есть (JSON-ключи API), без pydantic-моделей; валидация — на входе.
+Для сложных структур CLI принимает `--from-json` (`add-json`/`update-json`), частые случаи — типизированными опциями в рублях.
 
-**Покрытие API:** P0 + P1 + P2 + P3 — 98/98 методов × 2 слоя (Python/CLI).
-Для сложных структур (ads.add/campaigns.add/feeds.add/targets.add/clients.update) CLI принимает
-`--from-json`. Для часто используемого создания TextAd сделан шорткат `ads add-text` + CLI
-для bids/modifiers/keywords по-человечески с `--search-bid` в рублях.
-
-**Что ещё не сделано:**
-- Скилл `/direct-report` (collect_direct.py + analyze_direct.py) — черновик в scripts/.
-- Pydantic-модели для ответов — не вводили, сохраняем raw-dict подход с валидацией на входе.
-- `AdVideos` сервис для загрузки видео — не нужен, используется только как источник VideoId для `creatives.add`.
-
-**Предохранитель:** write-команды — интерактивный `y/n`, `-y/--yes` — без вопроса.
-
-**API Units логируются** при verbose-режиме: `Units: used/daily/weekly`.
-
-**Ошибки учётных данных** (53, 54, 58, 513, 1002) → `core.auth.as_cli_error` → exit 3 с подсказкой `auth login`.
-
-**Индекс документации API:** `docs/api_links.json` — 27 сервисов × методы с URL на `yandex.com/dev/direct/doc/en/*`. Генерируется из sitemap + ручного дополнения: `uv run scripts/build_api_index.py`. Использовать так: смотри ключ `services.<service>.methods.<method>` → WebFetch по URL, если нужна сверка формата запроса.
+**Индекс документации API:** `docs/api_links.json` — сервисы × методы с URL на `yandex.com/dev/direct/doc/en/*`. Генерируется из sitemap + ручного дополнения: `uv run scripts/build_api_index.py`. Использовать так: смотри ключ `services.<service>.methods.<method>` → WebFetch по URL, если нужна сверка формата запроса.
 
 **Мульти-аккаунт через «представителя»:**
 

@@ -1,18 +1,18 @@
 # rb-yandex-direct
 
-Клиент Яндекс.Директ API v5 — Python-библиотека и CLI `yd`.
+Яндекс.Директ — Python-библиотека `rb_yandex_direct` и CLI `yd`: API v5, v4 Live (Wordstat, прогноз, финансы) и веб-интерфейс (Мастер кампаний, история изменений).
 
 ---
 
 ## Установка
 
 ```bash
-uv tool install "git+https://github.com/bolandeu/yandex-direct.git@v0.2.0"
+uv tool install "rb-yandex-direct @ git+https://github.com/bolandeu/yandex-direct.git@vX.Y.Z"   # последний тег
 yd --version
 ```
 
 Репозиторий приватный: HTTPS работает после `gh auth login` (или `gh auth setup-git`),
-иначе — `git+ssh://git@github.com/bolandeu/yandex-direct.git@vX.Y.Z`. Обновление — `uv tool upgrade rb-yandex-direct`.
+иначе — `"rb-yandex-direct @ git+ssh://git@github.com/bolandeu/yandex-direct.git@vX.Y.Z"`. Обновление — `uv tool upgrade rb-yandex-direct`.
 
 Разработка:
 
@@ -68,12 +68,16 @@ yd auth refresh | logout
 
 ## Команды
 
-Голый `yd` печатает список команд, `yd <команда> --help` — описание
-и пример. Справка — это docstring'и команд в `src/rb_yandex_direct/cli.py`: поменял поведение
-команды — поменяй её docstring в том же коммите (хуки `.claude/settings.json`, `.githooks/pre-commit`),
-потом `uv run pytest --snapshot-update` и просмотри diff `tests/snapshots/help/`.
+Голый `yd` печатает список команд, `yd <команда> --help` — описание, `--json`-форму
+и пример. Справка — это docstring'и команд в `src/rb_yandex_direct/commands/*.py`: поменял
+поведение команды — поменяй её docstring в том же коммите (хуки `.claude/settings.json`,
+`.githooks/pre-commit`), потом `uv run pytest --snapshot-update` и просмотри diff `tests/snapshots/help/`.
 
-Write-команды спрашивают подтверждение; `-y/--yes` — без вопроса.
+- `--json` у каждой команды: `{"ok": true, …}` в stdout; ошибка — `{"ok": false, "error": {code, message, action}}`.
+- Изменения в кабинете: `--dry-run` — показать запрос к API; без него — вопрос `y/n`;
+  `--confirm --non-interactive` — без вопроса (агенты — только после dry-run, показанного человеку).
+- Кабинет: `--login` → `.yd/config.toml` проекта (`yd init --client-login …`) → `YANDEX_DIRECT_LOGIN`.
+- `yd doctor`, `yd auth status --check` — диагностика; `yd skill install` / `yd --ai` — памятка для агентов.
 
 ---
 
@@ -89,13 +93,19 @@ Write-команды спрашивают подтверждение; `-y/--yes`
 
 ```
 src/rb_yandex_direct/
-├── cli.py                  # Click CLI
-└── core/
-    ├── auth.py             # токен через rb-yandex-oauth, auth status (§8)
-    ├── oauth.py            # потоки входа: localhost callback, OOB, device flow
-    ├── client.py           # DirectClient (JSON v5, headers, units)
-    ├── reports.py          # ReportsClient (TSV, polling)
-    └── errors.py           # DirectAPIError
+├── cli.py                  # корень Typer: глобальные опции, подключение групп
+├── commands/               # по модулю на группу; groups.py — реестр; _common.py — списки, mutate (dry-run/confirm)
+├── core/
+│   ├── auth.py             # токен через rb-yandex-oauth (keychain yandex-oauth:direct / env)
+│   ├── services.py         # проект .yd/, кабинет (--login → проект → env), клиенты API, рубли↔микро
+│   ├── errors.py           # CliError-коды; DirectAPIError → AUTH_REQUIRED (3) / PROVIDER_ERROR (5)
+│   └── models.py, version.py, deps.py
+├── providers/
+│   ├── direct.py           # DirectClient (JSON v5, ретраи, Units) + DirectProvider.health_check
+│   ├── reports.py          # ReportsClient (TSV, polling)
+│   └── oauth.py            # потоки входа: localhost callback, OOB, device flow
+├── credentials/manager.py  # keychain/env — общая реализация rb-yandex-oauth
+└── data/SKILL.md           # памятка для агентов (yd --ai)
 ```
 
 **API v5:** prod `https://api.direct.yandex.com/json/v5/<service>`, sandbox
