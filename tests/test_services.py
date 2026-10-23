@@ -1,3 +1,5 @@
+"""Tests of the project services: find the project root, round-trip the config file and check the CLI's compatibility."""
+
 from __future__ import annotations
 
 from pathlib import Path

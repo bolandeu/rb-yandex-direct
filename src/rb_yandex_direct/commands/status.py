@@ -1,3 +1,5 @@
+"""The `status` command: the state of the current project."""
+
 from __future__ import annotations
 
 from pathlib import Path

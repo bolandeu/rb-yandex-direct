@@ -86,7 +86,7 @@ def state_path() -> Path:
 def last_operation_num() -> int:
     try:
         return int(json.loads(state_path().read_text(encoding="utf-8")).get("last_operation_num", 0))
-    except (OSError, ValueError):
+    except OSError, ValueError:
         return 0
 
 

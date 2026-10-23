@@ -1,10 +1,9 @@
 # Changelog
 
-Все заметные изменения rb-yandex-direct. Формат — [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
-версии — [SemVer](https://semver.org/lang/ru/) (на 0.x ломающие изменения — минорная версия).
-Файл собирается из фрагментов `changelog.d/` командой `scripts/release.py`; руками не править.
+All notable changes to this project are documented here. Versions follow
+[SemVer](https://semver.org/) (while at `0.x`, a minor bump may break).
 
-<!-- towncrier release notes start -->
+The changelog is written by `antagor publish`; don't edit it by hand.
 
 ## [0.3.0] - 2026-09-30
 

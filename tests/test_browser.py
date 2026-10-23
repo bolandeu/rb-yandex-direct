@@ -15,6 +15,7 @@ from rb_yandex_direct.providers import browser
 from rb_yandex_direct.providers.direct import PROD_BASE
 
 from .fake_browser import PAGE, BrowserAuthError, BrowserCaptchaError, FakeBrowser
+from .test_cli import plain
 
 
 def run(*args: str, input: str | None = None):
@@ -348,7 +349,7 @@ def test_missing_extra_is_dependency_error(monkeypatch: pytest.MonkeyPatch) -> N
     assert payload["error"]["code"] == "DEPENDENCY_TOO_OLD"
     assert "rb-yandex-direct[browser]" in payload["error"]["action"]
     human = run("browser", "status")
-    assert "rb-yandex-direct[browser]" in human.stderr.replace("\n", "")  # скобки не съедены rich
+    assert "rb-yandex-direct[browser]" in plain(human.stderr).replace("\n", "")  # скобки не съедены rich
 
 
 # --- yd browser ---------------------------------------------------------------------------------

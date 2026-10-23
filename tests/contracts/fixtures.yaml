@@ -1,0 +1,11 @@
+# This repo's side of the consumers' `run` cases (tests/test_contracts.py, format:
+# schema.json $defs/fixtures). Every run is offline anyway: no network, no real keys.
+#
+# placeholders: values for {name} in a case's argv, chosen to match the offline data.
+# offline_cache: the pytest fixture (tests/conftest.py) that puts that data in place —
+#   recorded responses, a filled cache, fake keys — for every case unless it says
+#   `offline_cache: false`; those get `no_cache` (if set) and must fail before
+#   reaching the provider.
+placeholders: {}
+offline_cache: null
+no_cache: null

@@ -1,3 +1,5 @@
+"""Human-readable output (messages, key-value lists, the doctor report), kept apart from the JSON output."""
+
 from __future__ import annotations
 
 from rich.console import Console

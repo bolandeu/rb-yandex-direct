@@ -1,3 +1,7 @@
+"""The provider contract: what a provider declares, how its credentials are checked, and the discovery of the providers
+in this package.
+"""
+
 from __future__ import annotations
 
 import importlib

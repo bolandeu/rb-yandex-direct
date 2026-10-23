@@ -13,20 +13,20 @@ description: Правила работы агента с CLI yd (Яндекс.Д
 ## Установка (если `yd --version` не работает)
 
 ```bash
-uv tool install "rb-yandex-direct @ git+https://github.com/bolandeu/yandex-direct.git@vX.Y.Z"
+uv tool install rb-yandex-direct --index https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple
 ```
 
-`vX.Y.Z` — последний тег релиза (ставить только с тега, не с ветки: стандарт §9).
-Одинаково на macOS, Linux и Windows; обновление — `uv tool upgrade rb-yandex-direct`.
-
-Репозиторий может быть приватным. При ошибке доступа (`Authentication failed`,
-`could not read Username`, `Repository not found`) не просите токен: выполните
-`gh auth status`; если он проходит — `gh auth setup-git` и повторите; если нет —
-попросите пользователя выполнить `gh auth login`. С SSH-ключами работает так:
+From the git tag instead:
 
 ```bash
-uv tool install "rb-yandex-direct @ git+ssh://git@github.com/bolandeu/yandex-direct.git@vX.Y.Z"
+uv tool install "rb-yandex-direct @ git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/yandex-direct.git@vX.Y.Z"
 ```
+
+Replace `vX.Y.Z` with the latest release tag (install from a tag, never a
+branch: [the Standard](https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator/src/branch/main/skills/cli-builder/reference/standard.md), Install).
+
+Same command on macOS, Linux and Windows; `uv tool upgrade rb-yandex-direct`
+updates it. Do not run from source unless asked to develop the CLI.
 
 ## Правила
 
@@ -74,6 +74,8 @@ uv tool install "rb-yandex-direct @ git+ssh://git@github.com/bolandeu/yandex-dir
   Кабинет — тот, где пользователь вошёл в браузере: `--login` здесь не действует. Браузерные
   команды медленные (секунды–минуты) и хрупкие к смене разметки Яндекса: изменения в
   Мастере — только после `--dry-run` и согласия, как и остальные.
+- **`yd describe --json`** — вся CLI одним машиночитаемым документом OpenCLI (команды, опции,
+  коды выхода, переменные окружения): голый документ, без конверта `{"ok": ...}`.
 
 ## Ошибки
 

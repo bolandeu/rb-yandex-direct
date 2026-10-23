@@ -1,8 +1,14 @@
+"""The installed version, summary and command name of this package, read from its distribution metadata, and the probes
+for optional modules.
+"""
+
 from __future__ import annotations
 
 import functools
+import importlib
 import importlib.util
 from importlib.metadata import Distribution, PackageNotFoundError, distribution
+from types import ModuleType
 
 from .._distribution import DIST_NAME, DIST_NAME_LEGACY
 
@@ -35,6 +41,11 @@ def module_exists(name: str) -> bool:
         return False
 
 
+def optional_module(name: str) -> ModuleType | None:
+    """Module `name` (dotted) of an optional part, or None when the package was generated without that part."""
+    return importlib.import_module(name) if module_exists(name) else None
+
+
 @functools.cache
 def cli_name() -> str:
     """The command users type: this package's console script (`[project.scripts]`, copier's `cli_name`).
@@ -44,7 +55,7 @@ def cli_name() -> str:
     actions, `{cli}` in docstrings, `auth status`'s `tool` — uses this, while
     the keychain service, env var prefix and `.<package>/` project dir keep
     the package name. A bare source run (nothing installed) falls back to it.
-    The distribution (`DIST_NAME`, standard §10 `rb-<slug>`) is a third,
+    The distribution (`DIST_NAME`, `rb-<slug>`) is a third,
     separate name: what `uv tool install/upgrade` and dependencies use.
     """
     try:

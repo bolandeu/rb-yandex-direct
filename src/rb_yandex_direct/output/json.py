@@ -1,3 +1,5 @@
+"""Machine-readable output: the one function that prints a JSON document to stdout."""
+
 from __future__ import annotations
 
 import json

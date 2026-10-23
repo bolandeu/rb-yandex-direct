@@ -1,3 +1,5 @@
+"""The `doctor` command: checks of this CLI's own setup, one line per check."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -7,9 +9,10 @@ import typer
 from .. import output
 from ..core import deps, services
 from ..core.auth import store
-from ..core.errors import CliError, CliTooOld
-from ..core.models import ProjectConfig
-from ..core.version import DEV_VERSION, cli_name, installed_version
+from ..core.errors import CliError
+from ..core.version import DEV_VERSION, cli_name, installed_version, optional_module
+
+_PACKAGE_NAME = __name__.split(".")[0]
 
 
 def _auth_check() -> dict:
@@ -44,27 +47,12 @@ def doctor(
     checks: list[dict] = [{"name": "python", "ok": True}]
     checks.append({"name": "cli_version", "ok": True, "detail": installed_version() or DEV_VERSION})
 
-    start = Path(ctx.obj.get("project") or Path.cwd())
-    output.vecho(ctx, f"Поиск корня проекта начиная с: {start}")
-    root = services.find_project_root(start)
-    # Проект необязателен: без него кабинет берётся из --login / YANDEX_DIRECT_LOGIN.
-    checks.append({"name": "project", "ok": True, "detail": str(root) if root else "нет (необязателен)"})
-
-    config: ProjectConfig | None = None
-    if root is not None:
-        try:
-            config = services.load_config(root, check_compat=False)
-            checks.append({"name": "config", "ok": True})
-        except Exception as exc:
-            checks.append({"name": "config", "ok": False, "detail": str(exc)})
-    if config is not None:
-        try:
-            services.check_cli_compat(config)
-            checks.append({"name": "cli_compat", "ok": True, "detail": f"проекту нужен >= {config.cli.min_version}"})
-        except CliTooOld as exc:
-            checks.append({"name": "cli_compat", "ok": False, "detail": exc.message})
+    if project := optional_module(f"{_PACKAGE_NAME}.commands.project"):  # include_project=false drops it
+        checks.extend(project.doctor_checks(ctx))
 
     checks.append(_auth_check())
+    start = Path(ctx.obj.get("project") or Path.cwd())
+    root = services.find_project_root(start)
     try:
         conn = services.connection({**ctx.obj, "project": str(root) if root else ctx.obj.get("project")})
         where = "песочница" if conn["sandbox"] else "боевой API"
@@ -73,7 +61,9 @@ def doctor(
         checks.append({"name": "login", "ok": False, "detail": getattr(exc, "message", str(exc))})
     managed = services.managed_logins()
     checks.append({"name": "managed_logins", "ok": True, "detail": ", ".join(managed) or "не заданы"})
-    checks.extend(deps.doctor_checks())  # [[tool.rb.external]] в pyproject.toml
+    checks.extend(deps.doctor_checks())  # [[tool.rb.external]] in pyproject.toml
+    if db := optional_module(f"{_PACKAGE_NAME}.core.db"):  # include_db=false drops it at generation time
+        checks.extend(db.doctor_checks())
 
     all_ok = all(check["ok"] for check in checks)
     output.emit_success(

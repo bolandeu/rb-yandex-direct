@@ -7,19 +7,17 @@
 ## Установка
 
 ```bash
-uv tool install "rb-yandex-direct @ git+https://github.com/bolandeu/yandex-direct.git@vX.Y.Z"   # последний тег
+uv tool install rb-yandex-direct --index https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple
 yd --version
 ```
 
-Репозиторий приватный: HTTPS работает после `gh auth login` (или `gh auth setup-git`),
-иначе — `"rb-yandex-direct @ git+ssh://git@github.com/bolandeu/yandex-direct.git@vX.Y.Z"`. Обновление — `uv tool upgrade rb-yandex-direct`.
+Из тега: `"rb-yandex-direct @ git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/yandex-direct.git@vX.Y.Z"`. Обновление — `uv tool upgrade rb-yandex-direct`.
 
 Разработка:
 
 ```bash
 uv sync
-scripts/install_hooks.sh            # один раз на клон: git-хуки справки из .githooks/
-uv run scripts/release.py --check   # весь гейт: lock, ruff, ty, pytest (покрытие ≥ 90%), фрагмент, сборка wheel
+# весь гейт — шаг `rb-release check` в .gitea/workflows/ci.yml: запускать ту команду
 ```
 
 ---
@@ -84,9 +82,8 @@ yd auth refresh | logout
 
 ## Версии и релизы
 
-Стандарт — `~/Projects/tools/docs/standard-release.md`. Версии в `pyproject.toml` нет — она из git-тега.
-`CHANGELOG.md` руками не правят: каждое изменение — фрагмент `uv run towncrier create +<slug>.<type>.md -c "…"`.
-Релиз с `main`: `uv run scripts/release.py patch|minor|major` (гейт, CHANGELOG, коммит, тег); push — отдельно.
+Стандарт — `~/Work/tools/docs/standard-release.md`. Версии в `pyproject.toml` нет — она из git-тега.
+`CHANGELOG.md` руками не правят: его пишет `antagor publish`, он же выпускает релиз.
 
 ---
 

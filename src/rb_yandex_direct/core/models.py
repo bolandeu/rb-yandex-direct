@@ -1,3 +1,5 @@
+"""The pydantic models of the project's config file."""
+
 from __future__ import annotations
 
 from pydantic import BaseModel, Field

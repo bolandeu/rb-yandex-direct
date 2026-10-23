@@ -1,0 +1,20 @@
+# The tools catalog is built from
+# every installed tool's `describe --json`. This is what it relies on.
+contract: 1
+consumer: tools-catalog
+provider: yd
+contact: "cli-generator"
+static:
+  commands:
+    - path: [describe]
+      options: [--json]
+  exit_codes: [0]
+run:
+  - name: describe_json
+    argv: [describe, --json]
+    exit: 0
+    stdout_json_schema:
+      type: object
+      required: [opencli, info, command]
+      properties: {opencli: {type: string}, info: {type: object, required: [version]}}
+view: []

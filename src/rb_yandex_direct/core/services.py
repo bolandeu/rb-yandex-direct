@@ -1,3 +1,7 @@
+"""Project services: find the project folder, read and write its config file, and the check that the installed CLI is
+new enough for it.
+"""
+
 from __future__ import annotations
 
 import asyncio
@@ -148,7 +152,7 @@ def reports(ctx_obj: dict) -> ReportsClient:
     return ReportsClient(token=resolve_token(), **connection(ctx_obj))
 
 
-def run(coro: Coroutine[Any, Any, T]) -> T:
+def run[T](coro: Coroutine[Any, Any, T]) -> T:
     """Выполнить корутину клиента из синхронной команды."""
     return asyncio.run(coro)
 

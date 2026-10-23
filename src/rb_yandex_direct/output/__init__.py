@@ -1,3 +1,7 @@
+"""The output layer every command goes through: global options, the `guard` decorator (JSON envelope, exit codes,
+`--dry-run`, confirmation) and the result and error emitters.
+"""
+
 from __future__ import annotations
 
 import functools
@@ -5,9 +9,11 @@ import logging
 import sys
 import weakref
 from collections.abc import Callable
+from typing import ClassVar, NoReturn, cast
 
 import typer
 from rich.markup import escape
+from typer.core import TyperGroup, TyperOption
 
 from ..core.errors import Aborted, CliError, InvalidArguments
 from ..core.version import cli_name
@@ -20,6 +26,7 @@ __all__ = [
     "JsonOption",
     "NonInteractiveOption",
     "QuietOption",
+    "RootGroup",
     "VerboseOption",
     "configure_logging",
     "emit_error",
@@ -36,6 +43,10 @@ __all__ = [
 ]
 
 _CLI_NAME = cli_name()
+_PACKAGE_NAME = __name__.split(".")[0]
+# Click's UsageError (unknown option, missing argument, bad value): recent Typer ships its own copy of Click,
+# so it is taken from Typer's BadParameter, never imported from the `click` package.
+_UsageError = cast("type[Exception]", typer.BadParameter.__bases__[0])
 _GUARDED: weakref.WeakSet[Callable] = weakref.WeakSet()
 
 # Reusable local options: attach to any command so `<cli> <command> --json`
@@ -93,6 +104,48 @@ def group(help_text: str) -> typer.Typer:
         help_if_no_command(ctx)
 
     return app
+
+
+class RootGroup(TyperGroup):
+    """The CLI's root group: a usage error (unknown option, missing argument) under --json is the error envelope.
+
+    Click reports a usage error while it parses the arguments, before any
+    command runs, so `guard` never sees it. The root's own arguments fail in
+    `make_context`, a subcommand's inside `invoke`; both end here.
+
+    An optional part adds its global options (`--project`, `--ai`) to `part_options`
+    when it registers; they reach no callback argument (`expose_value=False`).
+    """
+
+    part_options: ClassVar[list[TyperOption]] = []
+
+    def __init__(self, *, params=None, **kwargs):
+        super().__init__(params=[*(params or []), *self.part_options], **kwargs)
+
+    def make_context(self, info_name, args, parent=None, **extra):
+        argv = list(args)  # Click consumes `args` while it parses
+        try:
+            ctx = super().make_context(info_name, args, parent, **extra)
+        except _UsageError as exc:
+            _usage_error(exc, argv)
+        ctx.meta["argv"] = argv
+        return ctx
+
+    def invoke(self, ctx):
+        try:
+            return super().invoke(ctx)
+        except _UsageError as exc:
+            _usage_error(exc, ctx.meta["argv"])
+
+
+def _usage_error(exc: Exception, argv: list[str]) -> NoReturn:
+    """Under --json: INVALID_ARGUMENTS on stdout, exit 2. Otherwise Click's own usage message."""
+    options = argv[: argv.index("--")] if "--" in argv else argv
+    if "--json" not in options:
+        raise exc
+    error = InvalidArguments(str(exc))
+    json_output.emit({"ok": False, "error": error.to_dict()})
+    raise typer.Exit(code=error.exit_code)
 
 
 def emit_success(ctx: typer.Context, payload: dict, render_human: Callable[[dict], None]) -> None:
@@ -198,7 +251,7 @@ def guard(func: Callable) -> Callable:
             return func(ctx, *args, **kwargs)
         except CliError as exc:
             emit_error(ctx, exc)
-        except (typer.Exit, typer.Abort):
+        except typer.Exit, typer.Abort:
             raise  # already a controlled exit — don't wrap it
         except Exception as exc:
             if ctx.obj.get("verbose"):
@@ -213,10 +266,12 @@ def guard(func: Callable) -> Callable:
             )
 
     # Docstrings are the --help text; `{cli}` in their `Example:` lines becomes
-    # this CLI's name, so template-born commands need no Jinja rendering.
+    # this CLI's name and `{package}` the package's (the project folder's name),
+    # so template-born commands need no Jinja rendering.
     # Escaped because Typer renders help as rich markup, which silently drops
     # anything in brackets (`[[tool.rb.external]]`, `[x]`).
-    wrapper.__doc__ = escape((func.__doc__ or "").replace("{cli}", _CLI_NAME)) or None
+    doc = (func.__doc__ or "").replace("{cli}", _CLI_NAME).replace("{package}", _PACKAGE_NAME)
+    wrapper.__doc__ = escape(doc) or None
     _GUARDED.add(wrapper)
     return wrapper
 

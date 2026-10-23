@@ -165,5 +165,5 @@ def _parse(resp: httpx.Response) -> dict[str, Any]:
 def _error_code(data: dict[str, Any]) -> int:
     try:
         return int(data.get("error_code") or 0)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return 0

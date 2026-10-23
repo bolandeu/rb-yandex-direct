@@ -5,24 +5,23 @@ dynamic = ["version"]
 description = "Яндекс.Директ API v5 (+ v4 Live и веб-интерфейс): библиотека rb_yandex_direct и CLI yd"
 readme = "README.md"
 authors = [{ name = "Roman Bolandau" }]
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 dependencies = [
     "typer>=0.12",
-    "pydantic>=2.6",
     "rich>=13.7",
-    "platformdirs>=4.2",
+    "pydantic>=2.6",
     "tomli-w>=1.0",
+    "platformdirs>=4.2",
     "httpx>=0.27",
     "packaging>=24.0",
     "keyring>=25.0",
     "rb-yandex-oauth>=0.3,<0.4",  # на 0.x минорная версия ломающая
 ]
 
-# Общая OAuth-авторизация Яндекса (keychain + env, автообновление токена) — с GitHub,
-# закреплена релизным тегом. Правки одновременно с Директом: `uv pip install -e ../yandex-oauth`
-# в venv, без коммита. Переход на новый тег: `tag = "vNEW"` + `uv lock --upgrade-package rb-yandex-oauth`.
+# Общая OAuth-авторизация Яндекса (keychain + env, автообновление токена) — из реестра Gitea.
+# Правки одновременно с Директом: `uv pip install -e ../yandex-oauth` в venv, без коммита.
 [tool.uv.sources]
-rb-yandex-oauth = { git = "https://github.com/bolandeu/yandex-oauth", tag = "v0.3.0" }
+rb-yandex-oauth = { index = "gitea" }
 # Браузерный слой direct-cli — с коммита main: в PyPI 0.5.2 ещё нет истории изменений
 # (change_history), чтения UTM/счётчиков Мастера и BrowserNetworkError. Вернуть на PyPI,
 # когда выйдет релиз с ними (0.5.3+): убрать строку и поднять нижнюю границу в extra.
@@ -57,6 +56,18 @@ fallback-version = "0.0.0"
 # Rebuild the editable install when a commit or tag moves, so `--version` follows the tag.
 cache-keys = [{ file = "pyproject.toml" }, { git = { commit = true, tags = true } }]
 
+# Our packages come only from the Gitea registry: a version range in
+# `dependencies` ("rb-serp>=0.3") and a source line per package, never a git
+# tag. explicit = true: only the packages named in [tool.uv.sources] are looked
+# up there, and they are never taken from PyPI (an unrelated package of the
+# same name may live there).
+# [tool.uv.sources]
+# rb-serp = { index = "gitea" }
+[[tool.uv.index]]
+name = "gitea"
+url = "https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple"
+explicit = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/rb_yandex_direct"]
 
@@ -65,60 +76,26 @@ packages = ["src/rb_yandex_direct"]
 "pyproject.toml" = "rb_yandex_direct/_pyproject.toml"
 
 [dependency-groups]
+# Mutation testing, run now and then and before big releases — not in the gate:
+# `uv run --group mutation mutmut run`, then `mutmut results` / `mutmut browse`.
+# Needs fork(): macOS/Linux (WSL on Windows). Settings: [tool.mutmut] below.
+mutation = ["mutmut>=3.3"]
 dev = [
+    "jsonschema>=4.23",
     "pytest>=8.0",
+    "pyyaml>=6.0",  # .copier-answers.yml, the CI workflow, tests/contracts/*.yaml
     "pytest-asyncio>=0.23",
     "pytest-cov>=5.0",
     "respx>=0.21",
     "ruff>=0.6",
     "syrupy>=4.8",
-    "towncrier>=24.8",
     "ty>=0.0.80",
 ]
-
-# Changelog from fragments: each change adds changelog.d/+<slug>.<type>.md
-# (`uv run towncrier create +<slug>.<type>.md -c "..."`); scripts/release.py assembles them.
-[tool.towncrier]
-filename = "CHANGELOG.md"
-directory = "changelog.d"
-start_string = "<!-- towncrier release notes start -->\n"
-title_format = "## [{version}] - {project_date}"
-issue_format = "#{issue}"
-
-[[tool.towncrier.type]]
-directory = "added"
-name = "Added"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "changed"
-name = "Changed"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "deprecated"
-name = "Deprecated"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "removed"
-name = "Removed"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "fixed"
-name = "Fixed"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "security"
-name = "Security"
-showcontent = true
 
 # External (non-Python) dependencies — every CLI this tool runs (require_cli,
 # shutil.which, subprocess with a literal program, npx). The gate checks this
 # list against the code both ways; doctor and require_cli read it at runtime;
-# the tools/ root builds docs/external-deps.md from it (standard §12).
+# the tools catalog reads it (the Standard, Technology).
 # [[tool.rb.external]]
 # name = "ffmpeg"
 # required = true               # false: the tool works without it (doctor stays healthy)
@@ -129,21 +106,35 @@ showcontent = true
 # dist = "rb-serp"              # for one of our CLIs: its distribution (default rb-<name>)
 # url = "https://github.com/bolandeu/serp"  # its repo: DEPENDENCY_TOO_OLD then prints a pinned install
 
+# Where sysadmin's tool-updater installs this tool after its first tag. The
+# installation is sysadmin's; this section only says where. homeserver: users
+# to install for (empty = build and publish only); mac: install on the Mac.
+# extras (optional): the extras to install with, e.g. extras = ["browser"].
+[tool.rb.install]
+homeserver = ["rbtools"]
+mac = true
+
 [tool.cli-generator]
-# Where scripts/check_command_docstrings.py (git pre-commit + Claude Code hooks)
+# Where scripts/check_command_docstrings.py (called by the project's checks)
 # looks for commands: a glob or a list of globs, relative to the repo root.
 commands = ["src/rb_yandex_direct/commands/*.py"]
-# scripts/release.py: extras to install before ruff/ty/pytest in the gate, and
-# the release commit message (e.g. for Conventional Commits hooks).
+# rb-release check (the gate): extras to install before ruff/ty/pytest.
 # gate_extras = ["browser"]
-# release_commit = "chore(release): v{version}"
 
 [tool.pytest.ini_options]
+# Only tests/: mutmut leaves a copy of the tree in mutants/.
+testpaths = ["tests"]
 addopts = "--cov --cov-report=term-missing:skip-covered"
 # tests/test_help.py keeps help snapshots at tests/snapshots/help/<command>.txt
-# (standard §7), not in syrupy's own `__snapshots__/<test file>/` layout, so
+# (the Standard, Commands), not in syrupy's own `__snapshots__/<test file>/` layout, so
 # syrupy warns it "can not relate" each file to its test. It can — by name.
 filterwarnings = ["ignore:(?s).*Can not relate snapshot:UserWarning"]
+
+[tool.mutmut]
+source_paths = ["src/rb_yandex_direct"]
+also_copy = ["scripts/", "pyproject.toml"]  # tests read them (test_scripts.py, the distribution checks)
+pytest_add_cli_args = ["--no-cov"]  # fail_under would kill every mutant
+# only_mutate = ["*/core/normalize.py"]  # one module at a time on a big tool
 
 [tool.coverage.run]
 source = ["src"]
@@ -164,14 +155,18 @@ error-on-warning = false
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F", "I", "UP", "B", "SIM", "RUF", "S"]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B", "SIM", "RUF", "S", "T20", "TID251"]
 # RUF001-003 — «похожие» unicode-символы: интерфейс на русском, кириллица и
 # типографские тире здесь норма, а не опечатка.
 ignore = ["RUF001", "RUF002", "RUF003"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101", "S105", "S106", "S107"]  # assert и фиктивные токены — суть тестов
-"scripts/*" = ["S603", "S607"]      # subprocess with fixed argv lists (git, uv), no shell
+"tests/*" = ["S101", "S105", "S106", "S107", "T201", "TID251"]  # assert и фиктивные токены — суть тестов; print in code strings; httpx for mocks
+"scripts/*" = ["S603", "S607", "T201", "TID251"]  # build_api_index.py fetches docs with httpx; subprocess with fixed argv lists (git, uv), no shell; scripts print to the console
+"src/*/providers/*" = ["TID251"]    # external APIs live here
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"httpx".msg = "Call external APIs through providers/ (subclass providers.HttpProvider)."
 
 [tool.ruff.lint.flake8-bugbear]
 # Typer's `param: T = typer.Option(...)` style is a call in a default on purpose.

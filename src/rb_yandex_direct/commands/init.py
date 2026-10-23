@@ -1,3 +1,5 @@
+"""The `init` command: create the project folder with its config file in the target directory."""
+
 from __future__ import annotations
 
 from pathlib import Path

@@ -1,3 +1,5 @@
+"""Tests of `core.deps`: finding the CLIs this package depends on and the errors for a missing or too old one."""
+
 from __future__ import annotations
 
 import re

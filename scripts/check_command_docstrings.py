@@ -2,22 +2,13 @@
 """Block a command's logic from changing without its docstring changing too.
 
 Every command function's docstring is what Typer renders as `--help` —
-the documentation agents and humans read (see architecture.md, "AI-first
-output"). A command is a function in `src/*/commands/*.py` (or the globs in
+the documentation agents and humans read (the Standard, Commands). A command is a function in `src/*/commands/*.py` (or the globs in
 `[tool.cli-generator] commands` in pyproject.toml) decorated with
 `output.guard` or registered with `@<app>.command(...)`; "logic" is its signature plus its body minus the
-docstring. One check, three callers:
-
-    check_command_docstrings.py                      git pre-commit (.githooks/): staged vs HEAD, exit 1
-    check_command_docstrings.py --claude-post-edit   Claude Code PostToolUse: the edited file vs HEAD, exit 2
-    check_command_docstrings.py --claude-stop        Claude Code Stop: every changed command file vs HEAD, exit 2
-
-Exit 2 is how a Claude Code hook hands its stderr back to the agent. The
-Stop hook lets the turn end on its second attempt (`stop_hook_active`), so
-a change that truly doesn't alter behaviour can't loop forever. An agent's
+docstring. Antagor runs it as one of the project's `checks` (`.agents/antagor/antagor.toml`)
+on the working tree against HEAD; exit 1 on a stale docstring. A
 behaviour-neutral edit (lint/type fix) keeps the body AST-identical with
-`# noqa` / `# ty: ignore[...]` comments; the git hook's escape
-`SKIP_DOCSTRING_CHECK=1 git commit ...` is for humans only (standard §7).
+`# noqa` / `# ty: ignore[...]` comments.
 """
 
 from __future__ import annotations
@@ -25,7 +16,6 @@ from __future__ import annotations
 import ast
 import fnmatch
 import functools
-import json
 import os
 import subprocess
 import sys
@@ -46,7 +36,7 @@ def command_globs() -> tuple[str, ...]:
         return DEFAULT_COMMAND_FILES
     try:
         config = tomllib.loads(Path("pyproject.toml").read_text()).get("tool", {}).get("cli-generator", {})
-    except (OSError, tomllib.TOMLDecodeError):
+    except OSError, tomllib.TOMLDecodeError:
         return DEFAULT_COMMAND_FILES
     value = config.get("commands", DEFAULT_COMMAND_FILES)
     return (value,) if isinstance(value, str) else tuple(value)
@@ -100,16 +90,13 @@ def _commands(source: str) -> dict[str, tuple[str | None, str]]:
     return commands
 
 
-def stale_commands(paths: list[str], *, staged: bool) -> list[str]:
-    """Commands in `paths` (repo-relative) whose logic differs from HEAD while their docstring doesn't.
-
-    `staged` compares the index (what's being committed); otherwise the working tree.
-    """
+def stale_commands(paths: list[str]) -> list[str]:
+    """Commands in `paths` (repo-relative) whose logic differs from HEAD while their docstring doesn't."""
     stale: list[str] = []
     for path in paths:
-        new_source = _git("show", f":{path}") if staged else (Path(path).read_text() if Path(path).is_file() else None)
-        if new_source is None:
+        if not Path(path).is_file():
             continue
+        new_source = Path(path).read_text()
         try:
             new = _commands(new_source)
             head_source = _git("show", f"HEAD:{path}")
@@ -148,43 +135,12 @@ def main(argv: list[str]) -> int:
         return 0  # not a git checkout: nothing to compare against
     os.chdir(root.strip())
 
-    if "--claude-post-edit" in argv:
-        event = json.load(sys.stdin)
-        file_path = event.get("tool_input", {}).get("file_path", "")
-        try:
-            path = Path(file_path).resolve().relative_to(Path.cwd()).as_posix()
-        except ValueError:
-            return 0
-        if not is_command_file(path):
-            return 0
-        stale = stale_commands([path], staged=False)
-        if stale:
-            _report(stale, "Fix it now, in this same change.")
-            return 2
-        return 0
-
-    if "--claude-stop" in argv:
-        if json.load(sys.stdin).get("stop_hook_active"):
-            return 0  # already blocked once this turn — don't loop
-        stale = stale_commands(_changed_command_files(), staged=False)
-        if stale:
-            _report(
-                stale,
-                "Update the docstrings before finishing. For a lint/type-only edit, keep the body AST-identical "
-                "(`# noqa` / `# ty: ignore[...]` comments) instead.",
-            )
-            return 2
-        return 0
-
-    if os.environ.get("SKIP_DOCSTRING_CHECK"):
-        return 0
-    staged = [p for p in (_git("diff", "--cached", "--name-only", "--diff-filter=ACM") or "").splitlines()]
-    stale = stale_commands([p for p in staged if is_command_file(p)], staged=True)
+    stale = stale_commands(_changed_command_files())
     if stale:
         _report(
             stale,
-            "Commit blocked. A behaviour-neutral edit (lint/type fix) must keep the body AST-identical — use "
-            "`# noqa` / `# ty: ignore[...]` comments. SKIP_DOCSTRING_CHECK=1 is for humans only, never agents.",
+            "A behaviour-neutral edit (lint/type fix) must keep the body AST-identical — use "
+            "`# noqa` / `# ty: ignore[...]` comments.",
         )
         return 1
     return 0

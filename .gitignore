@@ -18,3 +18,11 @@ htmlcov/
 
 # git worktree сабагентов Claude Code
 .claude/worktrees/
+# mutmut's working copy and results (uv run --group mutation mutmut run)
+mutants/
+# Local env files hold keys: keys never go into the repo (the gate's secret scan)
+.env
+.env.*
+# The root lines Antagor adds
+.DS_Store
+Thumbs.db

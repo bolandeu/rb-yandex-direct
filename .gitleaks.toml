@@ -1,0 +1,12 @@
+# Secret scan config, read by `gitleaks` from the repo root (release gate, the Standard, Credentials).
+# The default rules stay on. The allowlist holds only fake test values, one exact string each:
+# never a path, a rule id or a broad pattern. A real key is a leak — revoke it, never list it here.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "fake test values (tests/test_auth.py; templates up to v1.20.1 committed them without gitleaks:allow)"
+regexes = [
+    '''^good-secret-123$''',
+    '''^bad-secret-456$''',
+]

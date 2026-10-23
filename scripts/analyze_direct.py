@@ -34,7 +34,7 @@ def _read_tsv(path: Path) -> list[dict]:
 def _rub(micros: str | int | None) -> str:
     try:
         return f"{int(micros) / 1_000_000:.2f} ₽"
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return str(micros or "")
 
 

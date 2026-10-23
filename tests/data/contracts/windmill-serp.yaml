@@ -1,0 +1,106 @@
+# Контракт потребителя: windmill → serp (consumer-driven).
+# Источник правды — репо windmill (tests/contracts/serp/windmill.yaml); поставщик держит копию
+# в tests/contracts/windmill/serp.yaml и прогоняет в гейте релиза (формат T18: static / run / view).
+# Проверяется ТОЛЬКО то, на что опирается Windmill (f/shared/tools.py → run_tool). Лишние поля разрешены.
+contract: 1
+consumer: windmill
+provider: serp
+provider_range: ">=0.6,<1.0"
+contact: "агент windmill через dev"
+
+# Статическая часть — сверка с `serp describe --json` (OpenCLI 0.1), без сети.
+static:
+  commands:
+    - path: [search]
+      arguments: [queries]
+      options: [--engine, --top, --yandex-lr, --google-loc, --provider, --cache, --max-age, --force, --json]
+    - path: [cache, info]
+      options: [--json]
+    - path: [describe]
+      options: [--json]
+  root_options: [--version]
+  exit_codes: [0, 1, 2, 3, 5]       # 0 ок, 1 прочее, 2 аргументы, 3 авторизация, 5 провайдер
+  env:                              # имена, которые Windmill кладёт в env процесса
+    - SERP_XMLRIVER_USER
+    - SERP_XMLRIVER_TOKEN
+    - SERP_XMLSTOCK_USER
+    - SERP_XMLSTOCK_TOKEN
+    - SERP_DATABASE_URL
+
+# Запуски — на офлайн-фикстурах поставщика (кэш serp / tests/fixtures), без денег и сети.
+run:
+  - name: version
+    argv: [--version]
+    exit: 0
+    stdout_regex: '^\d+\.\d+\.\d+'
+
+  - name: search_json_envelope
+    # ответ из кэша/фикстуры; запрос и регион выбирает поставщик под свои фикстуры
+    argv: [search, "{fixture_query}", --engine, yandex, --cache, --json]
+    exit: 0
+    stdout_json_schema:
+      type: object
+      required: [ok, count, results]
+      properties:
+        ok: {const: true}
+        count: {type: integer, minimum: 0}
+        results:
+          type: array
+          items:
+            type: object
+            required: [serp_position, query, searchengine, url, domain, title]
+            properties:
+              serp_position: {type: integer, minimum: 1}
+              query: {type: string}
+              searchengine: {enum: [yandex, google]}
+              url: {type: string}
+              domain: {type: string}
+              title: {type: string}
+
+  - name: empty_result_is_success
+    # «ничего не найдено» — успех с count: 0, не ошибка
+    argv: [search, "{fixture_empty_query}", --cache, --json]
+    exit: 0
+    stdout_json_schema:
+      type: object
+      required: [ok, count, results]
+      properties: {ok: {const: true}, count: {const: 0}, results: {maxItems: 0}}
+
+  - name: error_is_json_under_json
+    argv: [search, --json]          # нет запроса → неверные аргументы
+    exit: 2
+    stdout_json_schema: &error
+      type: object
+      required: [ok, error]
+      properties:
+        ok: {const: false}
+        error:
+          type: object
+          required: [code, message]
+          properties: {code: {type: string}, message: {type: string}, action: {type: [string, "null"]}}
+
+  - name: auth_missing_is_exit_3
+    argv: [search, "{fixture_query}", --provider, xmlriver, --json]
+    env_unset: [SERP_XMLRIVER_USER, SERP_XMLRIVER_TOKEN]
+    offline_cache: false            # без кэша, чтобы дошло до провайдера
+    exit: 3
+    stdout_json_schema: *error
+
+  - name: cache_info_json
+    argv: [cache, info, --json]
+    exit: 0
+    stdout_json_schema:
+      type: object
+      required: [ok, entries]
+      properties: {ok: {const: true}, entries: {type: integer, minimum: 0}}
+
+  - name: describe_json
+    argv: [describe, --json]
+    exit: 0
+    stdout_json_schema:
+      type: object
+      required: [opencli, info, command]
+      properties: {opencli: {type: string}, info: {type: object, required: [version]}}
+
+# Витрины — Windmill пока не читает таблицы serp напрямую (serp_v1_responses не используется).
+view: []

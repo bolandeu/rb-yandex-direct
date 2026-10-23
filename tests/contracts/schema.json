@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "rb-consumer-contracts.json",
+  "title": "Consumer contracts: tests/contracts/<consumer>/<provider>.yaml, and the provider's tests/contracts/fixtures.yaml",
+  "description": "Written by the consumer (source of truth: its repo; the provider keeps a copy), run by the provider's gate (step 'contracts'). Runner: tests/test_contracts.py; documentation: the Standard, Consumer contracts.",
+  "$defs": {
+    "family": {
+      "enum": ["text", "integer", "number", "boolean", "date", "datetime", "json", "any"],
+      "description": "Column type family: VARCHAR and TEXT are text, BIGINT is integer, TIMESTAMP WITH TIME ZONE is datetime, ..."
+    },
+    "names": {"type": "array", "items": {"type": "string"}},
+    "contract": {
+      "type": "object",
+      "required": ["contract", "consumer", "provider"],
+      "additionalProperties": false,
+      "properties": {
+        "contract": {"const": 1, "description": "Format version."},
+        "consumer": {"type": "string"},
+        "provider": {"type": "string", "description": "The provider's command name; the runner refuses a contract for another one."},
+        "provider_range": {"type": "string", "description": "PEP 440 range of provider versions the contract applies to, e.g. '>=0.6,<1.0'."},
+        "contact": {"type": "string"},
+        "description": {"type": "string"},
+        "static": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Checked against `describe --json`.",
+          "properties": {
+            "commands": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["path"],
+                "additionalProperties": false,
+                "properties": {
+                  "path": {"$ref": "#/$defs/names", "description": "Command path, e.g. [cache, info]."},
+                  "arguments": {"$ref": "#/$defs/names", "description": "Positional argument names."},
+                  "options": {"$ref": "#/$defs/names", "description": "Option names or aliases."}
+                }
+              }
+            },
+            "root_options": {"$ref": "#/$defs/names"},
+            "exit_codes": {"type": "array", "items": {"type": "integer"}, "description": "Each must be in exitCodes."},
+            "env": {"$ref": "#/$defs/names", "description": "Env var names the consumer sets; each must be in x-rb-env."}
+          }
+        },
+        "run": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "argv", "exit"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+              "description": {"type": "string"},
+              "argv": {"$ref": "#/$defs/names", "description": "Arguments after the command name; {placeholder}s come from the provider's fixtures.yaml."},
+              "exit": {"type": "integer"},
+              "stdout_json_schema": {"type": "object", "description": "JSON Schema of stdout: only what the consumer reads; extra fields are fine."},
+              "stdout_regex": {"type": "string", "description": "A Python regex stdout must contain (re.search)."},
+              "env_unset": {"$ref": "#/$defs/names"},
+              "offline_cache": {"type": "boolean", "default": true, "description": "true: the provider's offline data in place; false: none — the case must fail before the provider. No network either way."}
+            }
+          }
+        },
+        "view": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "columns"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {"type": "string", "description": "A <tool>_v1_* view."},
+              "columns": {"type": "object", "additionalProperties": {"$ref": "#/$defs/family"}}
+            }
+          }
+        }
+      }
+    },
+    "fixtures": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The provider's side of the `run` cases (tests/contracts/fixtures.yaml).",
+      "properties": {
+        "placeholders": {"type": "object", "additionalProperties": {"type": ["string", "number"]}, "description": "Values for {name} in argv, matching the offline data."},
+        "offline_cache": {"type": ["string", "null"], "description": "pytest fixture (tests/conftest.py) putting the offline data in place: recorded responses, a filled cache, fake keys."},
+        "no_cache": {"type": ["string", "null"], "description": "pytest fixture for `offline_cache: false` cases (no cache), if one is needed."}
+      }
+    }
+  }
+}

@@ -1,13 +1,16 @@
 
  Usage: yd skill install [OPTIONS]
 
- Скопировать SKILL.md из пакета в папку скиллов AI-инструмента.
+ Copy this CLI's bundled skills into an AI tool's skill directory.
+
+ The conventions skill and every extra skill the package ships, each into its own directory.
 
  Example: yd skill install --tool claude-code
 
 ╭─ Параметры ──────────────────────────────────────────────────────────────────────────────────────╮
 │ --tool           <str>  Куда ставить: claude-code, agents. [по умолчанию: claude-code]           │
 │ --project               В текущий проект, а не в папку пользователя.                             │
+│ --skill          <str>  Install only this bundled skill (see `skill list`); by default all.      │
 │ --json                  Машиночитаемый вывод: JSON в stdout.                                     │
 │ --quiet                 Не печатать ничего, кроме данных.                                        │
 │ --help                  Show this message and exit.                                              │

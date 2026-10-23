@@ -1,3 +1,5 @@
+"""The `config` command group: show and change the project's config file."""
+
 from __future__ import annotations
 
 from pathlib import Path

@@ -1,0 +1,4 @@
+# Commands not yet brought to the help standard (the Standard, Commands):
+# one command path per line, e.g. `config set`; comments start with #.
+# The help test fails when a listed command already meets the standard: remove its line.
+clients update

@@ -156,7 +156,7 @@ def _page(source: str, *, headful: bool, chrome_dir: Path | None, chrome_profile
             yield page
 
 
-def run(
+def run[T](
     operation: Callable[[Any], T],
     *,
     headful: bool = False,
