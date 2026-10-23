@@ -138,6 +138,9 @@ pytest_add_cli_args = ["--no-cov"]  # fail_under would kill every mutant
 
 [tool.coverage.run]
 source = ["src"]
+# Python 3.14: the default sysmon core keeps a CodeInfo for every code object, and typer compiles
+# the stringified annotations of every command on each CliRunner.invoke: ~4 MB per call, 3.5 GB in CI.
+core = "ctrace"
 
 [tool.coverage.report]
 # The template ships at ~94%; keep the bar where it is instead of letting
