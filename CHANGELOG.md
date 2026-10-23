@@ -5,6 +5,20 @@ All notable changes to this project are documented here. Versions follow
 
 The changelog is written by `antagor publish`; don't edit it by hand.
 
+## v0.4.0 — 2026-10-23
+
+### Main
+
+- fix(tests): coverage core ctrace — sysmon on 3.14 kept ~4 MB per CliRunner call (OOM in CI)
+- daemon: enabled
+- mode: fast
+- antagor init: project yandex-direct (YD)
+- Template v1.27.1: update from v1.2.10
+- chore: copier source on Gitea
+- chore: пути ~/Projects → ~/Work после переезда
+- chore(hooks): скрипты tools ищутся относительно репозитория (перенос tools не ломает хуки)
+
+
 ## [0.3.0] - 2026-09-30
 
 ### Added
