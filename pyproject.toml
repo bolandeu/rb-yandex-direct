@@ -15,7 +15,7 @@ dependencies = [
     "httpx>=0.27",
     "packaging>=24.0",
     "keyring>=25.0",
-    "rb-yandex-oauth>=0.3,<0.4",  # на 0.x минорная версия ломающая
+    "rb-yandex-oauth>=0.4,<0.5",  # на 0.x минорная версия ломающая
 ]
 
 # Общая OAuth-авторизация Яндекса (keychain + env, автообновление токена) — из реестра Gitea.
