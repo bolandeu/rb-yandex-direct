@@ -954,7 +954,7 @@ requires-dist = [
     { name = "packaging", specifier = ">=24.0" },
     { name = "platformdirs", specifier = ">=4.2" },
     { name = "pydantic", specifier = ">=2.6" },
-    { name = "rb-yandex-oauth", specifier = ">=0.3,<0.4", index = "https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple" },
+    { name = "rb-yandex-oauth", specifier = ">=0.4,<0.5", index = "https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple" },
     { name = "rich", specifier = ">=13.7" },
     { name = "tomli-w", specifier = ">=1.0" },
     { name = "typer", specifier = ">=0.12" },
@@ -977,7 +977,7 @@ mutation = [{ name = "mutmut", specifier = ">=3.3" }]
 
 [[package]]
 name = "rb-yandex-oauth"
-version = "0.3.1"
+version = "0.4.0"
 source = { registry = "https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple" }
 dependencies = [
     { name = "httpx" },
@@ -985,7 +985,7 @@ dependencies = [
     { name = "typer" },
 ]
 wheels = [
-    { url = "https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/files/rb-yandex-oauth/0.3.1/rb_yandex_oauth-0.3.1-py3-none-any.whl", hash = "sha256:f0e0da2f60bbe9d58f6597c538161fc9c71368ae0d396d097e8c8afa8c4eb0ec" },
+    { url = "https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/files/rb-yandex-oauth/0.4.0/rb_yandex_oauth-0.4.0-py3-none-any.whl", hash = "sha256:98b51c5c691e3be522413fa5b3dc0722229c02a278bb13de540e07190cfb4298" },
 ]
 
 [[package]]
