@@ -52,4 +52,4 @@ jobs:
       # The gate of the template tag of this project (.copier-answers.yml `_commit`), through uvx.
       - name: Gate
         run: |
-          uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@v1.27.1#subdirectory=gate" rb-release check
+          uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@v1.27.3#subdirectory=gate" rb-release check

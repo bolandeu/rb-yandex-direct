@@ -1,6 +1,7 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: v1.27.1
+_commit: v1.27.3
 _src_path: https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git
+antagor_name: yd
 antagor_prefix: YD
 author_name: Roman Bolandau
 cli_name: yd
