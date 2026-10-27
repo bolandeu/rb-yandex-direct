@@ -5,6 +5,12 @@ All notable changes to this project are documented here. Versions follow
 
 The changelog is written by `antagor publish`; don't edit it by hand.
 
+## v0.4.1 — 2026-10-27
+
+### Outside epics
+
+- Template v1.27.3: update from v1.27.1 (YD-001)
+
 ## v0.4.0 — 2026-10-23
 
 ### Main
