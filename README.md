@@ -7,7 +7,6 @@
 ## Установка
 
 ```bash
-uv tool install rb-yandex-direct --index https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple
 yd --version
 ```
 

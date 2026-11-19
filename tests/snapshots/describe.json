@@ -3,7 +3,7 @@
   "info": {
     "title": "yd",
     "version": "<version>",
-    "summary": "Яндекс.Директ API v5 (+ v4 Live и веб-интерфейс): библиотека rb_yandex_direct и CLI yd"
+    "summary": "Yandex Direct API v5: campaigns, ads, reports, plus the v4 Live and web interfaces."
   },
   "command": {
     "name": "yd",

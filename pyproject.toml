@@ -2,8 +2,10 @@
 name = "rb-yandex-direct"
 # Version comes from the git tag vX.Y.Z (uv-dynamic-versioning) — never add `version =`.
 dynamic = ["version"]
-description = "Яндекс.Директ API v5 (+ v4 Live и веб-интерфейс): библиотека rb_yandex_direct и CLI yd"
+description = "Yandex Direct API v5: campaigns, ads, reports, plus the v4 Live and web interfaces."
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Roman Bolandau" }]
 requires-python = ">=3.14"
 dependencies = [
@@ -20,8 +22,6 @@ dependencies = [
 
 # Общая OAuth-авторизация Яндекса (keychain + env, автообновление токена) — из реестра Gitea.
 # Правки одновременно с Директом: `uv pip install -e ../rb-yandex-oauth` в venv, без коммита.
-[tool.uv.sources]
-rb-yandex-oauth = { index = "gitea" }
 # Браузерный слой direct-cli — с коммита main: в PyPI 0.5.2 ещё нет истории изменений
 # (change_history), чтения UTM/счётчиков Мастера и BrowserNetworkError. Вернуть на PyPI,
 # когда выйдет релиз с ними (0.5.3+): убрать строку и поднять нижнюю границу в extra.
@@ -63,10 +63,26 @@ cache-keys = [{ file = "pyproject.toml" }, { git = { commit = true, tags = true 
 # same name may live there).
 # [tool.uv.sources]
 # rb-serp = { index = "gitea" }
-[[tool.uv.index]]
-name = "gitea"
-url = "https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple"
-explicit = true
+[tool.hatch.build.targets.sdist]
+# What a release must not carry: the agent's own files, the forge configs and the dev tooling. The wheel is
+# narrow already (`packages = ["src/<pkg>"]`); this is about the sdist, which is otherwise a copy of the repo.
+exclude = [
+  "/.agents",
+  "/.claude",
+  "/.claude-plugin",
+  "/.gitea",
+  "/.github",
+  "/docs",
+  "/scripts",
+  "/uv.lock",
+  "/AGENTS.md",
+  "/CLAUDE.md",
+  "/CODING_STANDARDS.md",
+  "/CONTEXT.md",
+  "/.copier-answers.yml",
+  "^\\.gitignore$",
+  "/.gitleaks.toml",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/rb_yandex_direct"]

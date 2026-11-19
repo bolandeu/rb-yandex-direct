@@ -344,7 +344,7 @@ wheels = [
 [[package]]
 name = "direct-cli"
 version = "0.5.2"
-source = { git = "https://github.com/axisrow/direct-cli?rev=66c48ac5362ae572ca8b3544e84c6e8cc47059b4#66c48ac5362ae572ca8b3544e84c6e8cc47059b4" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "colorama" },
@@ -354,6 +354,10 @@ dependencies = [
     { name = "tabulate" },
     { name = "tapi-wrapper2" },
     { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2c/2d/1958897f290c23960c051fba4becf11c6105a51a1627511734029d3c141c/direct_cli-0.5.2.tar.gz", hash = "sha256:ab55e0f75666a56a6db5442f1e9cfd6ce1042aad3aadc97e970b003a78978c0b", size = 2017289, upload-time = "2026-08-13T02:37:36.989Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/61/91/7c56b2df9e683f56e08f730c41362dae4f37f24c4c5587b4e7e4d50af8bf/direct_cli-0.5.2-py3-none-any.whl", hash = "sha256:cf1571c82a4be16012629102bc2a55c5eb601051304b234f7bdf73c6e894fefa", size = 635689, upload-time = "2026-08-13T02:37:34.342Z" },
 ]
 
 [package.optional-dependencies]
@@ -948,13 +952,13 @@ mutation = [
 
 [package.metadata]
 requires-dist = [
-    { name = "direct-cli", extras = ["browser"], marker = "extra == 'browser'", git = "https://github.com/axisrow/direct-cli?rev=66c48ac5362ae572ca8b3544e84c6e8cc47059b4" },
+    { name = "direct-cli", extras = ["browser"], marker = "extra == 'browser'", specifier = ">=0.5.2,<0.6" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "keyring", specifier = ">=25.0" },
     { name = "packaging", specifier = ">=24.0" },
     { name = "platformdirs", specifier = ">=4.2" },
     { name = "pydantic", specifier = ">=2.6" },
-    { name = "rb-yandex-oauth", specifier = ">=0.4,<0.5", index = "https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple" },
+    { name = "rb-yandex-oauth", specifier = ">=0.4,<0.5" },
     { name = "rich", specifier = ">=13.7" },
     { name = "tomli-w", specifier = ">=1.0" },
     { name = "typer", specifier = ">=0.27,<0.29" },
@@ -977,15 +981,16 @@ mutation = [{ name = "mutmut", specifier = ">=3.3" }]
 
 [[package]]
 name = "rb-yandex-oauth"
-version = "0.4.0"
-source = { registry = "https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple" }
+version = "0.4.2"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "keyring" },
     { name = "typer" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/dd/43/48142b26d693a0677266ad72f0c8352507e0706d4abbf6241b8880125a60/rb_yandex_oauth-0.4.2.tar.gz", hash = "sha256:cd51f79e3a643854cd36d068c53f6b43553532cf9b2fe68680d50d69d1468e8a", size = 34922, upload-time = "2026-11-19T13:38:13.128Z" }
 wheels = [
-    { url = "https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/files/rb-yandex-oauth/0.4.0/rb_yandex_oauth-0.4.0-py3-none-any.whl", hash = "sha256:98b51c5c691e3be522413fa5b3dc0722229c02a278bb13de540e07190cfb4298" },
+    { url = "https://files.pythonhosted.org/packages/c6/a7/9c8acb03197c85feabaf00f8588357f3d767fde83db64174df5f0f4ef85b/rb_yandex_oauth-0.4.2-py3-none-any.whl", hash = "sha256:9f10b48b79002482091d8436b43867497748c7d6b5d65a807383545b44f21ad4", size = 22758, upload-time = "2026-11-19T13:38:11.281Z" },
 ]
 
 [[package]]

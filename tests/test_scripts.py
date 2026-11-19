@@ -70,13 +70,3 @@ def test_env_files_are_ignored(tmp_path: Path) -> None:
     (tmp_path / ".env").write_text("TOKEN=x\n")
     (tmp_path / ".env.local").write_text("TOKEN=y\n")
     assert _git(tmp_path, "status", "--porcelain", "--untracked-files=all") == ""
-
-
-GITEA_INDEX = "https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple"
-
-
-def test_project_declares_the_gitea_index_explicit() -> None:
-    import tomllib
-
-    config = tomllib.loads((SCRIPTS.parent / "pyproject.toml").read_text())
-    assert {"name": "gitea", "url": GITEA_INDEX, "explicit": True} in config["tool"]["uv"]["index"]
