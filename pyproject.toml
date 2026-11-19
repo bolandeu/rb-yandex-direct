@@ -7,7 +7,7 @@ readme = "README.md"
 authors = [{ name = "Roman Bolandau" }]
 requires-python = ">=3.14"
 dependencies = [
-    "typer>=0.12",
+    "typer>=0.27,<0.29",
     "rich>=13.7",
     "pydantic>=2.6",
     "tomli-w>=1.0",
@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 # Общая OAuth-авторизация Яндекса (keychain + env, автообновление токена) — из реестра Gitea.
-# Правки одновременно с Директом: `uv pip install -e ../yandex-oauth` в venv, без коммита.
+# Правки одновременно с Директом: `uv pip install -e ../rb-yandex-oauth` в venv, без коммита.
 [tool.uv.sources]
 rb-yandex-oauth = { index = "gitea" }
 # Браузерный слой direct-cli — с коммита main: в PyPI 0.5.2 ещё нет истории изменений
@@ -118,7 +118,7 @@ mac = true
 # Where scripts/check_command_docstrings.py (called by the project's checks)
 # looks for commands: a glob or a list of globs, relative to the repo root.
 commands = ["src/rb_yandex_direct/commands/*.py"]
-# rb-release check (the gate): extras to install before ruff/ty/pytest.
+# gate check (the gate): extras to install before ruff/ty/pytest.
 # gate_extras = ["browser"]
 
 [tool.pytest.ini_options]

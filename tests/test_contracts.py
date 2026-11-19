@@ -17,7 +17,7 @@ truth is the consumer's repo; this repo keeps a copy and runs it in its gate.
 
 `provider_range` limits a contract to those versions of this tool. One test per
 case, id `<consumer>:<section>:<name>`. The gate runs this file as its own step
-(`rb-release check`: "contracts"); a failing case stops the release. Never edit
+(`gate check`: "contracts"); a failing case stops the release. Never edit
 a consumer's contract to make it pass — that's the point.
 """
 

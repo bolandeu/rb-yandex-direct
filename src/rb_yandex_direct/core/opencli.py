@@ -6,7 +6,8 @@ builds — nothing is written twice. Read by duck typing (`param_type_name`,
 `commands`): recent Typer ships its own copy of Click, so `isinstance` checks
 against the `click` package would match nothing. OpenCLI has no fields for a parameter's type
 or default, nor metadata on the document itself, so ours go into `metadata`
-entries named `x-rb-*`: per option/argument `x-rb-type`, `x-rb-default`,
+entries named `x-rb-*`: per option/argument `x-rb-type`, `x-rb-default`
+(always present, null when there is no default or it is computed at run time),
 `x-rb-multiple`; on the root command the tool's env vars, data, external
 programs and template version.
 
@@ -58,9 +59,19 @@ def document(root: Any) -> dict:
 
 
 def _bundled_skills() -> list[dict]:
-    """The agent skills the package ships (the package skill part, copier's include_skill); none without it."""
+    """The agent skills the package ships (the package skill part, copier's include_skill); none without it.
+
+    Each entry names the skill, describes it and carries the path of the directory that holds its
+    SKILL.md, so a consumer reads the text with no second process. A zip import has no such
+    directory: `path` is left out rather than invented.
+    """
     skills = optional_module(f"{_PACKAGE_NAME}.core.skills")
-    return [{"name": s.name, "description": s.description} for s in skills.bundled()] if skills else []
+    if not skills:
+        return []
+    return [
+        {"name": s.name, "description": s.description, **({"path": s.path} if getattr(s, "path", None) else {})}
+        for s in skills.bundled()
+    ]
 
 
 def info() -> dict:
@@ -131,13 +142,13 @@ def argument(param: Any) -> dict:
 
 
 def _param_meta(param: Any, *, multiple: bool) -> list[dict]:
-    meta: dict[str, Any] = {"x-rb-type": param.type.name}
     default = param.default
-    if default is not None and not callable(default) and default != ():
-        meta["x-rb-default"] = jsonable(default)
+    # x-rb-default is always there: the value, or null when there is none or it is computed at run time.
+    no_default = default is None or callable(default) or default == ()
+    meta: dict[str, Any] = {"x-rb-type": param.type.name, "x-rb-default": None if no_default else jsonable(default)}
     if multiple:
         meta["x-rb-multiple"] = True
-    return _meta(meta)
+    return _meta(meta, keep_null=("x-rb-default",))
 
 
 def _choices(param_type: Any) -> list[str] | None:
@@ -165,8 +176,9 @@ def cleaned(text: str | None) -> str:
     return inspect.cleandoc(text or "").replace("\\[", "[").strip()
 
 
-def _meta(values: dict[str, Any]) -> list[dict]:
-    return [{"name": name, "value": value} for name, value in values.items() if value is not None]
+def _meta(values: dict[str, Any], keep_null: tuple[str, ...] = ()) -> list[dict]:
+    """Metadata entries; a null value is dropped unless `keep_null` names its key."""
+    return [{"name": name, "value": value} for name, value in values.items() if value is not None or name in keep_null]
 
 
 def env_vars() -> list[dict]:

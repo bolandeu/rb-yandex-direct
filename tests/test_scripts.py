@@ -26,7 +26,7 @@ def test_antagor_project_config() -> None:
     config = tomllib.loads((root / ".agents" / "antagor" / "antagor.toml").read_text())
     # A package may add or reorder checks; the template guarantees only the package's own facts.
     assert "python3 scripts/check_command_docstrings.py" in config["checks"]
-    assert "rb-release check" in config["heavy"]
+    assert "gate check" in config["heavy"]
     publish = config["publish"]
     if publish.get("gate") == "remote":
         status_url = publish["gate_status_url"]
@@ -40,7 +40,7 @@ def test_antagor_project_config() -> None:
 def test_agents_file_names_the_standard_and_the_gate() -> None:
     agents = (SCRIPTS.parent / "AGENTS.md").read_text()
     assert "cli-generator/src/branch/main/skills/cli-builder/reference/standard.md" in agents
-    assert "rb-release check" in agents
+    assert "gate check" in agents
 
 
 def test_docstring_check_reads_the_working_tree_only() -> None:

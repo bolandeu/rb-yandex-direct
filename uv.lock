@@ -957,7 +957,7 @@ requires-dist = [
     { name = "rb-yandex-oauth", specifier = ">=0.4,<0.5", index = "https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple" },
     { name = "rich", specifier = ">=13.7" },
     { name = "tomli-w", specifier = ">=1.0" },
-    { name = "typer", specifier = ">=0.12" },
+    { name = "typer", specifier = ">=0.27,<0.29" },
 ]
 provides-extras = ["browser"]
 
