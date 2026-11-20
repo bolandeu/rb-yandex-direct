@@ -2,7 +2,6 @@
 
 Guidance for coding agents working on the **rb-yandex-direct** package (import `rb_yandex_direct`, command `yd`) itself. Pointers for agents. Antagor shows the changing state (statuses, branches, tasks): `antagor board`.
 
-- Decisions and why: `docs/adr/` (format: `docs/adr/README.md`).
 - The package Standard: https://github.com/bolandeu/python-package-gate/blob/main/skills/cli-builder/reference/standard.md (sections by name, for example «Install»).
 - The gate before a commit: `gate check`, on this machine (Standard, CI). It is the only gate: no workflow runs it.
 
@@ -75,8 +74,6 @@ uv run pytest                          # --snapshot-update после правк
 
 **Raw-dict подход:** ответы API — dict как есть (JSON-ключи API), без pydantic-моделей; валидация — на входе.
 Для сложных структур CLI принимает `--from-json` (`add-json`/`update-json`), частые случаи — типизированными опциями в рублях.
-
-**Индекс документации API:** `docs/api_links.json` — сервисы v5 × методы (Strategies и DynamicFeedAdTargets в нём нет — сверяйте по WSDL) с URL на `yandex.com/dev/direct/doc/en/*`. Генерируется из sitemap + ручного дополнения: `uv run scripts/build_api_index.py`. Использовать так: смотри ключ `services.<service>.methods.<method>` → WebFetch по URL, если нужна сверка формата запроса.
 
 **Мульти-аккаунт через «представителя»:**
 
