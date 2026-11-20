@@ -160,4 +160,5 @@ def test_store_and_delete_finance_credential(fake_keyring: dict) -> None:
     assert core_live.finance_credential() == {"master_token": "m", "login": "agrom"}
     assert ("yandex-oauth:direct_finance", "direct_finance") in fake_keyring
     core_live.delete_finance_credential()
-    assert not fake_keyring
+    # the store keeps its (now empty) index entry; the credential itself is gone
+    assert [key for key in fake_keyring if key[1] != "__stored_credentials__"] == []
