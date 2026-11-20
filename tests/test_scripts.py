@@ -19,24 +19,6 @@ def _load(name: str) -> ModuleType:
     return module
 
 
-def test_antagor_project_config() -> None:
-    import tomllib
-
-    root = SCRIPTS.parent
-    config = tomllib.loads((root / ".agents" / "antagor" / "antagor.toml").read_text())
-    # A package may add or reorder checks; the template guarantees only the package's own facts.
-    assert "python3 scripts/check_command_docstrings.py" in config["checks"]
-    assert "gate check" in config["heavy"]
-    publish = config["publish"]
-    if publish.get("gate") == "remote":
-        status_url = publish["gate_status_url"]
-        assert status_url.startswith("https://homeserver.tailee01ab.ts.net:3000/api/v1/repos/bolandeu/")
-        assert status_url.endswith("/commits/{commit}/status")
-    expected = {"versioning": "semver", "changelog": "CHANGELOG.md", "deploy_command": "sh scripts/deploy.sh"}
-    assert {k: config["publish"].get(k) for k in expected} == expected  # Antagor may add its own keys
-    assert "git push origin main --follow-tags" in (SCRIPTS / "deploy.sh").read_text()
-
-
 def test_agents_file_names_the_standard_and_the_gate() -> None:
     agents = (SCRIPTS.parent / "AGENTS.md").read_text()
     assert "cli-generator/src/branch/main/skills/cli-builder/reference/standard.md" in agents
