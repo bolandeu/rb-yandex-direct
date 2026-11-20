@@ -36,7 +36,7 @@ uv run pytest                          # --snapshot-update после правк
 - `core/services.py` — проект `.yd/config.toml` (кабинет и песочница по умолчанию), выбор кабинета
   (`--login` → проект → `YANDEX_DIRECT_LOGIN`; подстрока логина из `YANDEX_DIRECT_MANAGED_LOGINS`),
   фабрики клиентов, рубли ↔ микроединицы. Сложная сборка payload — в `core/`, не в командах.
-- `core/errors.py` — коды ошибок шаблона на базе `yandex_oauth.errors.CliError` (чтобы `output.guard`
+- `core/errors.py` — коды ошибок шаблона на базе `rb_yandex_oauth.errors.CliError` (чтобы `output.guard`
   ловил и ошибки общей библиотеки); `DirectAPIError`: коды учётных данных 53/54/58/513/1002 →
   `AUTH_REQUIRED` (exit 3), прочее → `PROVIDER_ERROR` (exit 5), в JSON — `api_code`, `request_id`.
 - `providers/direct.py` — `DirectClient`: `POST /json/v5/<service>` `{"method", "params"}`, ошибки в теле
