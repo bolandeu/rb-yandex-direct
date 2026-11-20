@@ -11,7 +11,7 @@
 
 from __future__ import annotations
 
-from yandex_oauth import TokenStore
+from rb_yandex_oauth import TokenStore
 
 from ..constants import PROFILE
 from ..credentials import manager as credentials

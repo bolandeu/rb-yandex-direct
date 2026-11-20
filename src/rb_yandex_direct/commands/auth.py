@@ -13,8 +13,8 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 
 import typer
-from yandex_oauth import status
-from yandex_oauth.oauth import TokenSet, parse_manual_token
+from rb_yandex_oauth import status
+from rb_yandex_oauth.oauth import TokenSet, parse_manual_token
 
 from .. import output
 from ..constants import PROFILE

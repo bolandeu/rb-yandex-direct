@@ -4,7 +4,7 @@ from __future__ import annotations
 
 # Базовый класс и ошибки авторизации — общие с yandex-oauth, чтобы output.guard
 # ловил и ошибки общего кода (OAuth, keychain) как свои.
-from yandex_oauth.errors import (
+from rb_yandex_oauth.errors import (
     AuthRequired,
     CliError,
     CredentialStoreUnavailable,

@@ -3,7 +3,7 @@ Python-пакет называется rb_yandex_direct, дистрибутив 
 
 from __future__ import annotations
 
-from yandex_oauth import Profile
+from rb_yandex_oauth import Profile
 
 from ._distribution import DIST_NAME
 

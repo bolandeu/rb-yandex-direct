@@ -26,9 +26,9 @@ def fake_keyring(monkeypatch: pytest.MonkeyPatch) -> dict[tuple[str, str], str]:
     def fake_delete_password(service: str, username: str) -> None:
         store.pop((service, username), None)
 
-    monkeypatch.setattr("yandex_oauth.credentials.keyring.set_password", fake_set_password)
-    monkeypatch.setattr("yandex_oauth.credentials.keyring.get_password", fake_get_password)
-    monkeypatch.setattr("yandex_oauth.credentials.keyring.delete_password", fake_delete_password)
+    monkeypatch.setattr("rb_yandex_oauth.credentials.keyring.set_password", fake_set_password)
+    monkeypatch.setattr("rb_yandex_oauth.credentials.keyring.get_password", fake_get_password)
+    monkeypatch.setattr("rb_yandex_oauth.credentials.keyring.delete_password", fake_delete_password)
     for var in list(os.environ):
         if var.startswith(_ENV_PREFIXES):
             monkeypatch.delenv(var)

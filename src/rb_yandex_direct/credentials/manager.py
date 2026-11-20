@@ -6,8 +6,8 @@
 
 from __future__ import annotations
 
-from yandex_oauth import CredentialStore
-from yandex_oauth.credentials import keyring  # noqa: F401 — патч-цель тестов
+from rb_yandex_oauth import CredentialStore
+from rb_yandex_oauth.credentials import keyring  # noqa: F401 — патч-цель тестов
 
 from ..constants import PROFILE
 
