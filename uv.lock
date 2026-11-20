@@ -915,6 +915,29 @@ wheels = [
 ]
 
 [[package]]
+name = "rb-credentials"
+source = { editable = "../rb-credentials" }
+dependencies = [
+    { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "keyring", marker = "extra == 'keyring'", specifier = ">=25.0" },
+    { name = "pydantic", specifier = ">=2.10,<3" },
+]
+provides-extras = ["keyring"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "keyring", specifier = ">=25.0" },
+    { name = "pytest", specifier = ">=8.0" },
+    { name = "pytest-cov", specifier = ">=5.0" },
+    { name = "ruff", specifier = ">=0.6" },
+    { name = "ty" },
+]
+
+[[package]]
 name = "rb-yandex-direct"
 source = { editable = "." }
 dependencies = [
@@ -958,7 +981,7 @@ requires-dist = [
     { name = "packaging", specifier = ">=24.0" },
     { name = "platformdirs", specifier = ">=4.2" },
     { name = "pydantic", specifier = ">=2.6" },
-    { name = "rb-yandex-oauth", specifier = ">=0.4,<0.5" },
+    { name = "rb-yandex-oauth", editable = "../rb-yandex-oauth" },
     { name = "rich", specifier = ">=13.7" },
     { name = "tomli-w", specifier = ">=1.0" },
     { name = "typer", specifier = ">=0.27,<0.29" },
@@ -981,16 +1004,29 @@ mutation = [{ name = "mutmut", specifier = ">=3.3" }]
 
 [[package]]
 name = "rb-yandex-oauth"
-version = "0.4.2"
-source = { registry = "https://pypi.org/simple" }
+source = { editable = "../rb-yandex-oauth" }
 dependencies = [
     { name = "httpx" },
     { name = "keyring" },
+    { name = "rb-credentials" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/dd/43/48142b26d693a0677266ad72f0c8352507e0706d4abbf6241b8880125a60/rb_yandex_oauth-0.4.2.tar.gz", hash = "sha256:cd51f79e3a643854cd36d068c53f6b43553532cf9b2fe68680d50d69d1468e8a", size = 34922, upload-time = "2026-11-19T13:38:13.128Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c6/a7/9c8acb03197c85feabaf00f8588357f3d767fde83db64174df5f0f4ef85b/rb_yandex_oauth-0.4.2-py3-none-any.whl", hash = "sha256:9f10b48b79002482091d8436b43867497748c7d6b5d65a807383545b44f21ad4", size = 22758, upload-time = "2026-11-19T13:38:11.281Z" },
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.27" },
+    { name = "keyring", specifier = ">=25.0" },
+    { name = "rb-credentials", editable = "../rb-credentials" },
+    { name = "typer", specifier = ">=0.27,<0.29" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=8.0" },
+    { name = "pytest-cov", specifier = ">=5.0" },
+    { name = "ruff", specifier = ">=0.6" },
+    { name = "syrupy", specifier = ">=4.8" },
+    { name = "ty" },
 ]
 
 [[package]]
