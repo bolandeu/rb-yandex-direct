@@ -21,7 +21,7 @@ def _load(name: str) -> ModuleType:
 
 def test_agents_file_names_the_standard_and_the_gate() -> None:
     agents = (SCRIPTS.parent / "AGENTS.md").read_text()
-    assert "cli-generator/src/branch/main/skills/cli-builder/reference/standard.md" in agents
+    assert "python-package-gate/blob/main/skills/cli-builder/reference/standard.md" in agents
     assert "gate check" in agents
 
 
