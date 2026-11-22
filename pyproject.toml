@@ -196,3 +196,8 @@ extend-immutable-calls = ["typer.Option", "typer.Argument"]
 invalid-argument-type = "warn"
 invalid-assignment = "warn"
 not-iterable = "warn"
+
+[tool.rb.gate]
+addresses_allow = [
+    { pattern = "http://localhost:", reason = "an OAuth loopback redirect (RFC 8252)" },
+]
