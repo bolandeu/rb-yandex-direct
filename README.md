@@ -10,7 +10,7 @@
 yd --version
 ```
 
-Из тега: `"rb-yandex-direct @ git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/yandex-direct.git@vX.Y.Z"`. Обновление — `uv tool upgrade rb-yandex-direct`.
+Из тега: `"rb-yandex-direct @ git+https://github.com/bolandeu/rb-yandex-direct.git@vX.Y.Z"`. Обновление — `uv tool upgrade rb-yandex-direct`.
 
 Разработка:
 

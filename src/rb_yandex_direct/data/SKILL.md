@@ -13,13 +13,12 @@ description: Правила работы агента с CLI yd (Яндекс.Д
 ## Установка (если `yd --version` не работает)
 
 ```bash
-uv tool install rb-yandex-direct --index https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple
 ```
 
 From the git tag instead:
 
 ```bash
-uv tool install "rb-yandex-direct @ git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/yandex-direct.git@vX.Y.Z"
+uv tool install "rb-yandex-direct @ git+https://github.com/bolandeu/rb-yandex-direct.git@vX.Y.Z"
 ```
 
 Replace `vX.Y.Z` with the latest release tag (install from a tag, never a
