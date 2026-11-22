@@ -19,7 +19,7 @@ uv run yd whoami
 uv run yd campaigns list --state ON --json
 uv run yd doctor
 uv run pytest                          # --snapshot-update после правки справки
-# весь гейт — шаг `gate check` в .gitea/workflows/ci.yml; запускать ту команду
+# весь гейт — шаг `gate check` в the gate check before a commit; запускать ту команду
 ```
 
 ## Architecture

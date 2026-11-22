@@ -16,7 +16,7 @@ yd --version
 
 ```bash
 uv sync
-# весь гейт — шаг `gate check` в .gitea/workflows/ci.yml: запускать ту команду
+# весь гейт — шаг `gate check` в the gate check before a commit: запускать ту команду
 ```
 
 ---

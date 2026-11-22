@@ -22,7 +22,7 @@ uv tool install "rb-yandex-direct @ git+https://github.com/bolandeu/rb-yandex-di
 ```
 
 Replace `vX.Y.Z` with the latest release tag (install from a tag, never a
-branch: [the Standard](https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator/src/branch/main/skills/cli-builder/reference/standard.md), Install).
+branch: [the Standard](https://github.com/bolandeu/cli-generator/src/branch/main/skills/cli-builder/reference/standard.md), Install).
 
 Same command on macOS, Linux and Windows; `uv tool upgrade rb-yandex-direct`
 updates it. Do not run from source unless asked to develop the CLI.
